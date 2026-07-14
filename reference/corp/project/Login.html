@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es-MX" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-en="Admin Login — ZIVELO">Acceso al Panel — ZIVELO</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/logo-white-compact.svg">
+<script>(function(){try{var t=localStorage.getItem('zivelo-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;450;500;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/lang.js"></script>
+<script src="assets/theme.js"></script>
+</head>
+<body>
+
+<header class="site-header" style="position: static;">
+  <div class="container nav" style="height: 64px;">
+    <a class="brand" href="ZIVELO.html" aria-label="ZIVELO">
+      <img class="brand__logo brand__logo--on-light" src="assets/logo-dark-full.svg" alt="ZIVELO">
+      <img class="brand__logo brand__logo--on-dark" src="assets/logo-white-full.svg" alt="ZIVELO">
+    </a>
+    <div class="nav__cta">
+      <button class="theme-toggle" type="button" aria-label="Cambiar tema">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"></path></svg>
+      </button>
+      <div class="lang-toggle" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es" class="is-active">ES</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-box" id="loginBox">
+      <span class="eyebrow" style="display:flex; justify-content:center;"><span class="i18n" data-en="Admin panel">Panel de administrador</span></span>
+      <h1 style="margin-top:16px;"><span class="i18n" data-en="Sign in to your blog">Entra a tu blog</span></h1>
+      <p class="login-box__sub i18n" data-en="Manage and publish your ZIVELO blog posts.">Administra y publica tus artículos del blog de ZIVELO.</p>
+
+      <div class="login-demo">
+        <span class="i18n" data-en="Prototype — demo credentials:">Prototipo — credenciales de prueba:</span><br>
+        <b>admin@zivelo.dev</b> · <b>zivelo</b>
+      </div>
+
+      <form class="login-form" id="loginForm" novalidate>
+        <div class="field" style="margin-top:0;">
+          <label for="email"><span class="i18n" data-en="Email">Correo</span></label>
+          <input id="email" type="email" placeholder="admin@zivelo.dev" autocomplete="username" value="admin@zivelo.dev">
+        </div>
+        <div class="field">
+          <label for="pass"><span class="i18n" data-en="Password">Contraseña</span></label>
+          <input id="pass" type="password" placeholder="••••••" autocomplete="current-password">
+        </div>
+        <div class="login-row">
+          <label class="login-remember">
+            <input type="checkbox" id="remember">
+            <span class="i18n" data-en="Keep me signed in">Mantener sesión iniciada</span>
+          </label>
+          <a class="login-forgot i18n" data-en="Forgot password?" href="#" id="forgotLink">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div class="login-error" id="loginError">
+          <span>⚠</span><span class="i18n" data-en="Incorrect email or password. Try the demo credentials above.">Correo o contraseña incorrectos. Prueba las credenciales de arriba.</span>
+        </div>
+
+        <button type="submit" class="btn btn--primary login-submit">
+          <span class="i18n" data-en="Sign in">Entrar</span> <span class="arrow">→</span>
+        </button>
+      </form>
+    </div>
+    <a class="login-back i18n" data-en="← Back to the site" href="ZIVELO.html">← Volver al sitio</a>
+  </div>
+</div>
+
+<script src="assets/auth.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  // Ya autenticado -> directo al panel
+  if (window.ZiveloAuth.isAuthed()) { window.location.replace("Admin.html"); }
+
+  var form = document.getElementById('loginForm');
+  var box = document.getElementById('loginBox');
+  var err = document.getElementById('loginError');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value;
+    var pass = document.getElementById('pass').value;
+    var remember = document.getElementById('remember').checked;
+    var ok = window.ZiveloAuth.login(email, pass, remember);
+    if (ok) {
+      window.location.href = "Admin.html";
+    } else {
+      err.classList.add('show');
+      box.classList.remove('is-shaking'); void box.offsetWidth; box.classList.add('is-shaking');
+      document.getElementById('pass').focus();
+    }
+  });
+  document.getElementById('forgotLink').addEventListener('click', function (e) {
+    e.preventDefault();
+    var en = document.documentElement.lang.startsWith('en');
+    alert(en
+      ? "This is a prototype with a single demo account. In production this would send a real password-reset email via Supabase Auth."
+      : "Esto es un prototipo con una sola cuenta de prueba. En producción esto enviaría un correo real de restablecimiento vía Supabase Auth.");
+  });
+})();
+</script>
+</body>
+</html>

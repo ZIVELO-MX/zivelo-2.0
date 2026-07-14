@@ -1,0 +1,78 @@
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode, type ElementType } from "react";
+
+function supportsViewTimeline() {
+  return (
+    typeof CSS !== "undefined" &&
+    CSS.supports("(animation-timeline: view()) and (animation-range: entry)")
+  );
+}
+
+/**
+ * Mirrors the prototype's `.reveal` + IntersectionObserver behavior, but
+ * prefers the native `animation-timeline: view()` CSS (see globals.css)
+ * when supported, falling back to the observer only where it isn't (Firefox).
+ */
+export function Reveal({
+  as: Tag = "div",
+  delay,
+  className = "",
+  style,
+  children,
+}: {
+  as?: ElementType;
+  delay?: 1 | 2 | 3 | 4;
+  className?: string;
+  style?: React.CSSProperties;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const [isIn, setIsIn] = useState(false);
+  const [native, setNative] = useState(false);
+
+  useEffect(() => {
+    // Capability detection can only happen client-side, after the SSR/hydration
+    // pass has matched the server's markup — this is the documented "sync with
+    // an external system" effect pattern, not a render-time computation.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNative(supportsViewTimeline());
+  }, []);
+
+  useEffect(() => {
+    if (native) return;
+    const el = ref.current;
+    if (!el || !("IntersectionObserver" in window)) {
+      setIsIn(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsIn(true);
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [native]);
+
+  const classes = ["reveal", className];
+  if (isIn) classes.push("is-in");
+
+  return (
+    <Tag
+      ref={ref}
+      className={classes.filter(Boolean).join(" ")}
+      style={style}
+      data-native={native ? "" : undefined}
+      data-d={delay}
+    >
+      {children}
+    </Tag>
+  );
+}

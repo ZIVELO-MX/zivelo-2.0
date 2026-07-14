@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es-MX" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-en="%%TITLE_EN%%">%%TITLE_ES%%</title>
+<meta name="description" content="Desarrollamos tecnología que impulsa el crecimiento de negocios. Sitios web modernos, soluciones para restaurantes, puntos de venta y presencia digital.">
+<meta name="author" content="ZIVELO">
+<meta name="theme-color" content="#141310">
+<link rel="icon" type="image/svg+xml" href="assets/logo-white-compact.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ZIVELO">
+<meta property="og:title" content="ZIVELO | Soluciones de Software a Medida">
+<meta property="og:description" content="Desarrollamos tecnología que impulsa el crecimiento de negocios. Sitios web modernos, soluciones para restaurantes, puntos de venta y presencia digital.">
+<meta property="og:url" content="https://www.zivelo.dev">
+<meta property="og:locale" content="es_MX">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:image" content="https://zivelo.dev/opengraph-image?bf87539a19567513">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@zivelo">
+<meta name="twitter:title" content="ZIVELO | Soluciones de Software a Medida">
+<meta name="twitter:image" content="https://zivelo.dev/opengraph-image?bf87539a19567513">
+<script>(function(){try{var t=localStorage.getItem('zivelo-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;450;500;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/lang.js"></script>
+<script src="assets/theme.js"></script>
+</head>
+<body>

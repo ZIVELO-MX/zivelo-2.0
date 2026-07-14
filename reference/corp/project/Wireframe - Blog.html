@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe — Sistema de Blog ZIVELO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1a17; --ink2:#4b4741; --ink3:#8a847a;
+    --paper:#f4f1ea; --card:#fffdf8; --line:#1c1a17;
+    --red:#e5342f; --redsoft:#f7d9d7;
+    --hand:"Kalam", cursive; --scribble:"Caveat", cursive; --mono:"IBM Plex Mono", monospace;
+  }
+  *{box-sizing:border-box; margin:0;}
+  body{
+    font-family:var(--hand); color:var(--ink); background:var(--paper);
+    background-image:radial-gradient(var(--ink3) 0.6px, transparent 0.6px);
+    background-size:22px 22px; line-height:1.5; padding-bottom:120px;
+  }
+  /* hand-drawn borders */
+  .sk{border:2.5px solid var(--line); border-radius:255px 12px 225px 15px/15px 225px 12px 255px; background:var(--card);}
+  .sk2{border:2.5px solid var(--line); border-radius:15px 220px 15px 255px/225px 15px 250px 15px; background:var(--card);}
+  .sk-r{border:2.4px solid var(--red); border-radius:250px 14px 230px 16px/16px 220px 14px 250px;}
+  .dash{border:2.4px dashed var(--ink3); border-radius:14px;}
+  .xbox{position:relative; background:repeating-linear-gradient(-45deg,transparent,transparent 9px,rgba(28,26,23,.05) 9px,rgba(28,26,23,.05) 10px); overflow:hidden;}
+  .xbox::before,.xbox::after{content:""; position:absolute; inset:0; }
+  .xbox::before{background:
+    linear-gradient(to top right, transparent calc(50% - 1px), var(--ink3), transparent calc(50% + 1px));}
+  .xbox::after{background:
+    linear-gradient(to bottom right, transparent calc(50% - 1px), var(--ink3), transparent calc(50% + 1px));}
+  .xbox span{position:relative; z-index:2; margin:auto; font-family:var(--mono); font-size:11px; color:var(--ink3); background:var(--card); padding:2px 6px; border-radius:4px;}
+  .row{display:flex;} .col{display:flex; flex-direction:column;}
+
+  /* page shell */
+  header.top{max-width:1180px; margin:0 auto; padding:34px 28px 8px;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .logo-mk{display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:3px; width:30px; height:30px; transform:rotate(-3deg);}
+  .logo-mk i{background:var(--ink); border-radius:2px;} .logo-mk i:first-child{background:var(--red);}
+  .brand h1{font-family:var(--scribble); font-size:2.5rem; font-weight:700; letter-spacing:.02em; line-height:1;}
+  .brand h1 small{font-family:var(--hand); font-size:.95rem; font-weight:400; color:var(--ink2); display:block; letter-spacing:0;}
+  .kicker{display:inline-block; font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red); border:2px solid var(--red); border-radius:250px 12px 230px 14px/14px 220px 12px 250px; padding:5px 12px; transform:rotate(-1.2deg); margin-top:14px;}
+  .intro{max-width:760px; margin-top:16px; font-size:1.12rem; color:var(--ink2);}
+  .intro b{color:var(--ink); background:var(--redsoft); padding:0 5px; border-radius:6px;}
+
+  /* tabs */
+  .tabs{position:sticky; top:0; z-index:40; background:linear-gradient(var(--paper) 72%, transparent); padding:16px 28px 12px; margin-top:22px;}
+  .tabs-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:10px;}
+  .tab{font-family:var(--hand); font-weight:700; font-size:1rem; padding:9px 18px; cursor:pointer; background:var(--card); color:var(--ink2);
+    border:2.5px solid var(--line); border-radius:250px 12px 230px 15px/15px 220px 12px 250px; transform:rotate(-.6deg); transition:transform .12s, background .12s;}
+  .tab:nth-child(even){transform:rotate(.7deg);}
+  .tab:hover{transform:rotate(0) scale(1.03);}
+  .tab.on{background:var(--red); color:#fff; border-color:var(--red);}
+  .tab small{font-family:var(--mono); font-size:.62rem; display:block; opacity:.7; letter-spacing:.08em;}
+
+  main{max-width:1180px; margin:0 auto; padding:8px 28px;}
+  .screen{display:none; animation:pop .35s ease both;}
+  .screen.on{display:block;}
+  @keyframes pop{from{opacity:0; transform:translateY(14px) rotate(-.3deg);} to{opacity:1; transform:none;}}
+
+  .screen-head{display:flex; align-items:baseline; gap:16px; margin:8px 0 22px; flex-wrap:wrap;}
+  .screen-head h2{font-family:var(--scribble); font-size:2.2rem; font-weight:700;}
+  .screen-head .n{font-family:var(--mono); font-size:.8rem; color:var(--red); border:2px solid var(--red); border-radius:50%; width:34px;height:34px; display:grid;place-items:center; transform:rotate(-4deg);}
+  .screen-head p{font-size:1rem; color:var(--ink2); flex:1; min-width:220px;}
+
+  /* browser chrome mock */
+  .browser{margin-bottom:20px;}
+  .browser .bar{display:flex; align-items:center; gap:8px; padding:9px 14px; border-bottom:2.5px solid var(--line);}
+  .browser .bar i{width:12px;height:12px;border-radius:50%; border:2px solid var(--line); display:block;}
+  .browser .url{flex:1; margin-left:10px; font-family:var(--mono); font-size:.74rem; color:var(--ink3); background:var(--paper); border:2px solid var(--ink3); border-radius:20px; padding:4px 12px;}
+  .browser .chrome-nav{font-family:var(--hand); font-weight:700; font-size:.85rem; display:flex; gap:14px; color:var(--ink2);}
+  .browser .chrome-nav .red{color:var(--red); text-decoration:underline wavy;}
+  .browser .body{padding:26px;}
+
+  .label{font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);}
+  .bar-txt{height:11px; background:var(--ink3); opacity:.5; border-radius:6px;}
+  .bar-txt.short{width:45%;} .bar-txt.mid{width:70%;} .bar-txt.long{width:92%;}
+  .h-scribble{height:26px; background:var(--ink); opacity:.85; border-radius:6px; width:60%;}
+  .tag{display:inline-block; font-family:var(--mono); font-size:.66rem; padding:3px 9px; border:2px solid var(--ink); border-radius:20px; transform:rotate(-1.5deg);}
+  .tag.red{border-color:var(--red); color:var(--red);}
+  .btn-w{display:inline-flex; align-items:center; gap:7px; font-family:var(--hand); font-weight:700; font-size:.9rem; background:var(--red); color:#fff; padding:8px 16px; border-radius:250px 12px 230px 14px/14px 220px 12px 250px; transform:rotate(-1deg);}
+  .btn-o{display:inline-flex; align-items:center; gap:7px; font-family:var(--hand); font-weight:700; font-size:.9rem; border:2.5px solid var(--line); padding:7px 15px; border-radius:15px 220px 15px 250px/225px 15px 250px 15px;}
+
+  /* annotations */
+  .note{font-family:var(--scribble); font-size:1.15rem; color:var(--red); display:flex; align-items:flex-start; gap:8px; line-height:1.15;}
+  .note::before{content:"→"; font-family:var(--hand); font-weight:700;}
+  .note.curl::before{content:"↳";}
+  .anno-col{gap:16px;}
+
+  .grid{display:grid; gap:18px;}
+  .g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:1fr 1fr 1fr;}
+  .pad{padding:18px;} .pad-lg{padding:24px;}
+  .stack{display:flex; flex-direction:column;}
+  .gap6{gap:6px;} .gap10{gap:10px;} .gap14{gap:14px;} .gap18{gap:18px;} .gap24{gap:24px;}
+  .mt8{margin-top:8px;} .mt14{margin-top:14px;} .mt20{margin-top:20px;} .mt28{margin-top:28px;}
+  .center{align-items:center;} .between{justify-content:space-between;} .wrap{flex-wrap:wrap;}
+
+  .legend{max-width:1180px; margin:40px auto 0; padding:22px 28px;}
+  .legend .sk{padding:20px 24px;}
+  .legend h3{font-family:var(--scribble); font-size:1.5rem; margin-bottom:10px;}
+  .legend ul{list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px 26px;}
+  .legend li{font-size:.98rem; color:var(--ink2); display:flex; gap:9px; align-items:flex-start;}
+  .legend li b{color:var(--ink);}
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--red); margin-top:5px; flex-shrink:0;}
+  .dot.k{background:var(--ink);}
+  .darkchip{display:inline-flex; gap:6px; align-items:center; font-family:var(--mono); font-size:.68rem; border:2px solid var(--line); border-radius:20px; padding:3px 10px;}
+  .darkchip b{width:12px;height:12px;border-radius:50%; background:var(--ink); display:inline-block;}
+  @media(max-width:760px){ .g2,.g3{grid-template-columns:1fr;} .browser .chrome-nav{display:none;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <span class="logo-mk"><i></i><i></i><i></i><i></i></span>
+    <h1>ZIVELO<small>wireframe · sistema de blog</small></h1>
+  </div>
+  <span class="kicker">Boceto low-fi · explorando direcciones</span>
+  <p class="intro">Antes de programar, mapeamos el sistema. Aquí hay <b>3 direcciones para el listado</b>, la vista de <b>artículo</b>, y el <b>panel sin código</b> (editor Markdown + carga de <span style="font-family:var(--mono);font-size:.85rem;">.md</span>). Todo con el ADN de ZIVELO: rojo <span style="color:var(--red);font-weight:700;">#e5342f</span>, modo claro/oscuro, ES/EN.</p>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab on" data-s="a">Listado A<small>EDITORIAL</small></button>
+    <button class="tab" data-s="b">Listado B<small>GRID CARDS</small></button>
+    <button class="tab" data-s="c">Listado C<small>MINIMAL</small></button>
+    <button class="tab" data-s="post">Artículo<small>POST</small></button>
+    <button class="tab" data-s="editor">Panel · Editor<small>ADMIN</small></button>
+    <button class="tab" data-s="upload">Panel · Carga MD<small>ADMIN</small></button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ============ A · EDITORIAL ============ -->
+  <section class="screen on" data-screen="a">
+    <div class="screen-head"><span class="n">A</span><h2>Listado — Editorial</h2><p>Un artículo destacado grande arriba, el resto en una columna de lista tipo revista. Transmite autoridad: "tenemos algo que decir".</p></div>
+    <div class="row gap24 wrap">
+      <div style="flex:3; min-width:320px;">
+        <div class="browser sk2">
+          <div class="bar"><i></i><i></i><i></i><span class="url">zivelo.dev/blog</span><span class="chrome-nav"><span>Inicio</span><span class="red">Blog</span><span>Contacto</span></span></div>
+          <div class="body">
+            <div class="row between center"><span class="label">Blog / Ideas</span><div class="row gap10"><span class="darkchip"><b></b>oscuro</span><span class="tag">ES</span><span class="tag red">EN</span></div></div>
+            <div class="h-scribble mt14" style="width:40%;"></div>
+            <!-- featured -->
+            <div class="sk pad-lg mt20 row gap18 wrap">
+              <div class="xbox sk2" style="flex:1.3; min-width:200px; min-height:170px; display:flex;"><span>PORTADA · destacado</span></div>
+              <div class="col gap10" style="flex:1.2; min-width:180px;">
+                <div class="row gap6"><span class="tag red">Destacado</span><span class="tag">Punto de Venta</span></div>
+                <div class="h-scribble" style="width:95%; height:30px;"></div>
+                <div class="h-scribble" style="width:70%; height:30px;"></div>
+                <div class="bar-txt long mt8"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div>
+                <div class="row center gap10 mt8"><span class="btn-w">Leer →</span><span class="label">6 min · jul 2026</span></div>
+              </div>
+            </div>
+            <!-- list rows -->
+            <div class="label mt28">Más recientes</div>
+            <div class="stack gap14 mt14">
+              <div class="sk pad row gap14 center wrap"><div class="xbox sk2" style="width:120px;height:78px;display:flex;flex-shrink:0;"><span>img</span></div><div class="col gap6" style="flex:1;"><div class="row gap6"><span class="tag">Restaurantes</span></div><div class="h-scribble" style="width:80%;height:22px;"></div><div class="bar-txt long"></div><div class="bar-txt short"></div></div><span style="font-family:var(--mono);font-size:.7rem;color:var(--ink3);">→</span></div>
+              <div class="sk pad row gap14 center wrap"><div class="xbox sk2" style="width:120px;height:78px;display:flex;flex-shrink:0;"><span>img</span></div><div class="col gap6" style="flex:1;"><div class="row gap6"><span class="tag">Web</span></div><div class="h-scribble" style="width:72%;height:22px;"></div><div class="bar-txt long"></div><div class="bar-txt short"></div></div><span style="font-family:var(--mono);font-size:.7rem;color:var(--ink3);">→</span></div>
+              <div class="sk pad row gap14 center wrap"><div class="xbox sk2" style="width:120px;height:78px;display:flex;flex-shrink:0;"><span>img</span></div><div class="col gap6" style="flex:1;"><div class="row gap6"><span class="tag">IA · Dev</span></div><div class="h-scribble" style="width:85%;height:22px;"></div><div class="bar-txt long"></div><div class="bar-txt short"></div></div><span style="font-family:var(--mono);font-size:.7rem;color:var(--ink3);">→</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col anno-col" style="flex:1; min-width:200px; padding-top:60px;">
+        <div class="note">Un solo destacado da jerarquía — el ojo sabe por dónde empezar.</div>
+        <div class="note curl">Filtro por tag reutiliza los chips que ya existen en el sitio.</div>
+        <div class="note">Miniaturas = tus <span style="text-decoration:underline wavy;">image-slots</span>, mismo patrón que Proyectos.</div>
+        <div class="sk-r pad" style="transform:rotate(-1deg);"><span class="label" style="color:var(--red);">MEJOR PARA</span><div style="font-family:var(--scribble); font-size:1.3rem; color:var(--ink);">Pocos posts, mucho peso por artículo. SEO editorial.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ B · GRID ============ -->
+  <section class="screen" data-screen="b">
+    <div class="screen-head"><span class="n">B</span><h2>Listado — Grid de tarjetas</h2><p>Cuadrícula pareja de tarjetas. Escala bien cuando ya hay muchos posts y se siente como un "feed" moderno.</p></div>
+    <div class="row gap24 wrap">
+      <div style="flex:3; min-width:320px;">
+        <div class="browser sk">
+          <div class="bar"><i></i><i></i><i></i><span class="url">zivelo.dev/blog</span><span class="chrome-nav"><span>Inicio</span><span class="red">Blog</span><span>Contacto</span></span></div>
+          <div class="body">
+            <div class="row between center wrap gap10"><div class="col gap6"><div class="h-scribble" style="width:180px;"></div><span class="label">Ideas, guías y notas de producto</span></div>
+              <div class="row gap6 wrap"><span class="tag red">Todos</span><span class="tag">Web</span><span class="tag">Restaurantes</span><span class="tag">POS</span><span class="tag">IA</span></div></div>
+            <div class="grid g3 mt20">
+              <!-- 6 cards -->
+              <div class="sk col pad gap10"><div class="xbox sk2" style="height:110px;display:flex;"><span>portada</span></div><span class="tag" style="align-self:flex-start;">Web</span><div class="h-scribble" style="width:90%;height:20px;"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div><span class="label mt8">5 min →</span></div>
+              <div class="sk col pad gap10"><div class="xbox sk2" style="height:110px;display:flex;"><span>portada</span></div><span class="tag" style="align-self:flex-start;">POS</span><div class="h-scribble" style="width:75%;height:20px;"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div><span class="label mt8">7 min →</span></div>
+              <div class="sk col pad gap10"><div class="xbox sk2" style="height:110px;display:flex;"><span>portada</span></div><span class="tag" style="align-self:flex-start;">Restaurantes</span><div class="h-scribble" style="width:85%;height:20px;"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div><span class="label mt8">4 min →</span></div>
+              <div class="sk col pad gap10"><div class="xbox sk2" style="height:110px;display:flex;"><span>portada</span></div><span class="tag" style="align-self:flex-start;">IA · Dev</span><div class="h-scribble" style="width:80%;height:20px;"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div><span class="label mt8">9 min →</span></div>
+              <div class="sk col pad gap10"><div class="xbox sk2" style="height:110px;display:flex;"><span>portada</span></div><span class="tag" style="align-self:flex-start;">Web</span><div class="h-scribble" style="width:70%;height:20px;"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div><span class="label mt8">6 min →</span></div>
+              <div class="sk col pad gap10"><div class="xbox sk2" style="height:110px;display:flex;"><span>portada</span></div><span class="tag" style="align-self:flex-start;">POS</span><div class="h-scribble" style="width:88%;height:20px;"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div><span class="label mt8">3 min →</span></div>
+            </div>
+            <div class="row center" style="justify-content:center; margin-top:22px;"><span class="btn-o">Cargar más ↓</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="col anno-col" style="flex:1; min-width:200px; padding-top:60px;">
+        <div class="note">Filtros arriba = misma UX que ya conoce el usuario.</div>
+        <div class="note curl">3 columnas → 2 → 1 en móvil, sin drama.</div>
+        <div class="note">"Cargar más" evita paginación; se siente app, no periódico.</div>
+        <div class="sk-r pad" style="transform:rotate(.8deg);"><span class="label" style="color:var(--red);">MEJOR PARA</span><div style="font-family:var(--scribble); font-size:1.3rem; color:var(--ink);">Muchos posts, ritmo constante de publicación.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ C · MINIMAL ============ -->
+  <section class="screen" data-screen="c">
+    <div class="screen-head"><span class="n">C</span><h2>Listado — Minimal / texto</h2><p>Sin miniaturas. Lista tipográfica, densa y rápida. Se siente técnico y honesto — muy "software house".</p></div>
+    <div class="row gap24 wrap">
+      <div style="flex:3; min-width:320px;">
+        <div class="browser sk2">
+          <div class="bar"><i></i><i></i><i></i><span class="url">zivelo.dev/blog</span><span class="chrome-nav"><span>Inicio</span><span class="red">Blog</span><span>Contacto</span></span></div>
+          <div class="body">
+            <div class="h-scribble" style="width:150px;height:30px;"></div>
+            <span class="label">Escribimos sobre lo que construimos.</span>
+            <div class="stack mt20">
+              <div class="row between center wrap" style="border-bottom:2.5px solid var(--line); padding:16px 0; gap:12px;"><div class="col gap6" style="flex:1;min-width:200px;"><div class="h-scribble" style="width:78%;height:22px;"></div><div class="bar-txt mid"></div></div><div class="row gap10 center"><span class="tag">POS</span><span class="label">jul 15</span><span style="color:var(--red);font-weight:700;">→</span></div></div>
+              <div class="row between center wrap" style="border-bottom:2.5px solid var(--line); padding:16px 0; gap:12px;"><div class="col gap6" style="flex:1;min-width:200px;"><div class="h-scribble" style="width:65%;height:22px;"></div><div class="bar-txt mid"></div></div><div class="row gap10 center"><span class="tag">Web</span><span class="label">jul 08</span><span style="color:var(--red);font-weight:700;">→</span></div></div>
+              <div class="row between center wrap" style="border-bottom:2.5px solid var(--line); padding:16px 0; gap:12px;"><div class="col gap6" style="flex:1;min-width:200px;"><div class="h-scribble" style="width:83%;height:22px;"></div><div class="bar-txt mid"></div></div><div class="row gap10 center"><span class="tag">IA</span><span class="label">jun 30</span><span style="color:var(--red);font-weight:700;">→</span></div></div>
+              <div class="row between center wrap" style="border-bottom:2.5px solid var(--line); padding:16px 0; gap:12px;"><div class="col gap6" style="flex:1;min-width:200px;"><div class="h-scribble" style="width:72%;height:22px;"></div><div class="bar-txt mid"></div></div><div class="row gap10 center"><span class="tag">Restaurantes</span><span class="label">jun 22</span><span style="color:var(--red);font-weight:700;">→</span></div></div>
+              <div class="row between center wrap" style="border-bottom:2.5px solid var(--line); padding:16px 0; gap:12px;"><div class="col gap6" style="flex:1;min-width:200px;"><div class="h-scribble" style="width:60%;height:22px;"></div><div class="bar-txt mid"></div></div><div class="row gap10 center"><span class="tag">Web</span><span class="label">jun 14</span><span style="color:var(--red);font-weight:700;">→</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col anno-col" style="flex:1; min-width:200px; padding-top:60px;">
+        <div class="note">Cero imágenes = cero mantenimiento de portadas.</div>
+        <div class="note curl">Carga instantánea, ideal para SEO y para el que "solo viene a leer".</div>
+        <div class="note">Agrupar por año o por tag es trivial aquí.</div>
+        <div class="sk-r pad" style="transform:rotate(-1deg);"><span class="label" style="color:var(--red);">MEJOR PARA</span><div style="font-family:var(--scribble); font-size:1.3rem; color:var(--ink);">Arrancar YA con pocos posts, sin diseñar portadas.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ POST ============ -->
+  <section class="screen" data-screen="post">
+    <div class="screen-head"><span class="n">✳</span><h2>Vista de artículo</h2><p>La plantilla que se reutiliza para cada post. Lo que un archivo <span style="font-family:var(--mono);font-size:.85rem;">.md</span> se convierte automáticamente.</p></div>
+    <div class="row gap24 wrap">
+      <div style="flex:3; min-width:320px;">
+        <div class="browser sk">
+          <div class="bar"><i></i><i></i><i></i><span class="url">zivelo.dev/blog/como-elegir-punto-de-venta</span></div>
+          <div class="body" style="max-width:640px; margin:0 auto;">
+            <span class="label">← Volver al blog</span>
+            <div class="row gap6 mt14"><span class="tag red">Punto de Venta</span><span class="label" style="align-self:center;">6 min de lectura · jul 2026</span></div>
+            <div class="h-scribble mt14" style="width:100%;height:34px;"></div>
+            <div class="h-scribble" style="width:65%;height:34px;"></div>
+            <div class="row center gap10 mt14"><span style="width:34px;height:34px;border-radius:50%;" class="sk2"></span><div class="col"><span style="font-weight:700;">Autor · ZIVELO</span><span class="label">Equipo de producto</span></div></div>
+            <div class="xbox sk2 mt20" style="height:200px;display:flex;"><span>IMAGEN DE PORTADA</span></div>
+            <div class="stack gap10 mt20">
+              <div class="bar-txt long"></div><div class="bar-txt long"></div><div class="bar-txt mid"></div>
+              <div class="h-scribble mt14" style="width:45%;height:22px;"></div>
+              <div class="bar-txt long"></div><div class="bar-txt long"></div><div class="bar-txt short"></div>
+              <div class="sk-r pad mt14" style="transform:rotate(-.5deg);"><span style="font-family:var(--scribble);font-size:1.3rem;color:var(--ink);">"Cita destacada dentro del texto"</span></div>
+              <div class="bar-txt long mt14"></div><div class="bar-txt mid"></div>
+              <div class="dash pad mt14" style="font-family:var(--mono);font-size:.72rem;color:var(--ink2);">&lt;/&gt; bloque de código — resaltado</div>
+              <div class="bar-txt long mt14"></div><div class="bar-txt short"></div>
+            </div>
+            <div class="sk pad-lg mt28 row between center wrap gap14" style="background:var(--redsoft);"><div class="col gap6"><span style="font-family:var(--scribble);font-size:1.5rem;">¿Te sirvió? Hablemos.</span><span class="label">CTA al final de cada post</span></div><span class="btn-w">Cuéntanos tu proyecto →</span></div>
+            <div class="label mt28">Sigue leyendo</div>
+            <div class="grid g2 mt14"><div class="sk pad col gap6"><span class="tag">Web</span><div class="bar-txt long"></div><div class="bar-txt short"></div></div><div class="sk pad col gap6"><span class="tag">POS</span><div class="bar-txt long"></div><div class="bar-txt short"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col anno-col" style="flex:1; min-width:200px; padding-top:60px;">
+        <div class="note">Ancho de lectura ~640px = tipografía cómoda.</div>
+        <div class="note curl">CTA fijo al final: cada post empuja al contacto (B2B).</div>
+        <div class="note">"Sigue leyendo" mantiene al lector dentro del sitio.</div>
+        <div class="note">Portada, cita, código, imagen — todo sale del Markdown.</div>
+        <div class="sk-r pad" style="transform:rotate(.7deg);"><span class="label" style="color:var(--red);">CLAVE</span><div style="font-family:var(--scribble); font-size:1.25rem; color:var(--ink);">1 plantilla → ∞ artículos. Se construye una vez.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EDITOR ============ -->
+  <section class="screen" data-screen="editor">
+    <div class="screen-head"><span class="n">⌨</span><h2>Panel — Editor Markdown</h2><p>Para escribir directo en el navegador. Markdown a la izquierda, vista previa en vivo a la derecha. Sin tocar archivos, sin programar.</p></div>
+    <div class="row gap24 wrap">
+      <div style="flex:3; min-width:320px;">
+        <div class="browser sk2">
+          <div class="bar"><i></i><i></i><i></i><span class="url">zivelo.dev/admin/nuevo</span><span class="chrome-nav"><span class="red">🔒 Panel</span></span></div>
+          <div class="body">
+            <div class="row between center wrap gap10"><div class="row gap6 center"><span class="btn-o">← Posts</span><div class="h-scribble" style="width:150px;height:22px;"></div></div><div class="row gap10"><span class="btn-o">Guardar borrador</span><span class="btn-w">Publicar ✓</span></div></div>
+            <!-- frontmatter fields -->
+            <div class="dash pad mt20"><span class="label" style="color:var(--red);">DATOS DEL POST (frontmatter — se llena solo)</span>
+              <div class="grid g2 mt14 gap14">
+                <div class="col gap6"><span class="label">Título</span><div class="sk" style="height:34px;"></div></div>
+                <div class="col gap6"><span class="label">Tag / categoría</span><div class="sk" style="height:34px;"></div></div>
+                <div class="col gap6"><span class="label">Resumen</span><div class="sk" style="height:34px;"></div></div>
+                <div class="col gap6"><span class="label">Portada (image-slot)</span><div class="xbox sk2" style="height:34px;display:flex;"><span>arrastrar img</span></div></div>
+              </div>
+            </div>
+            <!-- split editor -->
+            <div class="grid g2 mt20" style="gap:0; border:2.5px solid var(--line); border-radius:15px 220px 15px 250px/225px 15px 250px 15px; overflow:hidden;">
+              <div class="pad" style="border-right:2.5px solid var(--line); background:var(--paper);">
+                <div class="row between center"><span class="label">MARKDOWN</span><div class="row gap6"><span class="tag" style="font-size:.6rem;">B</span><span class="tag" style="font-size:.6rem;">i</span><span class="tag" style="font-size:.6rem;">H2</span><span class="tag" style="font-size:.6rem;">"</span><span class="tag" style="font-size:.6rem;">&lt;/&gt;</span><span class="tag" style="font-size:.6rem;">🔗</span></div></div>
+                <div class="stack gap10 mt14" style="font-family:var(--mono);font-size:.74rem;color:var(--ink2);">
+                  <div># Cómo elegir tu POS</div>
+                  <div>Texto normal en **negrita** y _cursiva_.</div>
+                  <div>## Un subtítulo</div>
+                  <div>- punto uno</div>
+                  <div>- punto dos</div>
+                  <div>&gt; Una cita destacada</div>
+                  <div>```js</div>
+                  <div style="padding-left:10px;">const x = 1;</div>
+                  <div>```</div>
+                  <div style="opacity:.4;">|</div>
+                </div>
+              </div>
+              <div class="pad" style="background:var(--card);">
+                <span class="label">VISTA PREVIA EN VIVO</span>
+                <div class="stack gap10 mt14">
+                  <div class="h-scribble" style="width:85%;height:26px;"></div>
+                  <div class="bar-txt long"></div><div class="bar-txt mid"></div>
+                  <div class="h-scribble" style="width:45%;height:20px;"></div>
+                  <div class="row gap6 center"><span class="dot k" style="width:7px;height:7px;"></span><div class="bar-txt short" style="width:55%;"></div></div>
+                  <div class="row gap6 center"><span class="dot k" style="width:7px;height:7px;"></span><div class="bar-txt short" style="width:48%;"></div></div>
+                  <div class="sk-r pad" style="transform:rotate(-.4deg);"><span style="font-family:var(--scribble);color:var(--ink);">Una cita destacada</span></div>
+                  <div class="dash pad" style="font-family:var(--mono);font-size:.68rem;">const x = 1;</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col anno-col" style="flex:1; min-width:200px; padding-top:60px;">
+        <div class="note">Escribes izquierda → ves derecha, al instante.</div>
+        <div class="note curl">Barra de botones para quien no sabe Markdown.</div>
+        <div class="note">Al publicar: genera el <span style="font-family:var(--mono);font-size:.85rem;">.md</span> + aparece en el listado.</div>
+        <div class="sk-r pad" style="transform:rotate(-1deg);"><span class="label" style="color:var(--red);">REUTILIZABLE</span><div style="font-family:var(--scribble); font-size:1.25rem; color:var(--ink);">Este panel es el "producto" que puedes revender a clientes.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ UPLOAD ============ -->
+  <section class="screen" data-screen="upload">
+    <div class="screen-head"><span class="n">↑</span><h2>Panel — Carga de archivos .md</h2><p>Para quien prefiere escribir en su editor favorito y solo subir el archivo. Arrastra, revisa, publica.</p></div>
+    <div class="row gap24 wrap">
+      <div style="flex:3; min-width:320px;">
+        <div class="browser sk">
+          <div class="bar"><i></i><i></i><i></i><span class="url">zivelo.dev/admin/cargar</span><span class="chrome-nav"><span class="red">🔒 Panel</span></span></div>
+          <div class="body">
+            <div class="row between center wrap gap10"><div class="h-scribble" style="width:180px;height:24px;"></div><span class="btn-o">Ver todos los posts</span></div>
+            <!-- dropzone -->
+            <div class="dash center col" style="display:flex; align-items:center; justify-content:center; gap:12px; padding:52px; margin-top:20px; text-align:center;">
+              <div style="font-family:var(--scribble); font-size:2.2rem; color:var(--red);">⬇ Arrastra tu archivo .md aquí</div>
+              <span class="label">o haz clic para elegir · acepta .md y .markdown</span>
+              <span class="btn-w mt8">Elegir archivo</span>
+            </div>
+            <!-- parsed preview -->
+            <div class="label mt28">Detectado del archivo — revisa antes de publicar</div>
+            <div class="sk pad-lg mt14 row gap18 wrap">
+              <div class="xbox sk2" style="width:130px;height:90px;display:flex;flex-shrink:0;"><span>portada</span></div>
+              <div class="col gap8" style="flex:1;min-width:200px;">
+                <div class="row gap6 center"><span class="tag red">✓ leído</span><span class="tag">POS</span></div>
+                <div class="h-scribble" style="width:80%;height:22px;"></div>
+                <div class="bar-txt long"></div><div class="bar-txt mid"></div>
+                <div class="row gap10 center mt8"><span class="label" style="font-family:var(--mono);">como-elegir-punto-de-venta.md</span></div>
+              </div>
+              <div class="col gap10 center" style="justify-content:center;"><span class="btn-w">Publicar ✓</span><span class="btn-o">Editar antes</span></div>
+            </div>
+            <!-- existing list -->
+            <div class="label mt28">Publicados (7)</div>
+            <div class="stack gap10 mt14">
+              <div class="sk pad row between center wrap gap10"><div class="row gap10 center"><span class="tag">POS</span><div class="bar-txt" style="width:180px;"></div></div><div class="row gap10 center"><span class="label">jul 15</span><span class="tag">editar</span><span class="tag red">•••</span></div></div>
+              <div class="sk pad row between center wrap gap10"><div class="row gap10 center"><span class="tag">Web</span><div class="bar-txt" style="width:150px;"></div></div><div class="row gap10 center"><span class="label">jul 08</span><span class="tag">editar</span><span class="tag red">•••</span></div></div>
+              <div class="sk pad row between center wrap gap10"><div class="row gap10 center"><span class="tag">IA</span><div class="bar-txt" style="width:200px;"></div></div><div class="row gap10 center"><span class="label">jun 30</span><span class="tag">editar</span><span class="tag red">•••</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col anno-col" style="flex:1; min-width:200px; padding-top:60px;">
+        <div class="note">Arrastrar y soltar — cero curva de aprendizaje.</div>
+        <div class="note curl">El sistema lee el frontmatter y arma la vista previa solo.</div>
+        <div class="note">"Editar antes" te lleva al mismo editor de la otra pestaña.</div>
+        <div class="sk-r pad" style="transform:rotate(.7deg);"><span class="label" style="color:var(--red);">FLUJO</span><div style="font-family:var(--scribble); font-size:1.25rem; color:var(--ink);">Escribo en mi editor → arrastro → publicado. 10 segundos.</div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- LEGEND / how it works under the hood -->
+<div class="legend">
+  <div class="sk2">
+    <h3>Cómo funciona por debajo (sin base de datos)</h3>
+    <ul>
+      <li><span class="dot"></span><span><b>Markdown + frontmatter</b> — cada post es un archivo de texto simple con título, fecha, tag y resumen arriba.</span></li>
+      <li><span class="dot k"></span><span><b>Build estático</b> — los .md se convierten en HTML con el diseño de ZIVELO. Nada que se caiga, hosting barato.</span></li>
+      <li><span class="dot"></span><span><b>2 formas de publicar</b> — editor en vivo (pestaña 5) o arrastrar un .md (pestaña 6). La que prefieras.</span></li>
+      <li><span class="dot k"></span><span><b>Portátil y respaldable</b> — el contenido son archivos; se versiona en Git, se respalda, se mueve.</span></li>
+      <li><span class="dot"></span><span><b>Empaquetable</b> — el mismo motor se revende a un cliente que necesite blog, sin construirlo de cero.</span></li>
+      <li><span class="dot k"></span><span><b>ADN ZIVELO</b> — rojo #e5342f, modo claro/oscuro, ES/EN, mismos chips y CTAs del sitio.</span></li>
+    </ul>
+    <div class="row gap10 wrap mt20 center">
+      <span class="darkchip"><b></b> modo oscuro incluido</span>
+      <span class="tag">ES</span><span class="tag red">EN</span>
+      <span style="font-family:var(--scribble); font-size:1.2rem; color:var(--red); margin-left:auto;">Fase sugerida: primero Listado C + Post → luego el editor ✎</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+      document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('on');});
+      t.classList.add('on');
+      document.querySelector('[data-screen="'+t.dataset.s+'"]').classList.add('on');
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+</script>
+</body>
+</html>
