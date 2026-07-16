@@ -23,7 +23,15 @@ Abre [http://localhost:3000](http://localhost:3000).
 npm run build   # build de producción
 npm run start   # sirve el build de producción
 npm run lint    # eslint
+npm run typecheck # TypeScript sin emitir archivos
+npm run test:unit # pruebas unitarias Node
+npm run test:db   # pgTAP contra Supabase local (requiere Docker)
+npm run test:e2e  # smoke tests Chromium (usa el build de producción)
+npm run check     # lint + typecheck + unit
 ```
+
+El workflow de pull requests ejecuta esos mismos controles en los jobs `quality`, `database` y
+`build-browser`. `database` usa un proyecto Supabase efímero; nunca apunta al proyecto remoto.
 
 ## Estructura
 

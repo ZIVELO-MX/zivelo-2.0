@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { IBM_Plex_Sans, Inter } from "next/font/google";
 import "./[locale]/globals.css";
 
@@ -33,9 +34,9 @@ export default function GlobalNotFound() {
               El enlace puede estar roto o la página se movió. Revisa la dirección o vuelve al inicio.
             </p>
             <div style={{ marginTop: 32 }}>
-              <a className="btn btn--primary" href="/">
+              <Link className="btn btn--primary" href="/">
                 Volver al inicio <span className="arrow">→</span>
-              </a>
+              </Link>
             </div>
           </div>
         </section>
