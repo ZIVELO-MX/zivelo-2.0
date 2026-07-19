@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "node --test --test-reporter=spec",
+    "test:db": "supabase test db --local supabase/tests/database",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run typecheck && npm run test:unit"
   },
   "dependencies": {
     "next": "16.2.10",
@@ -15,11 +20,19 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
-    "typescript": "^5"
+    "supabase": "^2.109.1",
+    "typescript": "^5",
+    "@playwright/test": "^1.55.0",
+    "supabase": "^2.75.0"
+  },
+  "engines": {
+    "node": ">=24.14.0 <25",
+    "npm": ">=10.9.0"
   }
 }

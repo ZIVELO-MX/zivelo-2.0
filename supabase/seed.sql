@@ -1,0 +1,1 @@
+-- WEB-0015 baseline: keep the local database deterministic until schema work lands.
