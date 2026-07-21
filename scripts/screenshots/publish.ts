@@ -120,6 +120,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.warn("\n⚠ Screenshot pipeline warning:", err.message);
-  console.warn("✓ Continuing — screenshots are supplementary, not blocking.");
+  console.error("\n✗ Pipeline failed:", err.message);
+  process.exit(1);
 });
