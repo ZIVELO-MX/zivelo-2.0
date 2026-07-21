@@ -11,27 +11,51 @@ concurrency:
   group: mission-screenshots-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+env:
+  TLOZ_MISSION_ID: ${{ vars.TLOZ_MISSION_ID }}
+
 jobs:
   screenshots:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       ZIPFORM_TOKEN: ${{ secrets.ZIPFORM_TOKEN }}
-      TLOZ_MISSION_ID: ${{ vars.TLOZ_MISSION_ID }}
       APP_BASE_URL: ${{ vars.APP_BASE_URL }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       SOURCE_REVISION: ${{ github.event.pull_request.head.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check applicability
+        id: check
+        run: |
+          if [ -z "$ZIPFORM_TOKEN" ] || [ -z "${TLOZ_MISSION_ID}" ]; then
+            echo "Skipping: TLOZ_MISSION_ID or ZIPFORM_TOKEN not set"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: actions/setup-node@v4
+      - if: steps.check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run build
-      - run: npm run screenshots:publish
+      - if: steps.check.outputs.skip != 'true'
+        run: npm ci
+
+      - if: steps.check.outputs.skip != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - if: steps.check.outputs.skip != 'true'
+        run: npm run build
+
+      - if: steps.check.outputs.skip != 'true'
+        run: npm run screenshots:publish
+
+      - if: steps.check.outputs.skip == 'true'
+        run: echo "✓ Screenshots not applicable — skipping."
