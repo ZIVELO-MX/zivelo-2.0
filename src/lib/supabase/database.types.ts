@@ -39,7 +39,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          author: string
+          content_html_en: string
+          content_html_es: string
+          cover_alt_en: string | null
+          cover_alt_es: string | null
+          cover_url: string | null
+          created_at: string
+          id: string
+          published_at: string | null
+          read_min: number
+          slug: string
+          status: string
+          summary_en: string
+          summary_es: string
+          tag_en: string
+          tag_es: string
+          title_en: string
+          title_es: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string
+          content_html_en?: string
+          content_html_es?: string
+          cover_alt_en?: string | null
+          cover_alt_es?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          read_min?: number
+          slug: string
+          status?: string
+          summary_en: string
+          summary_es: string
+          tag_en: string
+          tag_es: string
+          title_en: string
+          title_es: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          content_html_en?: string
+          content_html_es?: string
+          cover_alt_en?: string | null
+          cover_alt_es?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          read_min?: number
+          slug?: string
+          status?: string
+          summary_en?: string
+          summary_es?: string
+          tag_en?: string
+          tag_es?: string
+          title_en?: string
+          title_es?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
