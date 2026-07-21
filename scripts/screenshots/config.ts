@@ -13,13 +13,23 @@ async function waitForPageReady(page: Page) {
   await page.waitForTimeout(500);
 }
 
+async function navigateToCaptureTarget(page: Page, path: string) {
+  const response = await page.goto(path, { waitUntil: "commit" });
+  if (!response) {
+    throw new Error(`No HTTP response received for ${path}`);
+  }
+  if (!response.ok()) {
+    throw new Error(`Capture target ${path} returned HTTP ${response.status()}`);
+  }
+  await waitForPageReady(page);
+}
+
 export const captureTargets: CaptureTarget[] = [
   {
     key: "home",
     title: "Página principal",
     async capture(page) {
-      await page.goto("/es", { waitUntil: "commit" });
-      await waitForPageReady(page);
+      await navigateToCaptureTarget(page, "/es");
       return page.screenshot({ type: "png", animations: "disabled", fullPage: true });
     },
   },
@@ -27,8 +37,7 @@ export const captureTargets: CaptureTarget[] = [
     key: "services",
     title: "Servicios",
     async capture(page) {
-      await page.goto("/es/services", { waitUntil: "commit" });
-      await waitForPageReady(page);
+      await navigateToCaptureTarget(page, "/en/services");
       return page.screenshot({ type: "png", animations: "disabled", fullPage: true });
     },
   },
@@ -36,8 +45,7 @@ export const captureTargets: CaptureTarget[] = [
     key: "projects",
     title: "Proyectos",
     async capture(page) {
-      await page.goto("/es/projects", { waitUntil: "commit" });
-      await waitForPageReady(page);
+      await navigateToCaptureTarget(page, "/en/projects");
       return page.screenshot({ type: "png", animations: "disabled", fullPage: true });
     },
   },
@@ -45,8 +53,7 @@ export const captureTargets: CaptureTarget[] = [
     key: "about",
     title: "Sobre nosotros",
     async capture(page) {
-      await page.goto("/es/about", { waitUntil: "commit" });
-      await waitForPageReady(page);
+      await navigateToCaptureTarget(page, "/en/about");
       return page.screenshot({ type: "png", animations: "disabled", fullPage: true });
     },
   },
@@ -54,8 +61,7 @@ export const captureTargets: CaptureTarget[] = [
     key: "contact",
     title: "Contacto",
     async capture(page) {
-      await page.goto("/es/contact", { waitUntil: "commit" });
-      await waitForPageReady(page);
+      await navigateToCaptureTarget(page, "/en/contact");
       return page.screenshot({ type: "png", animations: "disabled", fullPage: true });
     },
   },

@@ -2,17 +2,15 @@ name: Publish Mission screenshots
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: mission-screenshots-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
-env:
-  TLOZ_MISSION_ID: ${{ vars.TLOZ_MISSION_ID }}
 
 jobs:
   screenshots:
@@ -20,42 +18,117 @@ jobs:
     timeout-minutes: 15
     env:
       ZIPFORM_TOKEN: ${{ secrets.ZIPFORM_TOKEN }}
-      APP_BASE_URL: ${{ vars.APP_BASE_URL }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       SOURCE_REVISION: ${{ github.event.pull_request.head.sha }}
+      SCREENSHOT_GROUP_KEY: screenshots
     steps:
-      - name: Check applicability
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check prerequisites
         id: check
         run: |
-          if [ -z "$ZIPFORM_TOKEN" ] || [ -z "${TLOZ_MISSION_ID}" ]; then
-            echo "Skipping: TLOZ_MISSION_ID or ZIPFORM_TOKEN not set"
+          if [ -z "$ZIPFORM_TOKEN" ]; then
+            echo "Skipping: ZIPFORM_TOKEN not set in repository secrets"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - if: steps.check.outputs.skip != 'true'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Resolve mission from PR description
+        id: resolve
+        if: steps.check.outputs.skip != 'true'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node scripts/screenshots/resolve-mission.mjs
 
-      - if: steps.check.outputs.skip != 'true'
+      - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - if: steps.check.outputs.skip != 'true'
+      - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         run: npm ci
 
-      - if: steps.check.outputs.skip != 'true'
+      - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         run: npx playwright install --with-deps chromium
 
-      - if: steps.check.outputs.skip != 'true'
+      - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         run: npm run build
 
-      - if: steps.check.outputs.skip != 'true'
-        run: npm run screenshots:publish
+      - name: Capture and publish screenshots
+        if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
+        env:
+          APP_BASE_URL: http://127.0.0.1:3000
+          TLOZ_MISSION_ID: ${{ steps.resolve.outputs.mission_id }}
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/zivelo-next.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
 
-      - if: steps.check.outputs.skip == 'true'
+          ready=false
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/es > /dev/null; then
+              ready=true
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              echo "Next.js server stopped before becoming ready"
+              sed -n '1,240p' "$RUNNER_TEMP/zivelo-next.log"
+              exit 1
+            fi
+            sleep 1
+          done
+
+          if [ "$ready" != "true" ]; then
+            echo "Next.js server did not become ready within 60 seconds"
+            sed -n '1,240p' "$RUNNER_TEMP/zivelo-next.log"
+            exit 1
+          fi
+
+          npm run screenshots:publish
+
+      - name: Comment on pull request
+        if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
+        uses: actions/github-script@v7
+        env:
+          TLOZ_DISPLAY_ID: ${{ steps.resolve.outputs.display_id }}
+        with:
+          script: |
+            const marker = "<!-- zivelo-mission-screenshots -->";
+            const missionUrl = `https://zipform.zivelo.dev/missions/${process.env.TLOZ_DISPLAY_ID}`;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              marker,
+              "### Capturas publicadas",
+              "",
+              `Las capturas de \`${process.env.SOURCE_REVISION}\` se publicaron correctamente en [${process.env.TLOZ_DISPLAY_ID}](${missionUrl}).`,
+              "",
+              `Grupo: \`screenshots\` · [Ver ejecución](${runUrl})`,
+            ].join("\n");
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - if: steps.check.outputs.skip == 'true' || steps.resolve.outputs.skip == 'true'
         run: echo "✓ Screenshots not applicable — skipping."

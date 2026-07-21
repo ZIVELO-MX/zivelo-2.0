@@ -17,10 +17,9 @@ function getEnv(name: string): string | undefined {
 async function needsScreenshots(): Promise<boolean> {
   const missionId = getEnv("TLOZ_MISSION_ID");
   const baseURL = getEnv("APP_BASE_URL");
-  const prNumber = getEnv("PR_NUMBER");
 
-  if (!missionId || !baseURL || !prNumber) {
-    console.log("Screenshots not applicable: missing TLOZ_MISSION_ID, APP_BASE_URL, or PR_NUMBER");
+  if (!missionId || !baseURL) {
+    console.log("Screenshots not applicable: missing TLOZ_MISSION_ID or APP_BASE_URL");
     return false;
   }
   return true;
@@ -34,7 +33,7 @@ async function main() {
 
   const missionId = getEnv("TLOZ_MISSION_ID")!;
   const baseURL = getEnv("APP_BASE_URL")!;
-  const groupKey = getEnv("PR_NUMBER")!;
+  const groupKey = getEnv("SCREENSHOT_GROUP_KEY") || "screenshots";
   const sourceRevision = getEnv("SOURCE_REVISION");
   const revision = sourceRevision || "unknown";
 
