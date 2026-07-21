@@ -2,6 +2,12 @@
 
 <!-- Breve descripción del cambio. -->
 
+## Misión de Zipform
+
+Misión: WEB-XXXX
+
+<!-- Sustituye WEB-XXXX por el identificador real. Si se deja sin completar, las capturas se omiten. -->
+
 ## Checklist del desarrollador
 
 - [ ] El código sigue las convenciones del proyecto
@@ -13,10 +19,7 @@
 
 ## Screenshots de la misión
 
-Las capturas de pantalla de esta revisión se publican automáticamente en la misión **WEB-0016** de Zipform.
-
-> Una vez que el pipeline `Publish Mission screenshots` complete, las capturas estarán disponibles en:
-> https://zipform.zivelo.dev/missions/WEB-0016
+Cuando se completa el identificador anterior, el pipeline `Publish Mission screenshots` publica las capturas en esa misión y añade el enlace al PR.
 
 ## Notas adicionales
 
