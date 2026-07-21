@@ -98,7 +98,7 @@ jobs:
         with:
           script: |
             const marker = "<!-- zivelo-mission-screenshots -->";
-            const missionUrl = `https://zipform.zivelo.dev/missions/${process.env.TLOZ_DISPLAY_ID}`;
+            const missionUrl = `https://zipform.zivelo.dev/tloz/web-corporativa/${process.env.TLOZ_DISPLAY_ID}`;
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const body = [
               marker,
