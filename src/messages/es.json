@@ -361,5 +361,19 @@
     "supportTitle": "Soporte",
     "supportBody": "El soporte y mantenimiento posteriores al lanzamiento se cubren por separado y no están incluidos por defecto en el precio de desarrollo.",
     "disclaimer": "Esta es una plantilla de carácter general. Pide a un abogado que la revise antes de usarla para un proyecto específico."
+  },
+  "Login": {
+    "title": "Iniciar sesión",
+    "signInWithZoho": "Iniciar sesión con Zoho",
+    "signingIn": "Redirigiendo…",
+    "errors": {
+      "no_code": "No se recibió el código de autorización.",
+      "auth_failed": "Autenticación fallida. Intenta de nuevo."
+    }
+  },
+  "Admin": {
+    "dashboard": "Panel",
+    "welcome": "Bienvenido de nuevo, {email}",
+    "posts": "Artículos"
   }
 }
