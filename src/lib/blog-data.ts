@@ -1,7 +1,14 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 
 type PostRow = Database["public"]["Tables"]["posts"]["Row"];
+
+function createClient() {
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+  );
+}
 
 export type BlogPost = {
   slug: string;
@@ -28,7 +35,7 @@ function toBlogPost(row: PostRow): BlogPost {
 }
 
 export async function listPosts(tag?: string): Promise<BlogPost[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("posts")
     .select("*")
@@ -44,7 +51,7 @@ export async function listPosts(tag?: string): Promise<BlogPost[]> {
 }
 
 export async function getPost(slug: string): Promise<BlogPost | null> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data } = await supabase
     .from("posts")
     .select("*")
@@ -56,7 +63,7 @@ export async function getPost(slug: string): Promise<BlogPost | null> {
 }
 
 export async function listTags(locale: string): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data } = await supabase
     .from("posts")
     .select("tag_es, tag_en")
@@ -74,7 +81,7 @@ export async function listTags(locale: string): Promise<string[]> {
 }
 
 export async function listSlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data } = await supabase
     .from("posts")
     .select("slug")
