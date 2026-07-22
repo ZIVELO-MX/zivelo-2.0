@@ -6,7 +6,12 @@
 
 Misión: WEB-XXXX
 
-<!-- Sustituye WEB-XXXX por el identificador real. Si se deja sin completar, las capturas se omiten. -->
+<!--
+  Sustituye WEB-XXXX por el identificador real (ej. WEB-0005).
+  Si se deja como WEB-XXXX o se omite la línea, el pipeline imprime:
+  "No completed 'Misión: WEB-XXXX' field in PR description; skipping screenshots"
+  y omite el paso de screenshots sin fallar.
+-->
 
 ## Checklist del desarrollador
 
