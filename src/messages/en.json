@@ -361,5 +361,19 @@
     "supportTitle": "Support",
     "supportBody": "Post-launch support and maintenance are covered separately and are not included by default in the development price.",
     "disclaimer": "This is a general-purpose template. Have a lawyer review it before relying on it for a specific engagement."
+  },
+  "Login": {
+    "title": "Sign in",
+    "signInWithZoho": "Sign in with Zoho",
+    "signingIn": "Redirecting…",
+    "errors": {
+      "no_code": "No authorization code received.",
+      "auth_failed": "Authentication failed. Please try again."
+    }
+  },
+  "Admin": {
+    "dashboard": "Dashboard",
+    "welcome": "Welcome back, {email}",
+    "posts": "Posts"
   }
 }

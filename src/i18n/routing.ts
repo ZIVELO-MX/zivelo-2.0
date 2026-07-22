@@ -20,5 +20,7 @@ export const routing = defineRouting({
     "/terms": { es: "/terminos", en: "/terms" },
     "/blog": "/blog",
     "/blog/[slug]": "/blog/[slug]",
+    "/admin": "/admin",
+    "/login": "/login",
   },
 });
