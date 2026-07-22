@@ -49,6 +49,9 @@ jobs:
     name: build-browser
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://pujkknhxrqmeckyiqxte.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_rcPIVxZFjp5t3JcYKuWUwA_BWHc_rfH
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
