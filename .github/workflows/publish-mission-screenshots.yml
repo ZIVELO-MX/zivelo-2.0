@@ -21,6 +21,8 @@ jobs:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       SOURCE_REVISION: ${{ github.event.pull_request.head.sha }}
       SCREENSHOT_GROUP_KEY: screenshots
+      NEXT_PUBLIC_SUPABASE_URL: https://yauzyuewbhzodzkynond.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_7_wbQsjvQ4pOD3krGzDbxw_gWqA_xbe
     steps:
       - uses: actions/checkout@v4
         with:
