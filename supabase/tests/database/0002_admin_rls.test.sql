@@ -31,8 +31,8 @@ $$;
 select tests.set_anon();
 set local role anon;
 select results_eq(
-  'select slug from public.posts where status = ''published''',
-  $$ values ('post-de-prueba') $$,
+  'select count(*)::int from public.posts where status = ''published''',
+  $$ values (3) $$,
   'Anon can read published posts'
 );
 
@@ -58,12 +58,9 @@ delete from public.posts where slug = 'admin-test';
 
 -- Test 4: Admin can update a post
 select lives_ok(
-  $$ update public.posts set title_es = 'Actualizado' where slug = 'post-de-prueba' $$,
+  $$ update public.posts set title_es = 'Actualizado' where slug = 'como-elegir-punto-de-venta' $$,
   'Admin can update a post'
 );
-
--- Revert
-update public.posts set title_es = 'Post de prueba' where slug = 'post-de-prueba';
 
 -- Test 5: Admin can delete a post (insert temp then delete)
 insert into public.posts (slug, tag_es, tag_en, title_es, title_en, summary_es, summary_en)

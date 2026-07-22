@@ -6,6 +6,8 @@ import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
 import { listPosts, listTags } from "@/lib/blog-data";
 
+export const revalidate = 3600;
+
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await resolveParams(params);
   const t = await getTranslations({ locale, namespace: "Blog" });
@@ -35,8 +37,8 @@ export default async function BlogIndex({
   const activeTag = tag || "*";
 
   const key = locale === "en" ? "en" : "es";
-  const tags = listTags(locale);
-  const posts = listPosts(activeTag).map((p) => ({
+  const tags = await listTags(locale);
+  const posts = (await listPosts(activeTag)).map((p) => ({
     slug: p.slug,
     title: p.title[key],
     summary: p.summary[key],

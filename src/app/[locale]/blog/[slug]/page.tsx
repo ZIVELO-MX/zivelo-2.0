@@ -8,9 +8,12 @@ import { buildMetadata } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getPost, listPosts, listSlugs } from "@/lib/blog-data";
 
-export function generateStaticParams() {
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const slugs = await listSlugs();
   return routing.locales.flatMap((locale) =>
-    listSlugs().map((slug) => ({ locale, slug }))
+    slugs.map((slug) => ({ locale, slug }))
   );
 }
 
@@ -18,7 +21,7 @@ export async function generateMetadata({
   params,
 }: PageParams<{ slug: string }>): Promise<Metadata> {
   const { locale, slug } = await resolveParams(params);
-  const post = getPost(slug);
+  const post = await getPost(slug);
   if (!post) return {};
   const key = locale === "en" ? "en" : "es";
   return buildMetadata({
@@ -43,7 +46,7 @@ export default async function BlogPostPage({
 }: PageParams<{ slug: string }>) {
   const { locale, slug } = await resolveParams(params);
   const t = await getTranslations("Blog");
-  const post = getPost(slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
   const key = locale === "en" ? "en" : "es";
@@ -54,7 +57,8 @@ export default async function BlogPostPage({
     .join("")
     .toUpperCase();
 
-  const related = listPosts()
+  const allPosts = await listPosts();
+  const related = allPosts
     .filter((p) => p.slug !== post.slug)
     .slice(0, 2);
 
