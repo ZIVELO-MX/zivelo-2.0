@@ -1,5 +1,6 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 type PostRow = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -27,7 +28,10 @@ function toBlogPost(row: PostRow): BlogPost {
     tag: { es: row.tag_es, en: row.tag_en },
     title: { es: row.title_es, en: row.title_en },
     summary: { es: row.summary_es, en: row.summary_en },
-    contentHtml: { es: row.content_html_es, en: row.content_html_en },
+    contentHtml: {
+      es: sanitizeHtml(row.content_html_es),
+      en: sanitizeHtml(row.content_html_en),
+    },
     author: row.author,
     readMin: row.read_min,
     publishedAt: row.published_at ?? "",
