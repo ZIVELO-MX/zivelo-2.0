@@ -79,7 +79,7 @@ jobs:
           ZOHO_CLIENT_SECRET: placeholder
           SUPABASE_SECRET_KEY: placeholder
         run: |
-          pnpm start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/zivelo-next.log" 2>&1 &
+          pnpm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/zivelo-next.log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
 
