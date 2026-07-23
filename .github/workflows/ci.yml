@@ -45,7 +45,7 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase start --exclude vector --ignore-health-check
+      - run: supabase start --exclude vector,mailpit --ignore-health-check
       - run: supabase db reset
       - run: supabase test db --local supabase/tests/database
 
