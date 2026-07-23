@@ -375,6 +375,7 @@
   "Admin": {
     "dashboard": "Panel",
     "welcome": "Bienvenido de nuevo, {email}",
-    "posts": "Artículos"
+    "posts": "Artículos",
+    "logout": "Cerrar sesión"
   }
 }

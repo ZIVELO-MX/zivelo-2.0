@@ -375,6 +375,7 @@
   "Admin": {
     "dashboard": "Dashboard",
     "welcome": "Welcome back, {email}",
-    "posts": "Posts"
+    "posts": "Posts",
+    "logout": "Sign out"
   }
 }
