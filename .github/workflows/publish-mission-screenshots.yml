@@ -46,27 +46,41 @@ jobs:
         run: node scripts/screenshots/resolve-mission.mjs
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
-        run: npm run build
+        env:
+          AUTH_SECRET: placeholder
+          ZOHO_CLIENT_ID: placeholder
+          ZOHO_CLIENT_SECRET: placeholder
+          SUPABASE_SECRET_KEY: placeholder
+        run: pnpm build
 
       - name: Capture and publish screenshots
         if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         env:
           APP_BASE_URL: http://127.0.0.1:3000
           TLOZ_MISSION_ID: ${{ steps.resolve.outputs.mission_id }}
+          AUTH_SECRET: placeholder
+          ZOHO_CLIENT_ID: placeholder
+          ZOHO_CLIENT_SECRET: placeholder
+          SUPABASE_SECRET_KEY: placeholder
         run: |
-          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/zivelo-next.log" 2>&1 &
+          pnpm start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/zivelo-next.log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
 
@@ -90,7 +104,7 @@ jobs:
             exit 1
           fi
 
-          npm run screenshots:publish
+          pnpm screenshots:publish
 
       - name: Comment on pull request
         if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
