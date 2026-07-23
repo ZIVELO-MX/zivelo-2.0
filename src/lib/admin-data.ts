@@ -1,6 +1,13 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/lib/supabase/database.types";
 
+export class AdminDataError extends Error {
+  constructor(message = "No se pudo cargar la información del panel") {
+    super(message);
+    this.name = "AdminDataError";
+  }
+}
+
 type PostRow = Database["public"]["Tables"]["posts"]["Row"];
 
 export type AdminPost = {
@@ -39,8 +46,8 @@ export async function getDashboardStats(): Promise<{
   drafts: number;
 }> {
   const supabase = createServiceClient();
-  const { data } = await supabase.from("posts").select("status");
-  if (!data) return { total: 0, published: 0, drafts: 0 };
+  const { data, error } = await supabase.from("posts").select("status");
+  if (error) throw new AdminDataError();
   return {
     total: data.length,
     published: data.filter((r) => r.status === "published").length,
@@ -48,11 +55,21 @@ export async function getDashboardStats(): Promise<{
   };
 }
 
+export async function getPostById(
+  id: string
+): Promise<Database["public"]["Tables"]["posts"]["Row"] | null> {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase.from("posts").select("*").eq("id", id).single();
+  if (error && error.code !== "PGRST116") throw new AdminDataError();
+  return data;
+}
+
 export async function listAllPosts(): Promise<AdminPost[]> {
   const supabase = createServiceClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("posts")
     .select("*")
     .order("updated_at", { ascending: false });
+  if (error) throw new AdminDataError();
   return (data ?? []).map(toAdminPost);
 }

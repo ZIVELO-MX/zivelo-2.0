@@ -9,10 +9,13 @@ export function SearchParamsError() {
   const error = searchParams.get("error");
 
   if (!error) return null;
+  const messageKey = ["no_code", "auth_failed", "AccessDenied"].includes(error)
+    ? error
+    : "auth_failed";
 
   return (
-    <p className="text-sm text-red-600 bg-red-50 rounded p-3">
-      {t(`errors.${error}`)}
+    <p className="login-error show" role="alert" aria-live="assertive">
+      {t(`errors.${messageKey}`)}
     </p>
   );
 }

@@ -363,7 +363,11 @@
     "disclaimer": "This is a general-purpose template. Have a lawyer review it before relying on it for a specific engagement."
   },
   "Login": {
+    "eyebrow": "Admin panel",
     "title": "Sign in",
+    "subtitle": "Manage and publish your ZIVELO blog posts.",
+    "providerNote": "Secure access for the ZIVELO team through Zoho.",
+    "backToSite": "Back to the site",
     "signInWithZoho": "Sign in with Zoho",
     "signingIn": "Redirecting…",
     "errors": {
@@ -374,7 +378,26 @@
   },
   "Admin": {
     "dashboard": "Dashboard",
-    "welcome": "Welcome back, {email}",
+    "writeAndPublish": "Write and publish",
+    "navigation": "Admin navigation",
+    "viewBlog": "View my blog",
+    "publications": "My publications",
+    "write": "Write",
+    "dashboardSummary": "Dashboard summary",
+    "statistics": "Publication statistics",
+    "published": "Published",
+    "drafts": "Drafts",
+    "draft": "Draft",
+    "recentPosts": "Recent publications",
+    "newPost": "New post",
+    "emptyTitle": "No publications yet",
+    "emptyBody": "Create your first article to see it appear here.",
+    "title": "Title",
+    "status": "Status",
+    "updated": "Updated",
+    "actions": "Actions",
+    "edit": "Edit",
+    "welcome": "Welcome back,",
     "posts": "Posts",
     "logout": "Sign out"
   }
