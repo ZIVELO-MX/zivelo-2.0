@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   // exactly the case Next's docs call out for global-not-found.
   experimental: {
     globalNotFound: true,
+    serverActions: { bodySizeLimit: "6mb" },
   },
 };
 
