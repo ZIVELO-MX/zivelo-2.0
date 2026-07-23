@@ -17,3 +17,14 @@ test.describe("public smoke routes", () => {
     });
   }
 });
+
+test.describe("protected admin routes", () => {
+  for (const route of ["/es/admin/posts", "/es/admin/posts/nuevo"]) {
+    test(`redirects unauthenticated users from ${route}`, async ({ page }) => {
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+
+      await expect(page).toHaveURL(/\/es\/login$/);
+      await expect(page.getByRole("heading", { name: "Iniciar sesión" })).toBeVisible();
+    });
+  }
+});
