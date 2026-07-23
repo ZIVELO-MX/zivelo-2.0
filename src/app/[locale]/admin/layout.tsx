@@ -1,42 +1,34 @@
 import { auth } from "@/lib/auth";
 import { LogoutButton } from "@/components/logout-button";
-import { redirect } from "@/i18n/navigation";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const locale = await getLocale();
-
-  if (!session?.user) {
-    redirect({ href: "/login", locale });
-  }
-
+  if (!session?.user) redirect({ href: "/login", locale });
   const t = await getTranslations("Admin");
 
   return (
-    <div className="flex min-h-dvh">
-      <aside className="w-64 border-r bg-zinc-50 p-6 flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-semibold text-sm uppercase tracking-wider text-zinc-500">
-            Admin
-          </h2>
-          <LogoutButton />
-        </div>
-        <nav className="flex flex-col gap-1">
-          <Link
-            href="/admin/dashboard"
-            className="rounded px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200"
-          >
-            {t("dashboard")}
-          </Link>
+    <div className="admin-shell">
+      <div className="container admin-container">
+        <header className="admin-bar">
+          <div>
+            <span className="eyebrow">Tu blog</span>
+            <h1 className="h2" style={{ marginTop: 10 }}>{t("writeAndPublish")}</h1>
+          </div>
+          <div className="admin-bar__actions">
+            <Link className="btn btn--ghost btn--sm" href="/blog" target="_blank">{t("viewBlog")} <span aria-hidden="true">↗</span></Link>
+            <LogoutButton />
+          </div>
+        </header>
+        <nav className="admin-tabs" aria-label={t("navigation")}>
+          <Link href="/admin/dashboard" className="admin-tab">{t("dashboard")}</Link>
+          <Link href="/admin/posts" className="admin-tab">{t("publications")}</Link>
+          <Link href="/admin/posts/new" className="admin-tab admin-tab--accent">{t("write")}</Link>
         </nav>
-      </aside>
-      <main className="flex-1 p-8">{children}</main>
+        <main className="admin-content">{children}</main>
+      </div>
     </div>
   );
 }

@@ -1,113 +1,60 @@
 import { auth } from "@/lib/auth";
 import { getDashboardStats, listAllPosts } from "@/lib/admin-data";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
-  const user = session?.user;
-
-  if (!user) {
-    redirect({ href: "/login", locale });
-    return;
-  }
-
+  if (!session?.user) redirect({ href: "/login", locale });
+  const user = session!.user!;
   const t = await getTranslations("Admin");
-  const email = user.email ?? "";
-  const [stats, posts] = await Promise.all([
-    getDashboardStats(),
-    listAllPosts(),
-  ]);
+  const displayName = user.name?.trim() || user.email?.split("@")[0] || "admin";
+  const [stats, posts] = await Promise.all([getDashboardStats(), listAllPosts()]);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">{t("dashboard")}</h1>
-        <p className="text-zinc-600">{t("welcome", { email })}</p>
+    <div className="admin-page">
+      <div className="admin-welcome">
+        <p>{t("welcome")} <strong className="admin-welcome__name">{displayName}</strong></p>
+        <h2 className="h3">{t("dashboardSummary")}</h2>
       </div>
-
-      <div className="grid grid-cols-3 gap-4">
+      <div className="admin-stats" aria-label={t("statistics")}>
         <StatCard label={t("posts")} value={stats.total} />
-        <StatCard
-          label="Publicados"
-          value={stats.published}
-          className="border-green-200 bg-green-50"
-        />
-        <StatCard
-          label="Borradores"
-          value={stats.drafts}
-          className="border-amber-200 bg-amber-50"
-        />
+        <StatCard label={t("published")} value={stats.published} tone="success" />
+        <StatCard label={t("drafts")} value={stats.drafts} tone="warning" />
       </div>
-
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Posts recientes</h2>
-        {posts.length === 0 ? (
-          <div className="rounded border border-dashed border-zinc-300 p-8 text-center text-zinc-500">
-            No hay posts aún.
+      <section className="admin-section" aria-labelledby="recent-posts">
+        <div className="admin-section__head">
+          <div>
+            <span className="eyebrow eyebrow--plain">Archivo</span>
+            <h2 className="h3" id="recent-posts" style={{ marginTop: 8 }}>{t("recentPosts")}</h2>
           </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-zinc-500">
-                <th className="pb-2 font-medium">Título</th>
-                <th className="pb-2 font-medium">Estado</th>
-                <th className="pb-2 font-medium">Slug</th>
-                <th className="pb-2 font-medium">Actualizado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {posts.map((post) => (
-                <tr key={post.id} className="border-b last:border-0">
-                  <td className="py-2 pr-4">
-                    <span className="font-medium">{post.title_es}</span>
-                    {post.title_en && (
-                      <span className="ml-2 text-xs text-zinc-400">
-                        / {post.title_en}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 pr-4">
-                    <span
-                      className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
-                        post.status === "published"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      {post.status === "published" ? "Publicado" : "Borrador"}
-                    </span>
-                  </td>
-                  <td className="py-2 pr-4 text-zinc-500">{post.slug}</td>
-                  <td className="py-2 text-zinc-500">
-                    {new Date(post.updated_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          <Link href="/admin/posts/new" className="btn btn--primary btn--sm">{t("newPost")} <span aria-hidden="true">→</span></Link>
+        </div>
+        <PostTable posts={posts} locale={locale} t={t} />
       </section>
     </div>
   );
 }
 
-function StatCard({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: number;
-  className?: string;
-}) {
+function StatCard({ label, value, tone = "default" }: { label: string; value: number; tone?: string }) {
+  return <div className={`admin-stat admin-stat--${tone}`}><span>{label}</span><strong>{value}</strong></div>;
+}
+
+function PostTable({ posts, locale, t }: { posts: Awaited<ReturnType<typeof listAllPosts>>; locale: string; t: (key: string) => string }) {
+  if (!posts.length) return <div className="admin-empty"><strong>{t("emptyTitle")}</strong><p>{t("emptyBody")}</p></div>;
   return (
-    <div
-      className={`rounded border p-4 bg-white ${className ?? ""}`}
-    >
-      <p className="text-3xl font-bold">{value}</p>
-      <p className="text-sm text-zinc-500">{label}</p>
+    <div className="admin-table-wrap">
+      <table className="admin-table">
+        <caption className="sr-only">{t("recentPosts")}</caption>
+        <thead><tr><th>{t("title")}</th><th>{t("status")}</th><th>{t("updated")}</th><th><span className="sr-only">{t("actions")}</span></th></tr></thead>
+        <tbody>{posts.map((post) => <tr key={post.id}>
+          <td><Link className="admin-post-title" href={{ pathname: "/admin/posts/[id]/edit", params: { id: post.id } }}>{post.title_es}</Link><small>{post.slug}</small></td>
+          <td><span className={`admin-status admin-status--${post.status}`}>{post.status === "published" ? t("published") : t("draft")}</span></td>
+          <td className="admin-meta">{new Date(post.updated_at).toLocaleDateString(locale)}</td>
+          <td><Link className="admin-row-action" href={{ pathname: "/admin/posts/[id]/edit", params: { id: post.id } }}>{t("edit")}</Link></td>
+        </tr>)}</tbody>
+      </table>
     </div>
   );
 }
