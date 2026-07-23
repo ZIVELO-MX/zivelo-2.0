@@ -16,11 +16,27 @@ const ALLOWED_ATTRS = [
   "class",
 ];
 
+const FORBIDDEN_PROTOCOLS = ["javascript:", "data:"];
+
+function hasForbiddenProtocol(value: string): boolean {
+  const val = value.trim().toLowerCase();
+  return FORBIDDEN_PROTOCOLS.some((p) => val.startsWith(p));
+}
+
+DOMPurify.addHook("uponSanitizeAttribute", (node, data, config) => {
+  if (
+    data.attrName &&
+    typeof data.attrValue === "string" &&
+    hasForbiddenProtocol(data.attrValue)
+  ) {
+    data.keepAttr = false;
+  }
+});
+
 export function sanitizeHtml(dirty: string): string {
   return DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS,
     ALLOWED_ATTR: ALLOWED_ATTRS,
     ALLOW_DATA_ATTR: false,
-    FORBID_PROTOCOLS: ["javascript:", "data:"],
   } as Config);
 }

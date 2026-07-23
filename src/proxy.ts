@@ -2,32 +2,25 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
-import { updateSession } from "@/lib/supabase/proxy";
 
 const intlMiddleware = createMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
-  const supabaseResponse = await updateSession(request);
+  const path = request.nextUrl.pathname.replace(/^\/(es|en)/, "");
+  const locale = request.nextUrl.pathname.match(/^\/(es|en)/)?.[1] ?? "es";
+  const url = request.nextUrl.clone();
 
-  if (supabaseResponse.status === 302) {
-    return supabaseResponse;
-  }
+  if (path.startsWith("/admin")) {
+    const sessionToken = request.cookies.get("authjs.session-token")?.value
+      ?? request.cookies.get("__Secure-authjs.session-token")?.value;
 
-  const response = intlMiddleware(request);
-
-  const cacheHeaders = new Set(["cache-control", "expires", "pragma"]);
-  for (const [key, value] of supabaseResponse.headers.entries()) {
-    if (cacheHeaders.has(key.toLowerCase())) {
-      response.headers.set(key, value);
+    if (!sessionToken) {
+      url.pathname = `/${locale}/login`;
+      return NextResponse.redirect(url);
     }
   }
 
-  const cookieHeader = supabaseResponse.headers.get("set-cookie");
-  if (cookieHeader) {
-    response.headers.append("Set-Cookie", cookieHeader);
-  }
-
-  return response;
+  return intlMiddleware(request);
 }
 
 export const config = {

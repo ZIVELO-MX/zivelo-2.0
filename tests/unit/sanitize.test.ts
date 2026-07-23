@@ -19,7 +19,8 @@ const BLOCKED = {
   object: "<object data='evil.swf'></object>",
   eventHandler: '<p onclick="alert(1)">Click</p>',
   javascriptUrl: '<a href="javascript:alert(1)">Evil</a>',
-  dataUrl: '<img src="data:image/svg+xml,<script>alert(1)</script>" />',
+  dataUrl: '<img src="data:image/png;base64,iVBOR" />',
+  dataUrlSvgXss: '<img src="data:image/svg+xml,<script>alert(1)</script>" />',
   styleScript: "<div style='background:url(\"javascript:alert(1)\")'>X</div>",
 };
 
@@ -60,9 +61,16 @@ test("sanitizeHtml blocks javascript: URLs", () => {
   assert.ok(!result.includes("javascript:"), `javascript: not blocked: ${result}`);
 });
 
-test("sanitizeHtml blocks data: URLs in images", () => {
+test("sanitizeHtml blocks data: URLs in src", () => {
   const result = sanitizeHtml(BLOCKED.dataUrl);
   assert.ok(!result.includes("data:"), `data: not blocked: ${result}`);
+  assert.ok(!result.includes("src="), `src attribute not removed: ${result}`);
+});
+
+test("sanitizeHtml blocks data: SVG with XSS", () => {
+  const result = sanitizeHtml(BLOCKED.dataUrlSvgXss);
+  assert.ok(!result.includes("data:"), `data: not blocked: ${result}`);
+  assert.ok(!result.includes("script"), `script leaked: ${result}`);
 });
 
 test("sanitizeHtml handles empty and non-string input", () => {
