@@ -34,28 +34,22 @@ select throws_ok(
   $$ insert into public.posts (slug, tag_es, tag_en, title_es, title_en, summary_es, summary_en)
      values ('anon-insert', 'T', 'T', 'T', 'T', 'S', 'S') $$,
   '42501',
-  'new row violates row-level security policy for table "posts"',
-  'Anon cannot insert a post (RLS blocks)'
+  'permission denied for table posts',
+  'Anon cannot insert a post'
 );
 
-select results_eq(
-  $$ with updated as (
-       update public.posts set title_es = 'hacked'
-        where slug = 'post-de-prueba'
-        returning 1
-     ) select count(*)::int from updated $$,
-  $$ values (0) $$,
-  'Anon update affects 0 rows'
+select throws_ok(
+  $$ update public.posts set title_es = 'hacked' where slug = 'post-de-prueba' $$,
+  '42501',
+  'permission denied for table posts',
+  'Anon cannot update a post'
 );
 
-select results_eq(
-  $$ with deleted as (
-       delete from public.posts
-        where slug = 'post-de-prueba'
-        returning 1
-     ) select count(*)::int from deleted $$,
-  $$ values (0) $$,
-  'Anon delete affects 0 rows'
+select throws_ok(
+  $$ delete from public.posts where slug = 'post-de-prueba' $$,
+  '42501',
+  'permission denied for table posts',
+  'Anon cannot delete a post'
 );
 
 select tests.set_user('00000000-0000-0000-0000-000000000003', 'intruder@zivelo.dev');
