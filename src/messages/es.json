@@ -368,12 +368,14 @@
     "signingIn": "Redirigiendo…",
     "errors": {
       "no_code": "No se recibió el código de autorización.",
-      "auth_failed": "Autenticación fallida. Intenta de nuevo."
+      "auth_failed": "Autenticación fallida. Intenta de nuevo.",
+      "AccessDenied": "Acceso denegado. Tu correo no está registrado como administrador."
     }
   },
   "Admin": {
     "dashboard": "Panel",
     "welcome": "Bienvenido de nuevo, {email}",
-    "posts": "Artículos"
+    "posts": "Artículos",
+    "logout": "Cerrar sesión"
   }
 }

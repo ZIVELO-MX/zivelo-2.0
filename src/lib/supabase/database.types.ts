@@ -39,24 +39,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_users: {
-        Row: {
-          created_at: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       posts: {
         Row: {
           author: string
@@ -120,6 +102,42 @@ export type Database = {
           title_en?: string
           title_es?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          avatarUrl: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          passwordHash: string | null
+          role: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatarUrl?: string
+          created_at?: string
+          email: string
+          id?: string
+          name?: string
+          passwordHash?: string | null
+          role?: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatarUrl?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          passwordHash?: string | null
+          role?: string
+          updated_at?: string
+          username?: string
         }
         Relationships: []
       }

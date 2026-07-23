@@ -368,12 +368,14 @@
     "signingIn": "Redirecting…",
     "errors": {
       "no_code": "No authorization code received.",
-      "auth_failed": "Authentication failed. Please try again."
+      "auth_failed": "Authentication failed. Please try again.",
+      "AccessDenied": "Access denied. Your email is not registered as an admin."
     }
   },
   "Admin": {
     "dashboard": "Dashboard",
     "welcome": "Welcome back, {email}",
-    "posts": "Posts"
+    "posts": "Posts",
+    "logout": "Sign out"
   }
 }

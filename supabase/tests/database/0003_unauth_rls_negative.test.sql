@@ -5,13 +5,14 @@ grant usage on schema tests to public;
 
 select plan(6);
 
-create or replace function tests.set_user(uid uuid)
+create or replace function tests.set_user(uid uuid, user_email text default '')
   returns void
   language plpgsql security definer
 as $$
 begin
   perform set_config('request.jwt.claim.sub', uid::text, true);
   perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('request.jwt.claims', format('{"sub":"%s","email":"%s"}', uid, user_email), true);
 end;
 $$;
 
@@ -22,6 +23,7 @@ as $$
 begin
   perform set_config('request.jwt.claim.sub', '', true);
   perform set_config('request.jwt.claim.role', 'anon', true);
+  perform set_config('request.jwt.claims', '{}', true);
 end;
 $$;
 
@@ -50,11 +52,11 @@ select throws_ok(
   'Anon cannot delete a post'
 );
 
-select tests.set_user('00000000-0000-0000-0000-000000000003');
+select tests.set_user('00000000-0000-0000-0000-000000000003', 'intruder@zivelo.dev');
 set local role authenticated;
 
 select results_eq(
-  'select exists (select 1 from public.admin_users where user_id = auth.uid())::int',
+  'select public.is_admin_user()::int',
   $$ values (0) $$,
   'Intruder is not recognized as admin'
 );

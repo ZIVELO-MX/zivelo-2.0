@@ -5,14 +5,15 @@ grant usage on schema tests to public;
 
 select plan(6);
 
--- Helper function to set authenticated user
-create or replace function tests.set_local_user(uid uuid)
+-- Helper function to set authenticated user with email
+create or replace function tests.set_local_user(uid uuid, user_email text default '')
   returns void
   language plpgsql security definer
 as $$
 begin
   perform set_config('request.jwt.claim.sub', uid::text, true);
   perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('request.jwt.claims', format('{"sub":"%s","email":"%s"}', uid, user_email), true);
 end;
 $$;
 
@@ -24,6 +25,7 @@ as $$
 begin
   perform set_config('request.jwt.claim.sub', '', true);
   perform set_config('request.jwt.claim.role', 'anon', true);
+  perform set_config('request.jwt.claims', '{}', true);
 end;
 $$;
 
@@ -44,7 +46,7 @@ select results_eq(
 );
 
 -- Test 3: Admin (benrod) can insert a post
-select tests.set_local_user('00000000-0000-0000-0000-000000000001');
+select tests.set_local_user('00000000-0000-0000-0000-000000000001', 'benjamin.rodriguez@zivelo.dev');
 set local role authenticated;
 
 select lives_ok(
@@ -72,7 +74,7 @@ select lives_ok(
 );
 
 -- Test 6: Intruder (not in allowlist) cannot insert
-select tests.set_local_user('00000000-0000-0000-0000-000000000003');
+select tests.set_local_user('00000000-0000-0000-0000-000000000003', 'intruder@zivelo.dev');
 set local role authenticated;
 
 select throws_ok(

@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
+import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState, Suspense } from "react";
@@ -13,15 +13,8 @@ export default function LoginPage() {
 
   async function handleSignIn() {
     setLoading(true);
-    const supabase = createClient();
     const locale = params.locale as string;
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "custom:zoho",
-      options: {
-        redirectTo: `${window.location.origin}/${locale}/api/auth/callback?next=/${locale}/admin`,
-      },
-    });
-    if (error) setLoading(false);
+    await signIn("zoho", { redirectTo: `/${locale}/admin` });
   }
 
   return (

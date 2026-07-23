@@ -7,6 +7,7 @@ import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getPost, listPosts, listSlugs } from "@/lib/blog-data";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const revalidate = 3600;
 
@@ -89,7 +90,7 @@ export default async function BlogPostPage({
               </div>
             </div>
 
-            <div className="prose" dangerouslySetInnerHTML={{ __html: post.contentHtml[key] }} />
+            <div className="prose" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.contentHtml[key]) }} />
 
             <div className="article__cta">
               <div>
