@@ -1,14 +1,18 @@
 -- Replace admin_users with full-featured users table
+-- Safe to run even if admin_users table doesn't exist yet (fresh deploy)
 
-alter table if exists public.admin_users disable row level security;
-
-drop policy if exists "admin_users_select_self" on public.admin_users;
 drop policy if exists "posts_admin_all" on public.posts;
 drop policy if exists "covers_admin_delete" on storage.objects;
 drop policy if exists "covers_admin_insert" on storage.objects;
 drop policy if exists "covers_admin_update" on storage.objects;
 
-drop table if exists public.admin_users cascade;
+do $$ begin
+  if exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'admin_users') then
+    alter table public.admin_users disable row level security;
+    drop policy if exists "admin_users_select_self" on public.admin_users;
+    drop table if exists public.admin_users cascade;
+  end if;
+end $$;
 
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),

@@ -15,7 +15,7 @@ permissions:
 
 env:
   NEXT_TELEMETRY_DISABLED: "1"
-  PNPM_VERSION: "9"
+  PNPM_VERSION: "11"
 
 jobs:
   quality:

@@ -48,19 +48,18 @@ jobs:
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 11
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         run: pnpm install --frozen-lockfile
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm playwright install --with-deps chromium
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         env:
