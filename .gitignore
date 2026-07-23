@@ -41,5 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# migrated from npm to pnpm
+package-lock.json
+
 # editor / local tool state (machine-specific, not project config)
 .claude/settings.local.json

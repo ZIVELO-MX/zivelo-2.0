@@ -54,6 +54,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: pnpm
 
       - if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true'
         run: pnpm install --frozen-lockfile

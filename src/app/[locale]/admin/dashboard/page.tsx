@@ -9,6 +9,7 @@ export default async function DashboardPage() {
 
   if (!user) {
     redirect({ href: "/login", locale });
+    return;
   }
 
   const t = await getTranslations("Admin");

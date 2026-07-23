@@ -70,6 +70,6 @@ const isEntrypoint = process.argv[1] && import.meta.url === pathToFileURL(proces
 if (isEntrypoint) {
   main().catch((error) => {
     console.error(`Mission resolution failed: ${error instanceof Error ? error.message : String(error)}`);
-    process.exitCode = 1;
+    process.exit(1);
   });
 }
