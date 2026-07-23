@@ -11,7 +11,7 @@ const supabase = createClient<Database>(
 
 async function isAdminUser(email: string): Promise<boolean> {
   const { count } = await supabase
-    .from("admin_users")
+    .from("users")
     .select("*", { count: "exact", head: true })
     .eq("email", email.toLowerCase().trim());
 
