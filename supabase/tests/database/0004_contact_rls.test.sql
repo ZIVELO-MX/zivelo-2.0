@@ -1,5 +1,5 @@
 begin;
-select plan(6);
+select plan(8);
 
 select has_table('public'::name, 'contact_submissions'::name, 'contact_submissions table exists');
 
