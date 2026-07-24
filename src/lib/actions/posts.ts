@@ -2,12 +2,14 @@
 
 import { auth } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { revalidatePath } from "next/cache";
+import { markdownToSafeHtml } from "@/lib/md";
 
 type FieldErrors = Record<string, string[]>;
 
-export type ActionResult = { success: true; slug?: string } | { success: false; errors: FieldErrors };
+export type ActionResult =
+  | { success: true; slug?: string }
+  | { success: false; errors: FieldErrors };
 
 export type PostInput = {
   slug: string;
@@ -16,8 +18,8 @@ export type PostInput = {
   title_en: string;
   summary_es: string;
   summary_en: string;
-  content_html_es: string;
-  content_html_en: string;
+  content_markdown_es: string;
+  content_markdown_en: string;
   tag_es: string;
   tag_en: string;
   cover_url: string | null;
@@ -29,6 +31,11 @@ export type PostInput = {
   cover_file?: File | null;
 };
 
+export type MarkdownPreviewResult =
+  | { success: true; html: string }
+  | { success: false; error: string };
+
+const MAX_PREVIEW_CHARS = 200_000;
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 async function getAuthError(): Promise<string | null> {
@@ -70,28 +77,46 @@ function validatePostInput(input: PostInput): FieldErrors {
     addError(errors, "status", "Estado inválido");
   }
 
-  if (!isPresent(input.title_es)) addError(errors, "title_es", "Requerido");
-  else if (input.title_es.length > 500) addError(errors, "title_es", "Máximo 500 caracteres");
+  if (!isPresent(input.title_es))
+    addError(errors, "title_es", "Requerido");
+  else if (input.title_es.length > 500)
+    addError(errors, "title_es", "Máximo 500 caracteres");
 
-  if (!isPresent(input.title_en)) addError(errors, "title_en", "Required");
-  else if (input.title_en.length > 500) addError(errors, "title_en", "Max 500 characters");
+  if (!isPresent(input.title_en))
+    addError(errors, "title_en", "Required");
+  else if (input.title_en.length > 500)
+    addError(errors, "title_en", "Max 500 characters");
 
-  if (!isPresent(input.summary_es)) addError(errors, "summary_es", "Requerido");
-  else if (input.summary_es.length > 500) addError(errors, "summary_es", "Máximo 500 caracteres");
+  if (!isPresent(input.summary_es))
+    addError(errors, "summary_es", "Requerido");
+  else if (input.summary_es.length > 500)
+    addError(errors, "summary_es", "Máximo 500 caracteres");
 
-  if (!isPresent(input.summary_en)) addError(errors, "summary_en", "Required");
-  else if (input.summary_en.length > 500) addError(errors, "summary_en", "Max 500 characters");
+  if (!isPresent(input.summary_en))
+    addError(errors, "summary_en", "Required");
+  else if (input.summary_en.length > 500)
+    addError(errors, "summary_en", "Max 500 characters");
 
-  if (!isPresent(input.tag_es)) addError(errors, "tag_es", "Requerido");
-  else if (input.tag_es.length > 100) addError(errors, "tag_es", "Máximo 100 caracteres");
+  if (!isPresent(input.tag_es))
+    addError(errors, "tag_es", "Requerido");
+  else if (input.tag_es.length > 100)
+    addError(errors, "tag_es", "Máximo 100 caracteres");
 
-  if (!isPresent(input.tag_en)) addError(errors, "tag_en", "Required");
-  else if (input.tag_en.length > 100) addError(errors, "tag_en", "Max 100 characters");
+  if (!isPresent(input.tag_en))
+    addError(errors, "tag_en", "Required");
+  else if (input.tag_en.length > 100)
+    addError(errors, "tag_en", "Max 100 characters");
 
-  if (typeof input.content_html_es !== "string") addError(errors, "content_html_es", "Requerido");
-  if (typeof input.content_html_en !== "string") addError(errors, "content_html_en", "Required");
+  if (typeof input.content_markdown_es !== "string")
+    addError(errors, "content_markdown_es", "Requerido");
+  if (typeof input.content_markdown_en !== "string")
+    addError(errors, "content_markdown_en", "Required");
 
-  if (typeof input.read_min !== "number" || input.read_min < 1 || input.read_min > 999) {
+  if (
+    typeof input.read_min !== "number" ||
+    input.read_min < 1 ||
+    input.read_min > 999
+  ) {
     addError(errors, "read_min", "Debe ser 1–999");
   }
 
@@ -105,11 +130,23 @@ function validatePostInput(input: PostInput): FieldErrors {
     } catch {
       addError(errors, "cover_url", "URL inválida");
     }
-    if (input.cover_url.length > 1000) addError(errors, "cover_url", "Máximo 1000 caracteres");
+    if (input.cover_url.length > 1000)
+      addError(errors, "cover_url", "Máximo 1000 caracteres");
   }
 
-  if (input.cover_file && (!(input.cover_file instanceof File) || input.cover_file.size > 5 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"].includes(input.cover_file.type))) {
-    addError(errors, "cover_file", "La portada debe ser una imagen permitida de máximo 5 MB");
+  if (
+    input.cover_file &&
+    (!(input.cover_file instanceof File) ||
+      input.cover_file.size > 5 * 1024 * 1024 ||
+      !["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"].includes(
+        input.cover_file.type,
+      ))
+  ) {
+    addError(
+      errors,
+      "cover_file",
+      "La portada debe ser una imagen permitida de máximo 5 MB",
+    );
   }
 
   if (input.cover_alt_es && input.cover_alt_es.length > 500) {
@@ -121,17 +158,26 @@ function validatePostInput(input: PostInput): FieldErrors {
 
   if (input.published_at) {
     const d = new Date(input.published_at);
-    if (isNaN(d.getTime())) addError(errors, "published_at", "Fecha inválida");
+    if (isNaN(d.getTime()))
+      addError(errors, "published_at", "Fecha inválida");
   }
 
   return errors;
 }
 
-function buildInsertPayload(input: PostInput, coverUrl = input.cover_url) {
+async function buildPayload(
+  input: PostInput,
+  coverUrl = input.cover_url,
+) {
   const publishedAt =
     input.status === "published" && !input.published_at
       ? new Date().toISOString().split("T")[0]
       : input.published_at;
+
+  const [htmlEs, htmlEn] = await Promise.all([
+    markdownToSafeHtml(input.content_markdown_es),
+    markdownToSafeHtml(input.content_markdown_en),
+  ]);
 
   return {
     slug: input.slug,
@@ -140,8 +186,10 @@ function buildInsertPayload(input: PostInput, coverUrl = input.cover_url) {
     title_en: input.title_en.trim(),
     summary_es: input.summary_es.trim(),
     summary_en: input.summary_en.trim(),
-    content_html_es: sanitizeHtml(input.content_html_es),
-    content_html_en: sanitizeHtml(input.content_html_en),
+    content_markdown_es: input.content_markdown_es,
+    content_markdown_en: input.content_markdown_en,
+    content_html_es: htmlEs,
+    content_html_en: htmlEn,
     tag_es: input.tag_es.trim(),
     tag_en: input.tag_en.trim(),
     cover_url: coverUrl || null,
@@ -153,23 +201,35 @@ function buildInsertPayload(input: PostInput, coverUrl = input.cover_url) {
   };
 }
 
-async function uploadCover(supabase: ReturnType<typeof createServiceClient>, file: File | null | undefined) {
+async function uploadCover(
+  supabase: ReturnType<typeof createServiceClient>,
+  file: File | null | undefined,
+) {
   if (!file) return null;
   const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
   const path = `posts/${crypto.randomUUID()}.${extension}`;
-  const { error } = await supabase.storage.from("covers").upload(path, file, { contentType: file.type, upsert: false });
+  const { error } = await supabase.storage
+    .from("covers")
+    .upload(path, file, { contentType: file.type, upsert: false });
   if (error) return { error: "No se pudo subir la portada" } as const;
-  return { path, url: supabase.storage.from("covers").getPublicUrl(path).data.publicUrl } as const;
+  return {
+    path,
+    url: supabase.storage.from("covers").getPublicUrl(path).data.publicUrl,
+  } as const;
 }
 
-async function removeCover(supabase: ReturnType<typeof createServiceClient>, url: string | null | undefined) {
+async function removeCover(
+  supabase: ReturnType<typeof createServiceClient>,
+  url: string | null | undefined,
+) {
   const path = url ? extractStoragePath(url) : null;
   if (path) await supabase.storage.from("covers").remove([path]);
 }
 
 export async function createPost(input: PostInput): Promise<ActionResult> {
   const authError = await getAuthError();
-  if (authError) return { success: false, errors: { _form: [authError] } };
+  if (authError)
+    return { success: false, errors: { _form: [authError] } };
 
   const errors = validatePostInput(input);
   if (Object.keys(errors).length > 0) return { success: false, errors };
@@ -187,27 +247,50 @@ export async function createPost(input: PostInput): Promise<ActionResult> {
   }
 
   const uploaded = await uploadCover(supabase, input.cover_file);
-  if (uploaded?.error) return { success: false, errors: { cover_file: [uploaded.error] } };
+  if (uploaded?.error)
+    return { success: false, errors: { cover_file: [uploaded.error] } };
   const coverUrl = uploaded?.url ?? input.cover_url;
+
+  let payload: ReturnType<typeof buildPayload> extends Promise<infer T>
+    ? T
+    : never;
+  try {
+    payload = await buildPayload(input, coverUrl);
+  } catch {
+    if (uploaded?.path)
+      await supabase.storage.from("covers").remove([uploaded.path]);
+    return {
+      success: false,
+      errors: { _form: ["No se pudo procesar el contenido"] },
+    };
+  }
 
   const { data, error } = await supabase
     .from("posts")
-    .insert(buildInsertPayload(input, coverUrl))
+    .insert(payload)
     .select("slug")
     .single();
 
   if (error) {
-    if (uploaded?.path) await supabase.storage.from("covers").remove([uploaded.path]);
-    return { success: false, errors: { _form: ["No se pudo guardar la publicación"] } };
+    if (uploaded?.path)
+      await supabase.storage.from("covers").remove([uploaded.path]);
+    return {
+      success: false,
+      errors: { _form: ["No se pudo guardar la publicación"] },
+    };
   }
 
   revalidatePath("/", "layout");
   return { success: true, slug: data.slug };
 }
 
-export async function updatePost(id: string, input: PostInput): Promise<ActionResult> {
+export async function updatePost(
+  id: string,
+  input: PostInput,
+): Promise<ActionResult> {
   const authError = await getAuthError();
-  if (authError) return { success: false, errors: { _form: [authError] } };
+  if (authError)
+    return { success: false, errors: { _form: [authError] } };
 
   const errors = validatePostInput(input);
   if (Object.keys(errors).length > 0) return { success: false, errors };
@@ -233,30 +316,71 @@ export async function updatePost(id: string, input: PostInput): Promise<ActionRe
       .maybeSingle();
 
     if (slugConflict) {
-      return { success: false, errors: { slug: ["Este slug ya está en uso"] } };
+      return {
+        success: false,
+        errors: { slug: ["Este slug ya está en uso"] },
+      };
     }
   }
 
   const uploaded = await uploadCover(supabase, input.cover_file);
-  if (uploaded?.error) return { success: false, errors: { cover_file: [uploaded.error] } };
+  if (uploaded?.error)
+    return { success: false, errors: { cover_file: [uploaded.error] } };
   const coverUrl = uploaded?.url ?? input.cover_url;
+
+  let payload: ReturnType<typeof buildPayload> extends Promise<infer T>
+    ? T
+    : never;
+  try {
+    payload = await buildPayload(input, coverUrl);
+  } catch {
+    if (uploaded?.path)
+      await supabase.storage.from("covers").remove([uploaded.path]);
+    return {
+      success: false,
+      errors: { _form: ["No se pudo procesar el contenido"] },
+    };
+  }
 
   const { data, error } = await supabase
     .from("posts")
-    .update(buildInsertPayload(input, coverUrl))
+    .update(payload)
     .eq("id", id)
     .select("slug")
     .single();
 
   if (error) {
-    if (uploaded?.path) await supabase.storage.from("covers").remove([uploaded.path]);
-    return { success: false, errors: { _form: ["No se pudo actualizar la publicación"] } };
+    if (uploaded?.path)
+      await supabase.storage.from("covers").remove([uploaded.path]);
+    return {
+      success: false,
+      errors: { _form: ["No se pudo actualizar la publicación"] },
+    };
   }
 
-  if (existing.cover_url && existing.cover_url !== coverUrl) await removeCover(supabase, existing.cover_url);
+  if (existing.cover_url && existing.cover_url !== coverUrl)
+    await removeCover(supabase, existing.cover_url);
 
   revalidatePath("/", "layout");
   return { success: true, slug: data.slug };
+}
+
+export async function previewMarkdown(
+  markdown: string,
+): Promise<MarkdownPreviewResult> {
+  const authError = await getAuthError();
+  if (authError) return { success: false, error: authError };
+
+  if (typeof markdown !== "string" || markdown.length > MAX_PREVIEW_CHARS) {
+    return { success: false, error: "Contenido demasiado extenso" };
+  }
+
+  try {
+    const html = await markdownToSafeHtml(markdown);
+    return { success: true, html };
+  } catch {
+    return { success: false, error: "Error al generar la vista previa" };
+  }
 }
 
 function extractStoragePath(coverUrl: string): string | null {
@@ -271,7 +395,8 @@ function extractStoragePath(coverUrl: string): string | null {
 
 export async function deletePost(id: string): Promise<ActionResult> {
   const authError = await getAuthError();
-  if (authError) return { success: false, errors: { _form: [authError] } };
+  if (authError)
+    return { success: false, errors: { _form: [authError] } };
 
   const supabase = createServiceClient();
 
@@ -295,7 +420,10 @@ export async function deletePost(id: string): Promise<ActionResult> {
   const { error } = await supabase.from("posts").delete().eq("id", id);
 
   if (error) {
-    return { success: false, errors: { _form: ["No se pudo eliminar la publicación"] } };
+    return {
+      success: false,
+      errors: { _form: ["No se pudo eliminar la publicación"] },
+    };
   }
 
   revalidatePath("/", "layout");
