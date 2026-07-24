@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { useRef, useState, useId, useEffect } from "react";
+import { useActionState } from "react";
+import { submitContact } from "@/lib/contact/actions";
+import type { ContactResult } from "@/lib/contact/types";
 
 export type ContactFormLabels = {
   formTitle: string;
@@ -13,151 +14,183 @@ export type ContactFormLabels = {
   emailLabel: string;
   emailErr: string;
   topicLabel: string;
-  topicOptions: [string, string, string, string];
+  topicOptions: { value: string; label: string }[];
   messageLabel: string;
   messageErr: string;
   submitLabel: string;
+  sendingLabel: string;
   formNote: string;
   successTitle: string;
   successSub: string;
+  errorGeneral: string;
 };
 
-type FieldErrors = { name: boolean; email: boolean; message: boolean };
+const initialState: ContactResult = { success: false };
 
-/**
- * Client-side validation + success state, mirroring the original prototype's
- * assets/app.js logic (required-field + email-regex validation, focus first
- * invalid field, swap to a success message on valid submit). No network call —
- * form wiring to a real API/Server Action is a later project phase.
- *
- * Improvement over the original instant display:none/.show swap: the form
- * body crossfades out (opacity + slight blur) before the success panel is
- * shown via the existing `.show` class, which already animates in via the
- * `caseFade` keyframes defined in globals.css. No new CSS classes were added.
- */
-export function ContactForm({ labels }: { labels: ContactFormLabels }) {
+export function ContactForm({ labels, locale }: { labels: ContactFormLabels; locale: string }) {
+  const [serverState, dispatch, pending] = useActionState(submitContact, initialState);
+
+  const [resetKey, setResetKey] = useState(0);
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const summaryId = useId();
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
-  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const msgRef = useRef<HTMLTextAreaElement>(null);
+  const prevSuccess = useRef(false);
 
-  const [errors, setErrors] = useState<FieldErrors>({ name: false, email: false, message: false });
-  const [status, setStatus] = useState<"idle" | "fading" | "done">("idle");
-
-  function clearError(field: keyof FieldErrors) {
-    setErrors((prev) => (prev[field] ? { ...prev, [field]: false } : prev));
-  }
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const nameVal = (nameRef.current?.value || "").trim();
-    const emailVal = (emailRef.current?.value || "").trim();
-    const messageVal = (messageRef.current?.value || "").trim();
-
-    const nameBad = !nameVal;
-    const emailBad = !emailVal || !EMAIL_RE.test(emailVal);
-    const messageBad = !messageVal;
-
-    setErrors({ name: nameBad, email: emailBad, message: messageBad });
-
-    if (nameBad || emailBad || messageBad) {
-      if (nameBad) nameRef.current?.focus();
-      else if (emailBad) emailRef.current?.focus();
-      else if (messageBad) messageRef.current?.focus();
-      return;
+  useEffect(() => {
+    if (serverState.success && serverState.message) {
+      prevSuccess.current = true;
+      const id = setTimeout(() => setResetKey((k) => k + 1), 0);
+      return () => clearTimeout(id);
     }
+    if (!serverState.success) {
+      prevSuccess.current = false;
+    }
+  }, [serverState]);
 
-    setStatus("fading");
-    window.setTimeout(() => setStatus("done"), 240);
-  }
-
-  const isDone = status === "done";
-  const isFading = status !== "idle";
+  const visibleSuccess = serverState.success && !!serverState.message;
+  const state = visibleSuccess ? initialState : serverState;
+  const visibleError = !state.success && state.message ? state.message : null;
 
   return (
     <>
       <div
         className="cform__body"
         style={{
-          display: isDone ? "none" : undefined,
-          opacity: isFading ? 0 : 1,
-          filter: isFading ? "blur(2px)" : "none",
-          transition: "opacity .25s ease, filter .25s ease",
-          pointerEvents: isFading ? "none" : undefined,
+          display: visibleSuccess ? "none" : undefined,
+          opacity: pending ? 0.6 : 1,
+          transition: "opacity .25s ease",
         }}
       >
         <h3 className="cform__title">{labels.formTitle}</h3>
         <p className="cform__sub">{labels.formSub}</p>
-        <form className="cform__form" noValidate onSubmit={handleSubmit}>
+
+        <div
+          ref={summaryRef}
+          role="alert"
+          aria-live="polite"
+          id={summaryId}
+          tabIndex={-1}
+          style={{
+            display: visibleError ? undefined : "none",
+            color: "#b91c1c",
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: 8,
+            padding: "12px 16px",
+            marginBottom: 16,
+            fontSize: "0.9rem",
+          }}
+        >
+          {visibleError}
+        </div>
+
+        <form
+          className="cform__form"
+          noValidate
+          action={dispatch}
+          key={resetKey}
+        >
+          <input type="hidden" name="f-id" value={crypto.randomUUID()} />
+          <input type="hidden" name="f-locale" value={locale} />
+          <input
+            type="text"
+            name="f-website"
+            tabIndex={-1}
+            autoComplete="off"
+            style={{ position: "absolute", left: "-9999px" }}
+            aria-hidden="true"
+          />
+
           <div className="field row2">
-            <div className={`field${errors.name ? " is-error" : ""}`} style={{ marginTop: 0 }}>
+            <div
+              className={`field${state.errors?.name ? " is-error" : ""}`}
+              style={{ marginTop: 0 }}
+            >
               <label htmlFor="f-name">
                 {labels.nameLabel} <span className="req">*</span>
               </label>
               <input
                 id="f-name"
+                name="f-name"
                 type="text"
                 ref={nameRef}
                 data-required
                 placeholder="Ana García"
                 autoComplete="name"
-                onChange={() => clearError("name")}
+                aria-invalid={state.errors?.name ? "true" : undefined}
+                aria-describedby={state.errors?.name ? "f-name-err" : undefined}
               />
-              <div className="field__err">{labels.nameErr}</div>
+              <div className="field__err" id="f-name-err" role="alert">
+                {state.errors?.name || labels.nameErr}
+              </div>
             </div>
             <div className="field" style={{ marginTop: 0 }}>
               <label htmlFor="f-company">{labels.companyLabel}</label>
-              <input id="f-company" type="text" placeholder="Nombre de tu negocio" />
+              <input id="f-company" name="f-company" type="text" placeholder="Nombre de tu negocio" />
             </div>
           </div>
 
-          <div className={`field${errors.email ? " is-error" : ""}`}>
+          <div className={`field${state.errors?.email ? " is-error" : ""}`}>
             <label htmlFor="f-email">
               {labels.emailLabel} <span className="req">*</span>
             </label>
             <input
               id="f-email"
+              name="f-email"
               type="email"
               ref={emailRef}
               data-required
               placeholder="ana@correo.com"
               autoComplete="email"
-              onChange={() => clearError("email")}
+              aria-invalid={state.errors?.email ? "true" : undefined}
+              aria-describedby={state.errors?.email ? "f-email-err" : undefined}
             />
-            <div className="field__err">{labels.emailErr}</div>
+            <div className="field__err" id="f-email-err" role="alert">
+              {state.errors?.email || labels.emailErr}
+            </div>
           </div>
 
           <div className="field">
             <label htmlFor="f-topic">{labels.topicLabel}</label>
-            <select id="f-topic">
+            <select id="f-topic" name="f-topic">
               {labels.topicOptions.map((opt) => (
-                <option key={opt}>{opt}</option>
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>
 
-          <div className={`field${errors.message ? " is-error" : ""}`}>
+          <div className={`field${state.errors?.message ? " is-error" : ""}`}>
             <label htmlFor="f-msg">
               {labels.messageLabel} <span className="req">*</span>
             </label>
             <textarea
               id="f-msg"
-              ref={messageRef}
+              name="f-msg"
+              ref={msgRef}
               data-required
               placeholder="¿Qué te gustaría construir o mejorar?"
-              onChange={() => clearError("message")}
+              aria-invalid={state.errors?.message ? "true" : undefined}
+              aria-describedby={state.errors?.message ? "f-msg-err" : undefined}
             />
-            <div className="field__err">{labels.messageErr}</div>
+            <div className="field__err" id="f-msg-err" role="alert">
+              {state.errors?.message || labels.messageErr}
+            </div>
           </div>
 
-          <button className="btn btn--primary cform__submit" type="submit">
-            {labels.submitLabel} <span className="arrow">→</span>
+          <button className="btn btn--primary cform__submit" type="submit" disabled={pending}>
+            {pending ? labels.sendingLabel : labels.submitLabel} <span className="arrow">→</span>
           </button>
           <p className="cform__note">{labels.formNote}</p>
         </form>
       </div>
 
-      <div className={`cform__success${isDone ? " show" : ""}`}>
+      <div
+        className={`cform__success${visibleSuccess ? " show" : ""}`}
+        role="status"
+        aria-live="polite"
+      >
         <div className="tick">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M5 13l4 4L19 7" />
