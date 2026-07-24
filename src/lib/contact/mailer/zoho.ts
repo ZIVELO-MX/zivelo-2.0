@@ -52,16 +52,17 @@ function escapeHtml(s: string): string {
 
 export function createZohoMailer(): ContactMailer {
   const transport = nodemailer.createTransport({
-    host: process.env.ZOHO_SMTP_HOST || "smtppro.zoho.com",
-    port: Number(process.env.ZOHO_SMTP_PORT) || 587,
-    secure: false,
+    host: process.env.ZOHO_SMTP_HOST || "smtp.zoho.com",
+    port: Number(process.env.ZOHO_SMTP_PORT) || 465,
+    secure: true,
     auth: {
       user: process.env.ZOHO_SMTP_USER || "benjamin.rodriguez@zivelo.dev",
       pass: process.env.ZOHO_SMTP_APP_PASSWORD || "",
     },
   });
 
-  const fromEmail = process.env.CONTACT_FROM_EMAIL || "contacto@zivelo.dev";
+  const smtpUser = process.env.ZOHO_SMTP_USER || "benjamin.rodriguez@zivelo.dev";
+  const fromEmail = process.env.CONTACT_FROM_EMAIL || smtpUser;
   const toEmail = process.env.CONTACT_TO_EMAIL || "contacto@zivelo.dev";
 
   return {
