@@ -78,6 +78,7 @@ export default async function Contact({ params }: PageParams) {
 
             <Reveal delay={1} className="cform" style={{ border: "1px solid var(--line)" }}>
               <ContactForm
+                locale={locale}
                 labels={{
                   formTitle: t("formTitle"),
                   formSub: t("formSub"),
@@ -87,13 +88,20 @@ export default async function Contact({ params }: PageParams) {
                   emailLabel: t("emailLabel"),
                   emailErr: t("emailErr"),
                   topicLabel: t("topicLabel"),
-                  topicOptions: [t("topic1"), t("topic2"), t("topic3"), t("topic4")],
+                  topicOptions: [
+                    { value: "web", label: t("topic1") },
+                    { value: "restaurant", label: t("topic2") },
+                    { value: "pos", label: t("topic3") },
+                    { value: "other", label: t("topic4") },
+                  ],
                   messageLabel: t("messageLabel"),
                   messageErr: t("messageErr"),
                   submitLabel: t("submitLabel"),
+                  sendingLabel: t("sendingLabel"),
                   formNote: t("formNote"),
                   successTitle: t("successTitle"),
                   successSub: t("successSub"),
+                  errorGeneral: t("errorGeneral"),
                 }}
               />
             </Reveal>
