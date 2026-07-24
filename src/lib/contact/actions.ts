@@ -91,7 +91,6 @@ export async function submitContact(
     const repo = createSupabaseContactRepository();
     const mailer = createZohoMailer();
 
-    console.log("[contact] inserting id=%s email=%s", contact.id, contact.email);
     const insertResult = await repo.insertIdempotent(contact);
     if (!insertResult.ok) {
       console.error("[contact] insert failed:", insertResult.error);
@@ -101,18 +100,14 @@ export async function submitContact(
       };
     }
 
-    console.log("[contact] claiming id=%s", contact.id);
     const claimResult = await repo.claimAttempt(contact.id);
     if (!claimResult.ok) {
-      console.warn("[contact] claim failed (already claimed?)");
       return { success: true, message: t("Mensaje enviado.", "Message sent.") };
     }
 
-    console.log("[contact] sending email");
     const sendResult = await mailer.send(contact);
 
     if (sendResult.ok) {
-      console.log("[contact] sent, ref=%s", sendResult.providerRef);
       await repo.markSent(contact.id, sendResult.providerRef || "");
     } else {
       console.error("[contact] send failed:", sendResult.errorCode);
