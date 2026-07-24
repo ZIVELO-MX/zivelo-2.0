@@ -62,14 +62,13 @@ export function createZohoMailer(): ContactMailer {
   });
 
   const smtpUser = process.env.ZOHO_SMTP_USER || "benjamin.rodriguez@zivelo.dev";
-  const fromEmail = process.env.CONTACT_FROM_EMAIL || smtpUser;
   const toEmail = process.env.CONTACT_TO_EMAIL || "contacto@zivelo.dev";
 
   return {
     async send(contact: NormalizedContact) {
       try {
         const info = await transport.sendMail({
-          from: fromEmail,
+          from: smtpUser,
           to: toEmail,
           replyTo: contact.email,
           subject: `Contact from ${contact.name} — ZIVELO`,
