@@ -5,9 +5,6 @@ import { TOPICS, LIMITS, EMAIL_RE } from "./types";
 import { createSupabaseContactRepository } from "./repository/supabase";
 import { createZohoMailer } from "./mailer/zoho";
 
-const repo = createSupabaseContactRepository();
-const mailer = createZohoMailer();
-
 function normalize(str: string): string {
   return str.replace(/\s+/g, " ").trim();
 }
@@ -90,27 +87,46 @@ export async function submitContact(
 
   const { contact } = validated;
 
-  const insertResult = await repo.insertIdempotent(contact);
-  if (!insertResult.ok) {
-    console.error("[contact] insert failed:", insertResult.error);
+  try {
+    const repo = createSupabaseContactRepository();
+    const mailer = createZohoMailer();
+
+    console.log("[contact] inserting id=%s email=%s", contact.id, contact.email);
+    const insertResult = await repo.insertIdempotent(contact);
+    if (!insertResult.ok) {
+      console.error("[contact] insert failed:", insertResult.error);
+      return {
+        success: false,
+        message: t("Algo salió mal. Intenta de nuevo.", "Something went wrong. Please try again."),
+      };
+    }
+
+    console.log("[contact] claiming id=%s", contact.id);
+    const claimResult = await repo.claimAttempt(contact.id);
+    if (!claimResult.ok) {
+      console.warn("[contact] claim failed (already claimed?)");
+      return { success: true, message: t("Mensaje enviado.", "Message sent.") };
+    }
+
+    console.log("[contact] sending email");
+    const sendResult = await mailer.send(contact);
+
+    if (sendResult.ok) {
+      console.log("[contact] sent, ref=%s", sendResult.providerRef);
+      await repo.markSent(contact.id, sendResult.providerRef || "");
+    } else {
+      console.error("[contact] send failed:", sendResult.errorCode);
+      await repo.markFailed(contact.id, sendResult.errorCode || "unknown");
+    }
+
+    return { success: true, message: t("Mensaje enviado.", "Message sent.") };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[contact] UNEXPECTED error:", msg);
+    if (err instanceof Error) console.error(err.stack);
     return {
       success: false,
       message: t("Algo salió mal. Intenta de nuevo.", "Something went wrong. Please try again."),
     };
   }
-
-  const claimResult = await repo.claimAttempt(contact.id);
-  if (!claimResult.ok) {
-    return { success: true, message: t("Mensaje enviado.", "Message sent.") };
-  }
-
-  const sendResult = await mailer.send(contact);
-
-  if (sendResult.ok) {
-    await repo.markSent(contact.id, sendResult.providerRef || "");
-  } else {
-    await repo.markFailed(contact.id, sendResult.errorCode || "unknown");
-  }
-
-  return { success: true, message: t("Mensaje enviado.", "Message sent.") };
 }

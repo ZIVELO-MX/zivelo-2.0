@@ -56,7 +56,7 @@ export function createZohoMailer(): ContactMailer {
     port: Number(process.env.ZOHO_SMTP_PORT) || 587,
     secure: false,
     auth: {
-      user: process.env.ZOHO_SMTP_USER || "contacto@zivelo.dev",
+      user: process.env.ZOHO_SMTP_USER || "benjamin.rodriguez@zivelo.dev",
       pass: process.env.ZOHO_SMTP_APP_PASSWORD || "",
     },
   });
