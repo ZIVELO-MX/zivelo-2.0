@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getPostById } from "@/lib/admin-data";
+import { htmlToMarkdown } from "@/lib/html-to-md";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { PostForm } from "@/components/admin/post-form";
@@ -29,8 +30,8 @@ export default async function EditPostPage(props: { params: Promise<{ id: string
     title_en: post.title_en,
     summary_es: post.summary_es,
     summary_en: post.summary_en,
-    content_html_es: post.content_html_es,
-    content_html_en: post.content_html_en,
+    content_markdown_es: post.content_markdown_es ?? htmlToMarkdown(post.content_html_es),
+    content_markdown_en: post.content_markdown_en ?? htmlToMarkdown(post.content_html_en),
     tag_es: post.tag_es,
     tag_en: post.tag_en,
     cover_url: post.cover_url,
