@@ -6,7 +6,7 @@ const PROJECT_ID = "project-web-corporativa";
 const MISSION_LINE = /^\s*(?:Misión\s+ID|Mision\s+ID|Mission\s+ID|Misión|Mision|Mission):\s*(WEB-[0-9]{4})\s*$/gimu;
 const SCREENSHOTS_REQUIRED = /^\s*-\s*\[x\]\s+Requiere capturas\s*$/gimu;
 const SCREENSHOTS_NOT_REQUIRED = /^\s*-\s*\[x\]\s+No requiere capturas\s*$/gimu;
-const PROFILE_LINE = /^\s*Perfiles? de capturas:\s*(.+?)\s*$/gimu;
+const PROFILE_LINE = /^\s*(?:Perfil(?:es)?|Perfil\(es\)) de capturas:\s*(.+?)\s*$/gimu;
 const KNOWN_PROFILES = new Set(["public", "login", "admin"]);
 
 export function extractMissionDisplayId(body) {

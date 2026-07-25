@@ -42,6 +42,10 @@ test("parses known versioned screenshot profiles", () => {
     extractScreenshotProfiles("Perfiles de capturas: admin, login"),
     ["admin", "login"],
   );
+  assert.deepEqual(
+    extractScreenshotProfiles("Perfil(es) de capturas: admin"),
+    ["admin"],
+  );
 });
 
 test("rejects unknown or repeated screenshot profiles", () => {
