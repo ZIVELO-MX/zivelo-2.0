@@ -36,7 +36,12 @@ export function DeletePostButton({ postId }: { postId: string }) {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!pending) setOpen(nextOpen);
+      }}
+    >
       <AlertDialogTrigger render={<Button variant="outline" size="sm" />}>
         Eliminar
       </AlertDialogTrigger>

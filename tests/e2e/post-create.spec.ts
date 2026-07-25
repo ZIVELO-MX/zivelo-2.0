@@ -3,6 +3,7 @@ import { expect, test, type Browser, type BrowserContext, type Page } from "@pla
 import { encode } from "next-auth/jwt";
 
 const ADMIN_EMAIL = "benjamin.rodriguez@zivelo.dev";
+const SECOND_ADMIN_EMAIL = "raul.mendez@zivelo.dev";
 const OUTSIDER_EMAIL = "intruder@example.com";
 const AUTH_SECRET = process.env.AUTH_SECRET ?? "e2e-auth-secret";
 const COOKIE_NAME = "authjs.session-token";
@@ -229,6 +230,41 @@ test.describe("authenticated post creation", () => {
     ).toBeVisible();
 
     await context.close();
+  });
+
+  test("two admins can cancel and confirm deletion", async ({ browser }, testInfo) => {
+    const creator = await authenticatedContext(browser, ADMIN_EMAIL);
+    const createPage = await creator.newPage();
+    const suffix = `${testInfo.workerIndex}-${Date.now()}`;
+    const slug = `e2e-delete-${suffix}`;
+
+    await createPage.goto("/es/admin/posts/nuevo");
+    await fillValidPost(createPage, slug, suffix);
+    await createPage.getByLabel("Subir portada (máx. 5 MB)").setInputFiles({
+      name: "delete-cover.png",
+      mimeType: "image/png",
+      buffer: COVER_PNG,
+    });
+    await createPage.getByRole("button", { name: "Crear borrador" }).click();
+    await expect(createPage).toHaveURL(/\/es\/admin\/posts$/);
+    await creator.close();
+
+    const reviewer = await authenticatedContext(browser, SECOND_ADMIN_EMAIL);
+    const page = await reviewer.newPage();
+    await page.goto("/es/admin/posts");
+    await page.getByRole("link", { name: `Artículo E2E ${suffix}` }).click();
+    await page.getByRole("button", { name: "Eliminar" }).click();
+    await expect(page.getByRole("alertdialog")).toBeVisible();
+    await page.getByRole("button", { name: "Cancelar" }).click();
+    await expect(page.getByRole("alertdialog")).toBeHidden();
+    await expect(page.getByRole("heading", { name: "Editar post" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Eliminar" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Eliminar" }).click();
+    await expect(page).toHaveURL(/\/es\/admin\/dashboard$/);
+    await expectPostAbsent(slug);
+
+    await reviewer.close();
   });
 });
 
