@@ -1,124 +1,144 @@
 import { chromium } from "@playwright/test";
+import { encode } from "next-auth/jwt";
 import sharp from "sharp";
-import { captureTargets } from "./config.js";
+import {
+  captureKey,
+  getCaptureProfile,
+  getViewport,
+  preparePage,
+  type CaptureProfileName,
+} from "./config.js";
 import {
   prepareBatch,
   uploadFile,
   finalizeBatch,
   verifySnapshot,
   type FileManifest,
-  type AttachmentGroup,
 } from "./zipform.js";
 
 function getEnv(name: string): string | undefined {
   return process.env[name] || undefined;
 }
 
-async function needsScreenshots(): Promise<boolean> {
-  const missionId = getEnv("TLOZ_MISSION_ID");
-  const baseURL = getEnv("APP_BASE_URL");
+function requestedProfiles(): CaptureProfileName[] {
+  const value = getEnv("SCREENSHOT_PROFILE");
+  if (!value) return [];
+  return [...new Set(value.split(",").map((profile) => profile.trim().toLowerCase()).filter(Boolean))] as CaptureProfileName[];
+}
 
-  if (!missionId || !baseURL) {
-    console.log("Screenshots not applicable: missing TLOZ_MISSION_ID or APP_BASE_URL");
-    return false;
+async function addAdminSession(context: import("@playwright/test").BrowserContext) {
+  const secret = getEnv("AUTH_SECRET");
+  if (!secret) throw new Error("AUTH_SECRET is required for the admin screenshot profile");
+  const email = getEnv("SCREENSHOT_ADMIN_EMAIL") || "benjamin.rodriguez@zivelo.dev";
+  const cookieName = "authjs.session-token";
+  const token = await encode({
+    secret,
+    salt: cookieName,
+    token: { sub: `screenshot-${email}`, name: "Screenshot admin", email },
+  });
+  await context.addCookies([
+    {
+      name: cookieName,
+      value: token,
+      domain: "127.0.0.1",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+    },
+  ]);
+}
+
+async function publishProfile(
+  browser: import("@playwright/test").Browser,
+  profileName: CaptureProfileName,
+  missionId: string,
+  baseURL: string,
+  groupKey: string,
+  revision: string,
+) {
+  const profile = getCaptureProfile(profileName);
+  const captures = new Map<string, Buffer>();
+  const files: FileManifest[] = [];
+
+  for (const viewportName of profile.viewports) {
+    for (const theme of profile.themes) {
+      const context = await browser.newContext({
+        baseURL,
+        viewport: getViewport(viewportName),
+        deviceScaleFactor: 1,
+        reducedMotion: "reduce",
+      });
+      if (profile.requiresAuth) await addAdminSession(context);
+
+      for (const target of profile.targets) {
+        const page = await context.newPage();
+        const key = captureKey(profile.name, target, theme, viewportName);
+        try {
+          console.log(`Capturing: ${key} — ${target.title}`);
+          await preparePage(context, page, theme, target.path);
+          const bytes = await page.screenshot({ type: "png", animations: "disabled", fullPage: true });
+          const metadata = await sharp(bytes).metadata();
+          if (!metadata.width || !metadata.height) throw new Error(`Unable to determine dimensions for ${key}`);
+          captures.set(key, bytes);
+          files.push({
+            key,
+            title: `${target.title} · ${theme} · ${viewportName}`,
+            fileName: `${key}.png`,
+            contentType: "image/png",
+            sizeBytes: bytes.byteLength,
+            width: metadata.width,
+            height: metadata.height,
+          });
+          console.log(`  OK: ${(bytes.byteLength / 1024).toFixed(1)} KiB, ${metadata.width}×${metadata.height}`);
+        } finally {
+          await page.close();
+        }
+      }
+      await context.close();
+    }
   }
-  return true;
+
+  const { uploadBatchId, generation, uploads } = await prepareBatch(missionId, groupKey, revision, files);
+  console.log(`Batch ${groupKey}: ${uploadBatchId}, generation ${generation}, files ${uploads.length}`);
+  for (const upload of uploads) {
+    const bytes = captures.get(upload.key);
+    if (!bytes) throw new Error(`No captured data for key: ${upload.key}`);
+    const file = files.find((candidate) => candidate.key === upload.key)!;
+    await uploadFile(upload.uploadUrl, bytes, file.contentType);
+  }
+  await finalizeBatch(missionId, uploadBatchId);
+  const groups = await verifySnapshot(missionId);
+  const active = groups.find((group) => group.groupKey === groupKey);
+  if (!active) throw new Error(`Group ${groupKey} not found after finalization`);
+  if (revision !== "unknown" && active.sourceRevision !== revision) {
+    throw new Error(`Revision mismatch for ${groupKey}: expected ${revision}, got ${active.sourceRevision}`);
+  }
+  console.log(`✓ Published ${active.attachments.length} screenshots for ${groupKey}`);
 }
 
 async function main() {
-  if (!(await needsScreenshots())) {
-    console.log("✓ Skipping screenshot pipeline — not applicable for this change.");
+  const missionId = getEnv("TLOZ_MISSION_ID");
+  const baseURL = getEnv("APP_BASE_URL");
+  const profiles = requestedProfiles();
+  if (!missionId || !baseURL || profiles.length === 0) {
+    console.log("✓ Skipping screenshot pipeline — missing mission, base URL, or profile.");
     return;
   }
 
-  const missionId = getEnv("TLOZ_MISSION_ID")!;
-  const baseURL = getEnv("APP_BASE_URL")!;
-  const groupKey = getEnv("SCREENSHOT_GROUP_KEY") || "screenshots";
-  const sourceRevision = getEnv("SOURCE_REVISION");
-  const revision = sourceRevision || "unknown";
-
+  const revision = getEnv("SOURCE_REVISION") || "unknown";
+  const groupPrefix = getEnv("SCREENSHOT_GROUP_KEY") || "screenshots";
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    baseURL,
-    viewport: { width: 1440, height: 900 },
-    deviceScaleFactor: 1,
-    reducedMotion: "reduce",
-  });
-
-  const captures: Map<string, Buffer> = new Map();
-  const files: FileManifest[] = [];
-
   try {
-    for (const target of captureTargets) {
-      const page = await context.newPage();
-      try {
-        console.log(`Capturing: ${target.key} — ${target.title}`);
-        const bytes = await target.capture(page);
-        const metadata = await sharp(bytes).metadata();
-        if (!metadata.width || !metadata.height) {
-          throw new Error(`Unable to determine dimensions for ${target.key}`);
-        }
-        captures.set(target.key, bytes);
-        files.push({
-          key: target.key,
-          title: target.title,
-          fileName: `${target.key}.png`,
-          contentType: "image/png",
-          sizeBytes: bytes.byteLength,
-          width: metadata.width,
-          height: metadata.height,
-        });
-        console.log(`  OK: ${(bytes.byteLength / 1024).toFixed(1)} KiB, ${metadata.width}×${metadata.height}`);
-      } finally {
-        await page.close();
-      }
+    for (const profile of profiles) {
+      await publishProfile(browser, profile, missionId, baseURL, `${groupPrefix}-${profile}`, revision);
     }
-
-    console.log("\nPreparing batch...");
-    const { uploadBatchId, generation, uploads } = await prepareBatch(
-      missionId,
-      groupKey,
-      revision,
-      files
-    );
-    console.log(`  Batch: ${uploadBatchId}, generation: ${generation}, files: ${uploads.length}`);
-
-    console.log("\nUploading screenshots...");
-    for (const upload of uploads) {
-      const bytes = captures.get(upload.key);
-      if (!bytes) throw new Error(`No captured data for key: ${upload.key}`);
-      const file = files.find((f) => f.key === upload.key)!;
-      console.log(`  Uploading: ${upload.key} (${(bytes.byteLength / 1024).toFixed(1)} KiB)`);
-      await uploadFile(upload.uploadUrl, bytes, file.contentType);
-    }
-
-    console.log("\nFinalizing batch...");
-    await finalizeBatch(missionId, uploadBatchId);
-    console.log("  OK");
-
-    console.log("\nVerifying snapshot...");
-    const groups: AttachmentGroup[] = await verifySnapshot(missionId);
-    const active = groups.find((g) => g.groupKey === groupKey);
-    if (!active) {
-      throw new Error(`Group ${groupKey} not found after finalization`);
-    }
-    console.log(`  Group: ${active.groupKey}, revision: ${active.sourceRevision}, generation: ${active.generation}`);
-    console.log(`  Attachments: ${active.attachments.length}`);
-    for (const a of active.attachments) {
-      console.log(`    ${a.externalKey}: ${a.width}×${a.height} (${(a.sizeBytes / 1024).toFixed(1)} KiB)`);
-    }
-
-    if (revision !== "unknown" && active.sourceRevision !== revision) {
-      throw new Error(`Revision mismatch: expected ${revision}, got ${active.sourceRevision}`);
-    }
-
-    console.log("\n✓ Screenshots published successfully");
   } finally {
     await browser.close();
   }
 }
 
-main().catch((err) => {
-  console.error("\n✗ Pipeline failed:", err.message);
+main().catch((error) => {
+  console.error("\n✗ Pipeline failed:", error instanceof Error ? error.message : String(error));
   process.exit(1);
 });
