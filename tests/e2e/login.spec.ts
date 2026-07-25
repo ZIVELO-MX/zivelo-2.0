@@ -38,14 +38,11 @@ test.describe("localized Zoho login", () => {
   }
 
   test("disables the CTA while the OAuth boundary is pending", async ({ page }) => {
-    await page.route("**/api/auth/**", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
-    });
+    await page.route("**/api/auth/signin**", (route) => route.abort());
 
     await page.goto("/es/login");
     const signIn = page.getByRole("button", { name: "Iniciar sesión con Zoho" });
-    await signIn.click();
+    await signIn.click({ noWaitAfter: true });
     await expect(signIn).toBeDisabled();
     await expect(signIn).toContainText("Redirigiendo");
   });
