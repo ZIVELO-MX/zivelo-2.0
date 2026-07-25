@@ -4,12 +4,26 @@ import { auth } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { revalidatePath } from "next/cache";
 import { markdownToSafeHtml } from "@/lib/md";
+import {
+  authorizePostMutation,
+  logSupabaseError,
+  type AuthorizationResult,
+} from "@/lib/posts/authorization";
 
 type FieldErrors = Record<string, string[]>;
 
+export type ActionErrorCode =
+  | "VALIDATION"
+  | "UNAUTHENTICATED"
+  | "FORBIDDEN"
+  | "CONFLICT"
+  | "CONTENT_ERROR"
+  | "STORAGE_ERROR"
+  | "DATABASE_ERROR";
+
 export type ActionResult =
   | { success: true; slug?: string }
-  | { success: false; errors: FieldErrors };
+  | { success: false; code: ActionErrorCode; errors: FieldErrors };
 
 export type PostInput = {
   slug: string;
@@ -38,19 +52,19 @@ export type MarkdownPreviewResult =
 const MAX_PREVIEW_CHARS = 200_000;
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-async function getAuthError(): Promise<string | null> {
+async function getAuthorization(): Promise<AuthorizationResult> {
   const session = await auth();
-  const email = session?.user?.email;
-  if (!email) return "No autorizado";
-
   const supabase = createServiceClient();
-  const { count } = await supabase
-    .from("users")
-    .select("*", { count: "exact", head: true })
-    .eq("email", email.toLowerCase().trim());
 
-  if (!count || count === 0) return "No autorizado";
-  return null;
+  return authorizePostMutation(session?.user?.email, async (email) => {
+    const { data, error } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", email)
+      .eq("role", "admin")
+      .maybeSingle();
+    return { data, error };
+  });
 }
 
 function addError(errors: FieldErrors, field: string, message: string) {
@@ -227,12 +241,17 @@ async function removeCover(
 }
 
 export async function createPost(input: PostInput): Promise<ActionResult> {
-  const authError = await getAuthError();
-  if (authError)
-    return { success: false, errors: { _form: [authError] } };
+  const authorization = await getAuthorization();
+  if (!authorization.authorized)
+    return {
+      success: false,
+      code: authorization.code,
+      errors: { _form: [authorization.message] },
+    };
 
   const errors = validatePostInput(input);
-  if (Object.keys(errors).length > 0) return { success: false, errors };
+  if (Object.keys(errors).length > 0)
+    return { success: false, code: "VALIDATION", errors };
 
   const supabase = createServiceClient();
 
@@ -243,12 +262,20 @@ export async function createPost(input: PostInput): Promise<ActionResult> {
     .maybeSingle();
 
   if (existing) {
-    return { success: false, errors: { slug: ["Este slug ya está en uso"] } };
+    return {
+      success: false,
+      code: "CONFLICT",
+      errors: { slug: ["Este slug ya está en uso"] },
+    };
   }
 
   const uploaded = await uploadCover(supabase, input.cover_file);
   if (uploaded?.error)
-    return { success: false, errors: { cover_file: [uploaded.error] } };
+    return {
+      success: false,
+      code: "STORAGE_ERROR",
+      errors: { cover_file: [uploaded.error] },
+    };
   const coverUrl = uploaded?.url ?? input.cover_url;
 
   let payload: ReturnType<typeof buildPayload> extends Promise<infer T>
@@ -261,6 +288,7 @@ export async function createPost(input: PostInput): Promise<ActionResult> {
       await supabase.storage.from("covers").remove([uploaded.path]);
     return {
       success: false,
+      code: "CONTENT_ERROR",
       errors: { _form: ["No se pudo procesar el contenido"] },
     };
   }
@@ -272,11 +300,15 @@ export async function createPost(input: PostInput): Promise<ActionResult> {
     .single();
 
   if (error) {
+    logSupabaseError(console.error, "posts.create", "database", error);
     if (uploaded?.path)
       await supabase.storage.from("covers").remove([uploaded.path]);
     return {
       success: false,
-      errors: { _form: ["No se pudo guardar la publicación"] },
+      code: "DATABASE_ERROR",
+      errors: {
+        _form: ["No se pudo guardar la publicación. Inténtalo de nuevo."],
+      },
     };
   }
 
@@ -288,12 +320,17 @@ export async function updatePost(
   id: string,
   input: PostInput,
 ): Promise<ActionResult> {
-  const authError = await getAuthError();
-  if (authError)
-    return { success: false, errors: { _form: [authError] } };
+  const authorization = await getAuthorization();
+  if (!authorization.authorized)
+    return {
+      success: false,
+      code: authorization.code,
+      errors: { _form: [authorization.message] },
+    };
 
   const errors = validatePostInput(input);
-  if (Object.keys(errors).length > 0) return { success: false, errors };
+  if (Object.keys(errors).length > 0)
+    return { success: false, code: "VALIDATION", errors };
 
   const supabase = createServiceClient();
 
@@ -304,7 +341,11 @@ export async function updatePost(
     .single();
 
   if (!existing) {
-    return { success: false, errors: { _form: ["Post no encontrado"] } };
+    return {
+      success: false,
+      code: "DATABASE_ERROR",
+      errors: { _form: ["Post no encontrado"] },
+    };
   }
 
   if (existing.slug !== input.slug) {
@@ -318,6 +359,7 @@ export async function updatePost(
     if (slugConflict) {
       return {
         success: false,
+        code: "CONFLICT",
         errors: { slug: ["Este slug ya está en uso"] },
       };
     }
@@ -325,7 +367,11 @@ export async function updatePost(
 
   const uploaded = await uploadCover(supabase, input.cover_file);
   if (uploaded?.error)
-    return { success: false, errors: { cover_file: [uploaded.error] } };
+    return {
+      success: false,
+      code: "STORAGE_ERROR",
+      errors: { cover_file: [uploaded.error] },
+    };
   const coverUrl = uploaded?.url ?? input.cover_url;
 
   let payload: ReturnType<typeof buildPayload> extends Promise<infer T>
@@ -338,6 +384,7 @@ export async function updatePost(
       await supabase.storage.from("covers").remove([uploaded.path]);
     return {
       success: false,
+      code: "CONTENT_ERROR",
       errors: { _form: ["No se pudo procesar el contenido"] },
     };
   }
@@ -350,10 +397,12 @@ export async function updatePost(
     .single();
 
   if (error) {
+    logSupabaseError(console.error, "posts.update", "database", error);
     if (uploaded?.path)
       await supabase.storage.from("covers").remove([uploaded.path]);
     return {
       success: false,
+      code: "DATABASE_ERROR",
       errors: { _form: ["No se pudo actualizar la publicación"] },
     };
   }
@@ -368,8 +417,9 @@ export async function updatePost(
 export async function previewMarkdown(
   markdown: string,
 ): Promise<MarkdownPreviewResult> {
-  const authError = await getAuthError();
-  if (authError) return { success: false, error: authError };
+  const authorization = await getAuthorization();
+  if (!authorization.authorized)
+    return { success: false, error: authorization.message };
 
   if (typeof markdown !== "string" || markdown.length > MAX_PREVIEW_CHARS) {
     return { success: false, error: "Contenido demasiado extenso" };
@@ -394,9 +444,13 @@ function extractStoragePath(coverUrl: string): string | null {
 }
 
 export async function deletePost(id: string): Promise<ActionResult> {
-  const authError = await getAuthError();
-  if (authError)
-    return { success: false, errors: { _form: [authError] } };
+  const authorization = await getAuthorization();
+  if (!authorization.authorized)
+    return {
+      success: false,
+      code: authorization.code,
+      errors: { _form: [authorization.message] },
+    };
 
   const supabase = createServiceClient();
 
@@ -407,7 +461,18 @@ export async function deletePost(id: string): Promise<ActionResult> {
     .single();
 
   if (fetchError || !post) {
-    return { success: false, errors: { _form: ["Post no encontrado"] } };
+    if (fetchError)
+      logSupabaseError(
+        console.error,
+        "posts.delete.fetch",
+        "database",
+        fetchError,
+      );
+    return {
+      success: false,
+      code: "DATABASE_ERROR",
+      errors: { _form: ["Post no encontrado"] },
+    };
   }
 
   if (post.cover_url) {
@@ -420,8 +485,10 @@ export async function deletePost(id: string): Promise<ActionResult> {
   const { error } = await supabase.from("posts").delete().eq("id", id);
 
   if (error) {
+    logSupabaseError(console.error, "posts.delete", "database", error);
     return {
       success: false,
+      code: "DATABASE_ERROR",
       errors: { _form: ["No se pudo eliminar la publicación"] },
     };
   }
