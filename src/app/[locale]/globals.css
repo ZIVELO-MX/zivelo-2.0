@@ -131,7 +131,10 @@
   --popover: var(--paper);
   --popover-foreground: var(--ink);
   --primary: var(--accent);
-  --primary-foreground: var(--ink-invert);
+  /* Primary actions sit on the brand accent in every theme. Keep their
+     foreground tied to the explicit contrast token instead of the generic
+     inverted ink token, which may be reused by feature surfaces. */
+  --primary-foreground: var(--accent-contrast);
   --secondary: var(--surface-2);
   --secondary-foreground: var(--ink);
   --muted: var(--surface);
@@ -144,7 +147,7 @@
   --sidebar: var(--surface);
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--accent);
-  --sidebar-primary-foreground: var(--ink-invert);
+  --sidebar-primary-foreground: var(--accent-contrast);
   --sidebar-accent: var(--surface-2);
   --sidebar-accent-foreground: var(--ink);
   --sidebar-border: var(--line);
