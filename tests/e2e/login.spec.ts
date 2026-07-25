@@ -47,7 +47,14 @@ test.describe("localized Zoho login", () => {
             : input instanceof Request
               ? input.url
               : input.toString();
-        if (url.includes("/api/auth/providers")) return new Promise(() => {});
+        if (url.includes("/api/auth/providers")) {
+          return new Promise((resolve) => {
+            window.setTimeout(
+              () => resolve(new Response("{}", { status: 200 })),
+              1000,
+            );
+          });
+        }
         return originalFetch(input, init);
       };
     });
