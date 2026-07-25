@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pull Request Management"
+  short_description: "Create and manage reviewable GitHub PRs"
+  default_prompt: "Use $manage-pull-requests to open and manage a reviewable PR for my current branch."
