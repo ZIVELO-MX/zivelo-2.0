@@ -74,6 +74,7 @@ jobs:
       - name: Configure local Supabase for authenticated profiles
         if: steps.check.outputs.skip != 'true' && steps.resolve.outputs.skip != 'true' && contains(steps.resolve.outputs.profile, 'admin')
         run: |
+          eval "$(supabase status -o env | sed -E 's/^([^=]+)="(.*)"$/export \1=\2/')"
           supabase status -o env | sed -E 's/^([^=]+)="(.*)"$/\1=\2/' >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
