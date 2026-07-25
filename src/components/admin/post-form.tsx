@@ -148,6 +148,7 @@ export function PostForm({
       "summary_en",
       "content_markdown_en",
       "tag_en",
+      "cover_alt_en",
     ]);
     const firstField = Object.keys(state.errors).find(
       (field) => field !== "_form",

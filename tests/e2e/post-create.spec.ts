@@ -51,6 +51,11 @@ async function fillValidPost(page: Page, slug: string, suffix: string) {
   await page.getByLabel("Slug").fill(slug);
 }
 
+const COVER_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "base64",
+);
+
 function localSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
@@ -94,6 +99,62 @@ test.describe("authenticated post creation", () => {
     await expect(page.getByLabel("Título")).toHaveValue(`Artículo E2E ${suffix}`);
     await page.getByRole("tab", { name: "EN · English" }).click();
     await expect(page.getByLabel("Title")).toHaveValue(`E2E article ${suffix}`);
+
+    await context.close();
+  });
+
+  test("an admin edits both locales, replaces a cover, and publishes", async ({
+    browser,
+  }, testInfo) => {
+    const context = await authenticatedContext(browser, ADMIN_EMAIL);
+    const page = await context.newPage();
+    const suffix = `${testInfo.workerIndex}-${Date.now()}`;
+    const slug = `e2e-edited-${suffix}`;
+
+    await page.goto("/es/admin/posts/nuevo");
+    await fillValidPost(page, slug, suffix);
+    await page.getByLabel("Subir portada (máx. 5 MB)").setInputFiles({
+      name: "cover.png",
+      mimeType: "image/png",
+      buffer: COVER_PNG,
+    });
+    await page.getByLabel("Texto alternativo de portada (ES)").fill("Portada ES");
+    await page.getByLabel("Texto alternativo de portada (EN)").fill("Cover EN");
+    await page.getByRole("button", { name: "Crear borrador" }).click();
+    await expect(page).toHaveURL(/\/es\/admin\/posts$/);
+
+    await page.getByRole("link", { name: `Artículo E2E ${suffix}` }).click();
+    await page.getByLabel("Título").fill(`Artículo editado ${suffix}`);
+    await page.getByLabel("Subir portada (máx. 5 MB)").setInputFiles({
+      name: "cover-replacement.png",
+      mimeType: "image/png",
+      buffer: COVER_PNG,
+    });
+    await page.getByRole("tab", { name: "EN · English" }).click();
+    await page.getByLabel("Title").fill(`Edited article ${suffix}`);
+    await page.getByRole("tab", { name: "ES · Español" }).click();
+    await page.getByLabel("Estado").selectOption("published");
+    await page.getByLabel("Fecha de publicación").fill("2026-07-24");
+    await page.getByRole("button", { name: "Guardar cambios" }).click();
+
+    await expect(page).toHaveURL(/\/es\/admin\/posts$/);
+    const { data, error } = await localSupabase()
+      .from("posts")
+      .select("status,title_es,title_en,cover_alt_es,cover_alt_en,published_at")
+      .eq("slug", slug)
+      .single();
+    expect(error).toBeNull();
+    expect(data).toMatchObject({
+      status: "published",
+      title_es: `Artículo editado ${suffix}`,
+      title_en: `Edited article ${suffix}`,
+      cover_alt_es: "Portada ES",
+      cover_alt_en: "Cover EN",
+      published_at: "2026-07-24",
+    });
+
+    await page.goto(`/es/blog/${slug}`);
+    await expect(page.getByRole("heading", { name: `Artículo editado ${suffix}` })).toBeVisible();
 
     await context.close();
   });

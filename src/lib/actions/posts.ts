@@ -222,14 +222,24 @@ async function uploadCover(
   if (!file) return null;
   const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
   const path = `posts/${crypto.randomUUID()}.${extension}`;
-  const { error } = await supabase.storage
-    .from("covers")
-    .upload(path, file, { contentType: file.type, upsert: false });
-  if (error) return { error: "No se pudo subir la portada" } as const;
-  return {
-    path,
-    url: supabase.storage.from("covers").getPublicUrl(path).data.publicUrl,
-  } as const;
+  try {
+    const { error } = await supabase.storage
+      .from("covers")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (error) {
+      logSupabaseError(console.error, "covers.upload", "storage", error);
+      return { error: "No se pudo subir la portada" } as const;
+    }
+    return {
+      path,
+      url: supabase.storage.from("covers").getPublicUrl(path).data.publicUrl,
+    } as const;
+  } catch (error) {
+    logSupabaseError(console.error, "covers.upload", "storage", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return { error: "No se pudo subir la portada" } as const;
+  }
 }
 
 async function removeCover(
@@ -237,7 +247,13 @@ async function removeCover(
   url: string | null | undefined,
 ) {
   const path = url ? extractStoragePath(url) : null;
-  if (path) await supabase.storage.from("covers").remove([path]);
+  if (!path) return true;
+  const { error } = await supabase.storage.from("covers").remove([path]);
+  if (error) {
+    logSupabaseError(console.error, "covers.remove", "storage", error);
+    return false;
+  }
+  return true;
 }
 
 export async function createPost(input: PostInput): Promise<ActionResult> {
