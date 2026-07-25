@@ -55,6 +55,22 @@ pnpm test:e2e     # smoke tests Chromium (usa el build de producción)
 pnpm check        # lint + typecheck + unit
 ```
 
+### Seed determinista del blog
+
+`supabase/seed.sql` carga los tres artículos publicados del blog y un borrador privado para
+desarrollo y CI. El fixture usa IDs y metadatos estables, por lo que `supabase db reset` produce
+siempre el mismo estado. La importación de producción está separada y exige confirmar el project
+ref remoto:
+
+```bash
+SUPABASE_PROJECT_REF=yauzyuewbhzodzkynond \
+SUPABASE_DB_URL="<connection-string>" \
+CONFIRM_PRODUCTION_BLOG_SEED=WEB-0022 \
+pnpm seed:blogs:production
+```
+
+El comando omite los usuarios de prueba y solo debe ejecutarse como paso explícito del release.
+
 El workflow de pull requests ejecuta esos mismos controles en los jobs `quality`, `database` y
 `build-browser`. `database` usa un proyecto Supabase efímero; nunca apunta al proyecto remoto.
 
