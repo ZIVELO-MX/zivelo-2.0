@@ -5,6 +5,14 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { SearchParamsError } from "./search-params-error";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function LoginPage() {
   const t = useTranslations("Login");
@@ -20,26 +28,30 @@ export default function LoginPage() {
   return (
     <main className="login-shell">
       <div className="login-card">
-        <div className="login-box" aria-labelledby="login-title">
-          <span className="eyebrow" style={{ display: "flex", justifyContent: "center" }}>{t("eyebrow")}</span>
-          <h1 id="login-title" style={{ marginTop: 16 }}>{t("title")}</h1>
-          <p className="login-box__sub">{t("subtitle")}</p>
+        <Card className="login-box" aria-labelledby="login-title">
+          <CardHeader>
+            <span className="eyebrow" style={{ display: "flex", justifyContent: "center" }}>{t("eyebrow")}</span>
+            <CardTitle><h1 id="login-title" style={{ marginTop: 16 }}>{t("title")}</h1></CardTitle>
+            <CardDescription className="login-box__sub">{t("subtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="login-demo" id="login-provider-note">{t("providerNote")}</div>
           <div className="login-form">
             <Suspense fallback={null}>
               <SearchParamsError />
             </Suspense>
-            <button
+            <Button
               type="button"
               onClick={handleSignIn}
               disabled={loading}
-              className="btn btn--primary login-submit"
+              className="btn--primary login-submit"
               aria-describedby="login-provider-note"
             >
               {loading ? t("signingIn") : t("signInWithZoho")} <span className="arrow" aria-hidden="true">→</span>
-            </button>
+            </Button>
           </div>
-        </div>
+          </CardContent>
+        </Card>
         <a className="login-back" href={`/${params.locale}`}>← {t("backToSite")}</a>
       </div>
     </main>

@@ -9,6 +9,9 @@ import {
 } from "react";
 import type { KeyboardEvent, MutableRefObject } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   createPost,
   updatePost,
@@ -178,46 +181,43 @@ export function PostForm({
         </div>
       )}
 
-      <div className="editor-tabs" role="tablist" aria-label="Idioma del artículo">
-        <button
+      <Tabs
+        value={localeTab}
+        onValueChange={(value) => handleLocaleTab(value as LocaleTab)}
+      >
+        <TabsList className="editor-tabs" variant="line" aria-label="Idioma del artículo">
+        <TabsTrigger
           id="post-tab-es"
-          type="button"
-          role="tab"
-          aria-selected={localeTab === "es"}
           aria-controls="post-panel-es"
-          tabIndex={localeTab === "es" ? 0 : -1}
           ref={(element) => {
             localeTabRefs.current[0] = element;
           }}
+          value="es"
           className={localeTab === "es" ? "is-active" : ""}
-          onClick={() => handleLocaleTab("es")}
           onKeyDown={(event) =>
             moveTab(event, 0, ["es", "en"], (tab) =>
               handleLocaleTab(tab as LocaleTab), localeTabRefs)
           }
         >
           ES · Español
-        </button>
-        <button
+        </TabsTrigger>
+        <TabsTrigger
           id="post-tab-en"
-          type="button"
-          role="tab"
-          aria-selected={localeTab === "en"}
           aria-controls="post-panel-en"
-          tabIndex={localeTab === "en" ? 0 : -1}
           ref={(element) => {
             localeTabRefs.current[1] = element;
           }}
+          value="en"
           className={localeTab === "en" ? "is-active" : ""}
-          onClick={() => handleLocaleTab("en")}
           onKeyDown={(event) =>
             moveTab(event, 1, ["es", "en"], (tab) =>
               handleLocaleTab(tab as LocaleTab), localeTabRefs)
           }
         >
           EN · English
-        </button>
-      </div>
+        </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <div className="editor-mode-tabs" role="tablist" aria-label="Modo del editor">
         <button
@@ -610,7 +610,7 @@ function Field({
         {required && <span aria-hidden="true"> *</span>}
       </label>
       {tag === "textarea" ? (
-        <textarea
+        <Textarea
           id={id}
           name={name}
           defaultValue={defaultValue ?? ""}
@@ -620,7 +620,7 @@ function Field({
           aria-describedby={error ? `${id}-error` : undefined}
         />
       ) : (
-        <input
+        <Input
           id={id}
           name={name}
           type={type}
