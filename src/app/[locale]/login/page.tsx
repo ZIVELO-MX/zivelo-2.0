@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState, Suspense } from "react";
+import { flushSync } from "react-dom";
 import { SearchParamsError } from "./search-params-error";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   async function handleSignIn() {
-    setLoading(true);
+    flushSync(() => setLoading(true));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     const locale = params.locale as string;
     await signIn("zoho", { redirectTo: `/${locale}/admin` });
   }
