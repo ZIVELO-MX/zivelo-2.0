@@ -1,4 +1,4 @@
-import DOMPurify, { type Config } from "isomorphic-dompurify";
+import sanitizeHtmlLibrary from "sanitize-html";
 
 const ALLOWED_TAGS = [
   "p", "h1", "h2", "h3", "h4", "h5", "h6",
@@ -10,33 +10,18 @@ const ALLOWED_TAGS = [
   "table", "thead", "tbody", "tr", "th", "td",
 ];
 
-const ALLOWED_ATTRS = [
-  "href", "target", "rel",
-  "src", "alt", "width", "height",
-  "class",
-];
-
-const FORBIDDEN_PROTOCOLS = ["javascript:", "data:"];
-
-function hasForbiddenProtocol(value: string): boolean {
-  const val = value.trim().toLowerCase();
-  return FORBIDDEN_PROTOCOLS.some((p) => val.startsWith(p));
-}
-
-DOMPurify.addHook("uponSanitizeAttribute", (node, data, config) => {
-  if (
-    data.attrName &&
-    typeof data.attrValue === "string" &&
-    hasForbiddenProtocol(data.attrValue)
-  ) {
-    data.keepAttr = false;
-  }
-});
+const ALLOWED_ATTRIBUTES = {
+  "*": ["class"],
+  a: ["href", "target", "rel"],
+  img: ["src", "alt", "width", "height"],
+};
 
 export function sanitizeHtml(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR: ALLOWED_ATTRS,
-    ALLOW_DATA_ATTR: false,
-  } as Config);
+  return sanitizeHtmlLibrary(dirty, {
+    allowedTags: ALLOWED_TAGS,
+    allowedAttributes: ALLOWED_ATTRIBUTES,
+    allowedSchemes: ["http", "https", "mailto"],
+    allowedSchemesAppliedToAttributes: ["href", "src"],
+    disallowedTagsMode: "completelyDiscard",
+  });
 }
