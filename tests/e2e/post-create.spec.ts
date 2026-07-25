@@ -125,6 +125,11 @@ test.describe("authenticated post creation", () => {
 
     await page.getByRole("link", { name: `Artículo E2E ${suffix}` }).click();
     await page.getByLabel("Título").fill(`Artículo editado ${suffix}`);
+    await page.getByLabel("Subir portada (máx. 5 MB)").setInputFiles({
+      name: "cover-replacement.png",
+      mimeType: "image/png",
+      buffer: COVER_PNG,
+    });
     await page.getByRole("tab", { name: "EN · English" }).click();
     await page.getByLabel("Title").fill(`Edited article ${suffix}`);
     await page.getByRole("tab", { name: "ES · Español" }).click();
@@ -147,6 +152,9 @@ test.describe("authenticated post creation", () => {
       cover_alt_en: "Cover EN",
       published_at: "2026-07-24",
     });
+
+    await page.goto(`/es/blog/${slug}`);
+    await expect(page.getByRole("heading", { name: `Artículo editado ${suffix}` })).toBeVisible();
 
     await context.close();
   });
