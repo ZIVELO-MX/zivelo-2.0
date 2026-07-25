@@ -10,24 +10,49 @@ Sitio web corporativo de ZIVELO (estudio de ingeniería de software), construido
 - **CSS vanilla** (sin frameworks de utilidades) — tokens de diseño en `src/app/[locale]/globals.css`
 - **Supabase** (pendiente) — blog, panel de administración y autenticación real
 
-## Empezar
+## Instalación
 
 ```bash
-npm install
-npm run dev
+git clone git@github.com:ZIVELO-MX/zivelo-2.0.git
+cd zivelo-2.0
+nvm install
+nvm use
+corepack enable
+corepack prepare pnpm@11 --activate
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000).
 
+### Skill local para Pull Requests
+
+El skill `manage-pull-requests` se versiona dentro del repositorio en
+`.agents/skills/manage-pull-requests`. No requiere instalación global ni copiar archivos:
+queda instalado con el `git clone`.
+
+Después de clonar o actualizar el repositorio, abre la raíz del proyecto en Codex e inicia una
+sesión nueva para que vuelva a descubrir los skills locales. Puedes invocarlo explícitamente con:
+
+```text
+Usa $manage-pull-requests para crear y administrar el PR de esta rama.
+```
+
+El skill abre el PR cuando el cambio ya es revisable, delega las pruebas automatizadas al
+pipeline, registra el ID de misión y usa el checkbox de capturas como fuente de verdad; nunca
+hace merge sin una solicitud expresa del usuario.
+
+## Comandos
+
 ```bash
-npm run build   # build de producción
-npm run start   # sirve el build de producción
-npm run lint    # eslint
-npm run typecheck # TypeScript sin emitir archivos
-npm run test:unit # pruebas unitarias Node
-npm run test:db   # pgTAP contra Supabase local (requiere Docker)
-npm run test:e2e  # smoke tests Chromium (usa el build de producción)
-npm run check     # lint + typecheck + unit
+pnpm build        # build de producción
+pnpm start        # sirve el build de producción
+pnpm lint         # eslint
+pnpm typecheck    # TypeScript sin emitir archivos
+pnpm test:unit    # pruebas unitarias Node
+pnpm test:db      # pgTAP contra Supabase local (requiere Docker)
+pnpm test:e2e     # smoke tests Chromium (usa el build de producción)
+pnpm check        # lint + typecheck + unit
 ```
 
 El workflow de pull requests ejecuta esos mismos controles en los jobs `quality`, `database` y
