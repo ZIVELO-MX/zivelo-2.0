@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useState, useCallback } from "react";
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   createPost,
@@ -33,6 +39,7 @@ export function PostForm({
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [importMessage, setImportMessage] = useState("");
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const activeContent =
     localeTab === "es" ? contentMarkdownEs : contentMarkdownEn;
@@ -50,7 +57,7 @@ export function PostForm({
         ? await updatePost(postId, input)
         : await createPost(input);
       if (result.success) {
-        router.push("/admin/dashboard");
+        router.push("/admin/posts");
         router.refresh();
       }
       return result;
@@ -103,29 +110,63 @@ export function PostForm({
 
   const errors = state && !state.success ? state.errors : {};
   const fieldError = (field: string) => errors[field]?.[0];
+  const hasFieldErrors = Object.keys(errors).some((field) => field !== "_form");
+
+  useEffect(() => {
+    if (!state || state.success) return;
+
+    const englishFields = new Set([
+      "title_en",
+      "summary_en",
+      "content_markdown_en",
+      "tag_en",
+    ]);
+    const firstField = Object.keys(state.errors).find(
+      (field) => field !== "_form",
+    );
+
+    requestAnimationFrame(() => {
+      if (firstField && englishFields.has(firstField)) {
+        setLocaleTab("en");
+        setModeTab("edit");
+      }
+      errorSummaryRef.current?.focus();
+    });
+  }, [state]);
 
   return (
     <form action={formAction} className="post-form" noValidate>
-      {errors._form?.[0] && (
-        <div className="form-alert" role="alert" aria-live="assertive">
-          {errors._form[0]}
+      {(errors._form?.[0] || hasFieldErrors) && (
+        <div
+          ref={errorSummaryRef}
+          className="form-alert"
+          role="alert"
+          aria-live="assertive"
+          tabIndex={-1}
+        >
+          {errors._form?.[0] ??
+            "Revisa los campos marcados antes de guardar la publicación."}
         </div>
       )}
 
       <div className="editor-tabs" role="tablist" aria-label="Idioma del artículo">
         <button
+          id="post-tab-es"
           type="button"
           role="tab"
           aria-selected={localeTab === "es"}
+          aria-controls="post-panel-es"
           className={localeTab === "es" ? "is-active" : ""}
           onClick={() => handleLocaleTab("es")}
         >
           ES · Español
         </button>
         <button
+          id="post-tab-en"
           type="button"
           role="tab"
           aria-selected={localeTab === "en"}
+          aria-controls="post-panel-en"
           className={localeTab === "en" ? "is-active" : ""}
           onClick={() => handleLocaleTab("en")}
         >
@@ -156,9 +197,11 @@ export function PostForm({
       </div>
 
       <section
+        id="post-panel-es"
         className="editor-pane"
-        hidden={modeTab !== "edit"}
+        hidden={modeTab !== "edit" || localeTab !== "es"}
         role="tabpanel"
+        aria-labelledby="post-tab-es"
       >
         <Field
           label="Título"
@@ -175,31 +218,58 @@ export function PostForm({
           error={fieldError("summary_es")}
           required
         />
-        {localeTab === "es" && (
-          <MarkdownField
-            label="Contenido"
-            name="content_markdown_es"
-            value={contentMarkdownEs}
-            onChange={setContentMarkdownEs}
-            error={fieldError("content_markdown_es")}
-            locale="ES"
-          />
-        )}
-        {localeTab === "en" && (
-          <MarkdownField
-            label="Content"
-            name="content_markdown_en"
-            value={contentMarkdownEn}
-            onChange={setContentMarkdownEn}
-            error={fieldError("content_markdown_en")}
-            locale="EN"
-          />
-        )}
+        <MarkdownField
+          label="Contenido"
+          name="content_markdown_es"
+          value={contentMarkdownEs}
+          onChange={setContentMarkdownEs}
+          error={fieldError("content_markdown_es")}
+          locale="ES"
+        />
         <Field
           label="Categoría"
           name="tag_es"
           defaultValue={initial?.tag_es}
           error={fieldError("tag_es")}
+          required
+        />
+      </section>
+
+      <section
+        id="post-panel-en"
+        className="editor-pane"
+        hidden={modeTab !== "edit" || localeTab !== "en"}
+        role="tabpanel"
+        aria-labelledby="post-tab-en"
+      >
+        <Field
+          label="Title"
+          name="title_en"
+          defaultValue={initial?.title_en}
+          error={fieldError("title_en")}
+          required
+        />
+        <Field
+          label="Summary"
+          name="summary_en"
+          tag="textarea"
+          defaultValue={initial?.summary_en}
+          error={fieldError("summary_en")}
+          required
+        />
+        <MarkdownField
+          label="Content"
+          name="content_markdown_en"
+          value={contentMarkdownEn}
+          onChange={setContentMarkdownEn}
+          error={fieldError("content_markdown_en")}
+          locale="EN"
+        />
+        <Field
+          label="Category"
+          name="tag_en"
+          defaultValue={initial?.tag_en}
+          error={fieldError("tag_en")}
           required
         />
       </section>

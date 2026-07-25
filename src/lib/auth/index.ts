@@ -10,12 +10,24 @@ const supabase = createClient<Database>(
 );
 
 async function isAdminUser(email: string): Promise<boolean> {
-  const { count } = await supabase
+  const { data, error } = await supabase
     .from("users")
-    .select("*", { count: "exact", head: true })
-    .eq("email", email.toLowerCase().trim());
+    .select("id")
+    .eq("email", email.toLowerCase().trim())
+    .eq("role", "admin")
+    .maybeSingle();
 
-  return (count ?? 0) > 0;
+  if (error) {
+    console.error({
+      operation: "auth.admin_lookup",
+      category: "database",
+      providerCode: error.code || "UNKNOWN",
+      providerMessage: error.message || "Unknown Supabase error",
+    });
+    return false;
+  }
+
+  return Boolean(data);
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({

@@ -54,12 +54,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      NEXT_PUBLIC_SUPABASE_URL: https://yauzyuewbhzodzkynond.supabase.co
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_7_wbQsjvQ4pOD3krGzDbxw_gWqA_xbe
       AUTH_SECRET: placeholder-for-build
       ZOHO_CLIENT_ID: placeholder
       ZOHO_CLIENT_SECRET: placeholder
-      SUPABASE_SECRET_KEY: placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -70,6 +67,18 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start --exclude vector,mailpit --ignore-health-check
+      - run: supabase db reset
+      - name: Export local Supabase variables
+        run: supabase status -o env | sed -E 's/^([^=]+)="(.*)"$/\1=\2/' >> "$GITHUB_ENV"
+      - name: Configure application for local Supabase
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
       - run: npx playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm test:e2e
