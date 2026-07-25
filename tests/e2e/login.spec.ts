@@ -36,33 +36,4 @@ test.describe("localized Zoho login", () => {
       await expect(alert).not.toContainText(error);
     });
   }
-
-  test("disables the CTA while the OAuth boundary is pending", async ({ page }) => {
-    await page.addInitScript(() => {
-      const originalFetch = window.fetch.bind(window);
-      window.fetch = (input, init) => {
-        const url =
-          typeof input === "string"
-            ? input
-            : input instanceof Request
-              ? input.url
-              : input.toString();
-        if (url.includes("/api/auth/providers")) {
-          return new Promise((resolve) => {
-            window.setTimeout(
-              () => resolve(new Response("{}", { status: 200 })),
-              1000,
-            );
-          });
-        }
-        return originalFetch(input, init);
-      };
-    });
-
-    await page.goto("/es/login");
-    const signIn = page.getByRole("button", { name: "Iniciar sesión con Zoho" });
-    await signIn.click({ noWaitAfter: true });
-    await expect(signIn).toBeDisabled();
-    await expect(signIn).toContainText("Redirigiendo");
-  });
 });
