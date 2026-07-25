@@ -494,7 +494,41 @@ export async function deletePost(id: string): Promise<ActionResult> {
   if (post.cover_url) {
     const path = extractStoragePath(post.cover_url);
     if (path) {
-      await supabase.storage.from("covers").remove([path]);
+      try {
+        const { error: storageError } = await supabase.storage
+          .from("covers")
+          .remove([path]);
+        if (storageError) {
+          logSupabaseError(
+            console.error,
+            "posts.delete.cover",
+            "storage",
+            storageError,
+          );
+          return {
+            success: false,
+            code: "STORAGE_ERROR",
+            errors: {
+              _form: [
+                "No se pudo retirar la portada. La publicación no fue eliminada.",
+              ],
+            },
+          };
+        }
+      } catch (error) {
+        logSupabaseError(console.error, "posts.delete.cover", "storage", {
+          message: error instanceof Error ? error.message : String(error),
+        });
+        return {
+          success: false,
+          code: "STORAGE_ERROR",
+          errors: {
+            _form: [
+              "No se pudo retirar la portada. La publicación no fue eliminada.",
+            ],
+          },
+        };
+      }
     }
   }
 
