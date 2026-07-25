@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import type { KeyboardEvent, MutableRefObject } from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   createPost,
@@ -40,6 +41,8 @@ export function PostForm({
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [importMessage, setImportMessage] = useState("");
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const localeTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const modeTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const activeContent =
     localeTab === "es" ? contentMarkdownEs : contentMarkdownEn;
@@ -96,6 +99,31 @@ export function PostForm({
     setPreviewHtml(null);
     setPreviewError(null);
   }, []);
+
+  const moveTab = useCallback(
+    (
+      event: KeyboardEvent<HTMLButtonElement>,
+      index: number,
+      tabs: readonly string[],
+      select: (tab: string) => void,
+      refs: MutableRefObject<Array<HTMLButtonElement | null>>,
+    ) => {
+      const key = event.key;
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(key)) return;
+
+      event.preventDefault();
+      const direction = key === "ArrowLeft" ? -1 : key === "ArrowRight" ? 1 : 0;
+      const nextIndex =
+        key === "Home"
+          ? 0
+          : key === "End"
+            ? tabs.length - 1
+            : (index + direction + tabs.length) % tabs.length;
+      select(tabs[nextIndex]);
+      requestAnimationFrame(() => refs.current[nextIndex]?.focus());
+    },
+    [],
+  );
 
   async function handleImportFile(file: File | undefined) {
     if (!file) return;
@@ -156,8 +184,16 @@ export function PostForm({
           role="tab"
           aria-selected={localeTab === "es"}
           aria-controls="post-panel-es"
+          tabIndex={localeTab === "es" ? 0 : -1}
+          ref={(element) => {
+            localeTabRefs.current[0] = element;
+          }}
           className={localeTab === "es" ? "is-active" : ""}
           onClick={() => handleLocaleTab("es")}
+          onKeyDown={(event) =>
+            moveTab(event, 0, ["es", "en"], (tab) =>
+              handleLocaleTab(tab as LocaleTab), localeTabRefs)
+          }
         >
           ES · Español
         </button>
@@ -167,8 +203,16 @@ export function PostForm({
           role="tab"
           aria-selected={localeTab === "en"}
           aria-controls="post-panel-en"
+          tabIndex={localeTab === "en" ? 0 : -1}
+          ref={(element) => {
+            localeTabRefs.current[1] = element;
+          }}
           className={localeTab === "en" ? "is-active" : ""}
           onClick={() => handleLocaleTab("en")}
+          onKeyDown={(event) =>
+            moveTab(event, 1, ["es", "en"], (tab) =>
+              handleLocaleTab(tab as LocaleTab), localeTabRefs)
+          }
         >
           EN · English
         </button>
@@ -176,30 +220,58 @@ export function PostForm({
 
       <div className="editor-mode-tabs" role="tablist" aria-label="Modo del editor">
         <button
+          id="post-mode-tab-edit"
           type="button"
           role="tab"
           aria-selected={modeTab === "edit"}
+          aria-controls="post-mode-panel-edit"
+          tabIndex={modeTab === "edit" ? 0 : -1}
+          ref={(element) => {
+            modeTabRefs.current[0] = element;
+          }}
           className={modeTab === "edit" ? "is-active" : ""}
           onClick={() => handleModeTab("edit")}
+          onKeyDown={(event) =>
+            moveTab(event, 0, ["edit", "preview"], (tab) =>
+              void handleModeTab(tab as ModeTab), modeTabRefs)
+          }
         >
           Editar
         </button>
         <button
+          id="post-mode-tab-preview"
           type="button"
           role="tab"
           aria-selected={modeTab === "preview"}
+          aria-controls="post-mode-panel-preview"
+          tabIndex={modeTab === "preview" ? 0 : -1}
+          ref={(element) => {
+            modeTabRefs.current[1] = element;
+          }}
           className={modeTab === "preview" ? "is-active" : ""}
-          onClick={() => handleModeTab("preview")}
-          disabled={previewLoading}
+          aria-disabled={previewLoading}
+          onClick={() => {
+            if (!previewLoading) void handleModeTab("preview");
+          }}
+          onKeyDown={(event) =>
+            moveTab(event, 1, ["edit", "preview"], (tab) =>
+              void handleModeTab(tab as ModeTab), modeTabRefs)
+          }
         >
           {previewLoading ? "Cargando…" : "Vista previa"}
         </button>
       </div>
 
+      <div
+        id="post-mode-panel-edit"
+        role="tabpanel"
+        aria-labelledby="post-mode-tab-edit"
+        hidden={modeTab !== "edit"}
+      >
       <section
         id="post-panel-es"
         className="editor-pane"
-        hidden={modeTab !== "edit" || localeTab !== "es"}
+        hidden={localeTab !== "es"}
         role="tabpanel"
         aria-labelledby="post-tab-es"
       >
@@ -226,6 +298,11 @@ export function PostForm({
           error={fieldError("content_markdown_es")}
           locale="ES"
         />
+        <MarkdownImport
+          id="post-import-es"
+          onImport={handleImportFile}
+          message={importMessage}
+        />
         <Field
           label="Categoría"
           name="tag_es"
@@ -238,7 +315,7 @@ export function PostForm({
       <section
         id="post-panel-en"
         className="editor-pane"
-        hidden={modeTab !== "edit" || localeTab !== "en"}
+        hidden={localeTab !== "en"}
         role="tabpanel"
         aria-labelledby="post-tab-en"
       >
@@ -265,6 +342,11 @@ export function PostForm({
           error={fieldError("content_markdown_en")}
           locale="EN"
         />
+        <MarkdownImport
+          id="post-import-en"
+          onImport={handleImportFile}
+          message={importMessage}
+        />
         <Field
           label="Category"
           name="tag_en"
@@ -274,10 +356,14 @@ export function PostForm({
         />
       </section>
 
+      </div>
+
       <section
+        id="post-mode-panel-preview"
         className="editor-pane"
         hidden={modeTab !== "preview"}
         role="tabpanel"
+        aria-labelledby="post-mode-tab-preview"
       >
         {previewError && (
           <div className="form-alert" role="alert">
@@ -365,25 +451,6 @@ export function PostForm({
             error={fieldError("cover_alt_en")}
           />
         </div>
-        <div className="markdown-import">
-          <label className="btn btn--ghost btn--sm">
-            Importar Markdown
-            <input
-              type="file"
-              accept=".md,.markdown,text/markdown"
-              hidden
-              onChange={(event) => {
-                void handleImportFile(event.target.files?.[0]);
-                event.currentTarget.value = "";
-              }}
-            />
-          </label>
-          {importMessage && (
-            <span className="admin-meta" role="status">
-              {importMessage}
-            </span>
-          )}
-        </div>
       </section>
 
       <div className="post-form__actions">
@@ -407,6 +474,39 @@ export function PostForm({
         </button>
       </div>
     </form>
+  );
+}
+
+function MarkdownImport({
+  id,
+  onImport,
+  message,
+}: {
+  id: string;
+  onImport: (file: File | undefined) => void;
+  message: string;
+}) {
+  return (
+    <div className="markdown-import">
+      <label className="btn btn--ghost btn--sm" htmlFor={id}>
+        Importar Markdown
+      </label>
+      <input
+        id={id}
+        type="file"
+        accept=".md,.markdown,text/markdown"
+        hidden
+        onChange={(event) => {
+          void onImport(event.target.files?.[0]);
+          event.currentTarget.value = "";
+        }}
+      />
+      {message && (
+        <span className="admin-meta" role="status" aria-live="polite">
+          {message}
+        </span>
+      )}
+    </div>
   );
 }
 

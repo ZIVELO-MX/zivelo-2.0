@@ -170,3 +170,52 @@ test.describe("authenticated post creation", () => {
     await context.close();
   });
 });
+
+test.describe("accessible Markdown editor controls", () => {
+  test("keeps tab focus semantics and imports Markdown into the active locale", async ({
+    browser,
+  }) => {
+    const context = await authenticatedContext(browser, ADMIN_EMAIL);
+    const page = await context.newPage();
+
+    await page.goto("/es/admin/posts/nuevo");
+
+    const spanishTab = page.locator("#post-tab-es");
+    const englishTab = page.locator("#post-tab-en");
+    await expect(spanishTab).toHaveAttribute("tabindex", "0");
+    await expect(englishTab).toHaveAttribute("tabindex", "-1");
+
+    await spanishTab.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(englishTab).toBeFocused();
+    await expect(englishTab).toHaveAttribute("aria-selected", "true");
+    await expect(spanishTab).toHaveAttribute("tabindex", "-1");
+
+    await page.keyboard.press("Home");
+    await expect(spanishTab).toBeFocused();
+
+    await page.locator("#post-import-es").setInputFiles({
+      name: "imported.md",
+      mimeType: "text/markdown",
+      buffer: Buffer.from("## Imported content"),
+    });
+    await expect(page.getByRole("status")).toContainText("imported.md cargado");
+    await expect(page.locator("#post-content_markdown_es")).toHaveValue(
+      "## Imported content",
+    );
+
+    const editTab = page.locator("#post-mode-tab-edit");
+    const previewTab = page.locator("#post-mode-tab-preview");
+    await expect(editTab).toHaveAttribute("aria-controls", "post-mode-panel-edit");
+    await expect(previewTab).toHaveAttribute(
+      "aria-controls",
+      "post-mode-panel-preview",
+    );
+    await editTab.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(previewTab).toBeFocused();
+    await expect(page.locator("#post-mode-panel-preview")).toBeVisible();
+
+    await context.close();
+  });
+});
