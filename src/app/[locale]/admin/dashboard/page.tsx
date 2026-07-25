@@ -2,6 +2,23 @@ import { auth } from "@/lib/auth";
 import { getDashboardStats, listAllPosts } from "@/lib/admin-data";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -29,7 +46,9 @@ export default async function DashboardPage() {
             <span className="eyebrow eyebrow--plain">Archivo</span>
             <h2 className="h3" id="recent-posts" style={{ marginTop: 8 }}>{t("recentPosts")}</h2>
           </div>
-          <Link href="/admin/posts/new" className="btn btn--primary btn--sm">{t("newPost")} <span aria-hidden="true">→</span></Link>
+          <Button size="sm" render={<Link href="/admin/posts/new" />}>
+            {t("newPost")} <span aria-hidden="true">→</span>
+          </Button>
         </div>
         <PostTable posts={posts} locale={locale} t={t} />
       </section>
@@ -38,23 +57,32 @@ export default async function DashboardPage() {
 }
 
 function StatCard({ label, value, tone = "default" }: { label: string; value: number; tone?: string }) {
-  return <div className={`admin-stat admin-stat--${tone}`}><span>{label}</span><strong>{value}</strong></div>;
+  return (
+    <Card className={`admin-stat admin-stat--${tone}`}>
+      <CardHeader>
+        <CardTitle>{label}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <strong>{value}</strong>
+      </CardContent>
+    </Card>
+  );
 }
 
 function PostTable({ posts, locale, t }: { posts: Awaited<ReturnType<typeof listAllPosts>>; locale: string; t: (key: string) => string }) {
   if (!posts.length) return <div className="admin-empty"><strong>{t("emptyTitle")}</strong><p>{t("emptyBody")}</p></div>;
   return (
     <div className="admin-table-wrap">
-      <table className="admin-table">
-        <caption className="sr-only">{t("recentPosts")}</caption>
-        <thead><tr><th>{t("title")}</th><th>{t("status")}</th><th>{t("updated")}</th><th><span className="sr-only">{t("actions")}</span></th></tr></thead>
-        <tbody>{posts.map((post) => <tr key={post.id}>
-          <td><Link className="admin-post-title" href={{ pathname: "/admin/posts/[id]/edit", params: { id: post.id } }}>{post.title_es}</Link><small>{post.slug}</small></td>
-          <td><span className={`admin-status admin-status--${post.status}`}>{post.status === "published" ? t("published") : t("draft")}</span></td>
-          <td className="admin-meta">{new Date(post.updated_at).toLocaleDateString(locale)}</td>
-          <td><Link className="admin-row-action" href={{ pathname: "/admin/posts/[id]/edit", params: { id: post.id } }}>{t("edit")}</Link></td>
-        </tr>)}</tbody>
-      </table>
+      <Table className="admin-table">
+        <TableCaption className="sr-only">{t("recentPosts")}</TableCaption>
+        <TableHeader><TableRow><TableHead>{t("title")}</TableHead><TableHead>{t("status")}</TableHead><TableHead>{t("updated")}</TableHead><TableHead><span className="sr-only">{t("actions")}</span></TableHead></TableRow></TableHeader>
+        <TableBody>{posts.map((post) => <TableRow key={post.id}>
+          <TableCell><Link className="admin-post-title" href={{ pathname: "/admin/posts/[id]/edit", params: { id: post.id } }}>{post.title_es}</Link><small>{post.slug}</small></TableCell>
+          <TableCell><Badge variant={post.status === "published" ? "default" : "secondary"}>{post.status === "published" ? t("published") : t("draft")}</Badge></TableCell>
+          <TableCell className="admin-meta">{new Date(post.updated_at).toLocaleDateString(locale)}</TableCell>
+          <TableCell><Link className="admin-row-action" href={{ pathname: "/admin/posts/[id]/edit", params: { id: post.id } }}>{t("edit")}</Link></TableCell>
+        </TableRow>)}</TableBody>
+      </Table>
     </div>
   );
 }

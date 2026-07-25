@@ -2,6 +2,16 @@ import { auth } from "@/lib/auth";
 import { LogoutButton } from "@/components/logout-button";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { MenuIcon } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -27,6 +37,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/posts" className="admin-tab">{t("publications")}</Link>
           <Link href="/admin/posts/new" className="admin-tab admin-tab--accent">{t("write")}</Link>
         </nav>
+        <div className="admin-mobile-menu">
+          <Sheet>
+            <SheetTrigger render={<Button variant="outline" size="sm" />}>
+              <MenuIcon aria-hidden="true" />
+              <span>{t("navigation")}</span>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>{t("navigation")}</SheetTitle>
+              </SheetHeader>
+              <nav className="admin-mobile-links" aria-label={t("navigation")}>
+                <SheetClose render={<Link href="/admin/dashboard" />}>{t("dashboard")}</SheetClose>
+                <SheetClose render={<Link href="/admin/posts" />}>{t("publications")}</SheetClose>
+                <SheetClose render={<Link href="/admin/posts/new" />}>{t("write")}</SheetClose>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
         <main className="admin-content">{children}</main>
       </div>
     </div>
