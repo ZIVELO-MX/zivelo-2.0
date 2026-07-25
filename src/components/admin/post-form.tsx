@@ -12,6 +12,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   createPost,
   updatePost,
@@ -455,8 +456,7 @@ export function PostForm({
       </section>
 
       <div className="post-form__actions">
-        <button
-          className="btn btn--primary"
+        <Button
           type="submit"
           disabled={isPending}
         >
@@ -465,14 +465,14 @@ export function PostForm({
             : postId
               ? "Guardar cambios"
               : "Crear borrador"}
-        </button>
-        <button
-          className="btn btn--ghost"
+        </Button>
+        <Button
+          variant="outline"
           type="button"
           onClick={() => router.push("/admin/dashboard")}
         >
           Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -489,7 +489,7 @@ function MarkdownImport({
 }) {
   return (
     <div className="markdown-import">
-      <label className="btn btn--ghost btn--sm" htmlFor={id}>
+      <label className={buttonVariants({ variant: "outline", size: "sm" })} htmlFor={id}>
         Importar Markdown
       </label>
       <input

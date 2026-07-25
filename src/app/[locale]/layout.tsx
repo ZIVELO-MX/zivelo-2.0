@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -39,6 +39,10 @@ export const metadata: Metadata = {
   title: "ZIVELO | Soluciones de Software a Medida",
   description:
     "Desarrollamos tecnología que impulsa el crecimiento de negocios. Sitios web modernos, soluciones para restaurantes, puntos de venta y presencia digital.",
+};
+
+export const viewport: Viewport = {
+  colorScheme: "light dark",
 };
 
 const organizationJsonLd = {
