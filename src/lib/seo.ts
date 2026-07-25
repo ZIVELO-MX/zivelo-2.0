@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 
 export const SITE_URL = "https://www.zivelo.dev";
+export const FAVICON_PATH = "/assets/logo-white-clean.svg";
 
 /**
  * Resolves a canonical path (the key used in routing.pathnames and in

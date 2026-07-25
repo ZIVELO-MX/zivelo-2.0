@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppFloat } from "@/components/whatsapp-float";
 import { SkipLink } from "@/components/skip-link";
-import { SITE_URL } from "@/lib/seo";
+import { FAVICON_PATH, SITE_URL } from "@/lib/seo";
 import { CONTACT } from "@/lib/site-constants";
 import "./globals.css";
 
@@ -39,6 +39,9 @@ export const metadata: Metadata = {
   title: "ZIVELO | Soluciones de Software a Medida",
   description:
     "Desarrollamos tecnología que impulsa el crecimiento de negocios. Sitios web modernos, soluciones para restaurantes, puntos de venta y presencia digital.",
+  icons: {
+    icon: [{ url: FAVICON_PATH, type: "image/svg+xml" }],
+  },
 };
 
 export const viewport: Viewport = {
