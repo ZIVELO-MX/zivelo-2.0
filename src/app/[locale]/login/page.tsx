@@ -21,6 +21,7 @@ export default function LoginPage() {
 
   async function handleSignIn() {
     setLoading(true);
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     const locale = params.locale as string;
     await signIn("zoho", { redirectTo: `/${locale}/admin` });
   }
