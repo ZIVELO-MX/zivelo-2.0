@@ -25,10 +25,11 @@ Manage the complete PR lifecycle while keeping review feedback fast and leaving 
 
 Make exactly one decision before finalizing the PR description:
 
-- **UI screenshots required:** Include exactly one standalone line matching `Misión: WEB-XXXX`, replacing the placeholder with the real mission ID. Obtain the ID from the mission context, branch, or repository tooling. If it cannot be determined, ask the user before finalizing the description.
-- **UI screenshots not required:** Explicitly state `No requiere capturas` in the PR and omit a completed `Misión: WEB-XXXX` line. A literal placeholder such as `Misión: WEB-XXXX` may remain if the repository template uses it.
+- **Mission reference:** When the change belongs to a mission, always document it as `Misión ID: WEB-XXXX`. This identifies the mission but does not activate screenshots.
+- **UI screenshots required:** Add exactly one standalone line matching `Misión: WEB-XXXX`, using the same mission ID. This separate line is the screenshot workflow trigger. If the mission ID cannot be determined, ask the user before finalizing the description.
+- **UI screenshots not required:** Explicitly state `No requiere capturas` and do not add the completed trigger line. Keep the `Misión ID: WEB-XXXX` reference.
 
-Never declare that screenshots are unnecessary while also including a completed mission line. After creating or editing the PR, read the persisted body and confirm that the screenshot workflow will take the intended path.
+Never declare that screenshots are unnecessary while also including the completed trigger line. After creating or editing the PR, read the persisted body and confirm that the screenshot workflow will take the intended path.
 
 ## Open the PR early
 

@@ -2,13 +2,12 @@
 
 <!-- Breve descripción del cambio. -->
 
-## Misión
+## Misión de Zipform
 
-Misión: WEB-XXXX
+Misión ID: WEB-XXXX
 
 <!--
-  Completa el identificador de misión sólo si este cambio requiere capturas.
-  Si no requiere capturas, deja el placeholder sin completar o elimina la línea.
+  Completa el ID si el cambio pertenece a una misión. Esta referencia no activa capturas.
 -->
 
 ## Validación
@@ -24,11 +23,11 @@ Misión: WEB-XXXX
 - [ ] No requiere capturas
 
 <!--
-  Si requiere capturas, sustituye WEB-XXXX por el ID real de la misión (ej. WEB-0005).
-  La línea completa `Misión: WEB-0005` activa `Publish Mission screenshots`.
+  Si requiere capturas, añade una línea independiente `Misión: WEB-0005` usando el mismo ID.
+  Esa línea completa activa `Publish Mission screenshots`.
 
-  Si no requiere capturas, marca la opción correspondiente y deja el placeholder
-  sin completar o elimina la línea. El pipeline omitirá Playwright sin fallar.
+  Si no requiere capturas, marca la opción correspondiente y no añadas la línea activadora.
+  El pipeline omitirá Playwright sin fallar.
 -->
 
 ## Notas adicionales
