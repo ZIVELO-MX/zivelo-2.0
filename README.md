@@ -39,8 +39,8 @@ Usa $manage-pull-requests para crear y administrar el PR de esta rama.
 ```
 
 El skill abre el PR cuando el cambio ya es revisable, delega las pruebas automatizadas al
-pipeline, registra el ID de misión y configura por separado si se necesitan capturas; nunca hace
-merge sin una solicitud expresa del usuario.
+pipeline, registra el ID de misión y usa el checkbox de capturas como fuente de verdad; nunca
+hace merge sin una solicitud expresa del usuario.
 
 ## Comandos
 

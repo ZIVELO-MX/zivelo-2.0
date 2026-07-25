@@ -23,11 +23,9 @@ Misión ID: WEB-XXXX
 - [ ] No requiere capturas
 
 <!--
-  Si requiere capturas, añade una línea independiente `Misión: WEB-0005` usando el mismo ID.
-  Esa línea completa activa `Publish Mission screenshots`.
-
-  Si no requiere capturas, marca la opción correspondiente y no añadas la línea activadora.
-  El pipeline omitirá Playwright sin fallar.
+  El checkbox es la fuente de verdad para screenshots.
+  Si requiere capturas, marca esa opción y completa `Misión ID: WEB-0005`.
+  Si no requiere capturas, marca esa opción; el pipeline omitirá Playwright aunque exista una misión.
 -->
 
 ## Notas adicionales

@@ -3,17 +3,34 @@ import { pathToFileURL } from "node:url";
 
 const API_ORIGIN = "https://zipform.zivelo.dev";
 const PROJECT_ID = "project-web-corporativa";
-const MISSION_LINE = /^\s*(?:Misión|Mision|Mission):\s*(WEB-[0-9]{4})\s*$/gimu;
+const MISSION_LINE = /^\s*(?:Misión\s+ID|Mision\s+ID|Mission\s+ID|Misión|Mision|Mission):\s*(WEB-[0-9]{4})\s*$/gimu;
+const SCREENSHOTS_REQUIRED = /^\s*-\s*\[x\]\s+Requiere capturas\s*$/gimu;
+const SCREENSHOTS_NOT_REQUIRED = /^\s*-\s*\[x\]\s+No requiere capturas\s*$/gimu;
 
 export function extractMissionDisplayId(body) {
   const matches = [...String(body || "").matchAll(MISSION_LINE)].map((match) => match[1].toUpperCase());
+  const uniqueMatches = [...new Set(matches)];
 
-  if (matches.length === 0) return null;
-  if (matches.length > 1) {
-    throw new Error("PR description must contain exactly one 'Misión: WEB-XXXX' line");
+  if (uniqueMatches.length === 0) return null;
+  if (uniqueMatches.length > 1) {
+    throw new Error("PR description must contain exactly one mission ID");
   }
 
-  return matches[0];
+  return uniqueMatches[0];
+}
+
+export function extractScreenshotDecision(body) {
+  const text = String(body || "");
+  const requiresScreenshots = [...text.matchAll(SCREENSHOTS_REQUIRED)].length;
+  const doesNotRequireScreenshots = [...text.matchAll(SCREENSHOTS_NOT_REQUIRED)].length;
+
+  if (requiresScreenshots > 1 || doesNotRequireScreenshots > 1 || (requiresScreenshots && doesNotRequireScreenshots)) {
+    throw new Error("PR description must select exactly one screenshot option");
+  }
+
+  if (requiresScreenshots) return true;
+  if (doesNotRequireScreenshots) return false;
+  return null;
 }
 
 export async function resolveMissionId(displayId, token, fetchImpl = fetch) {
@@ -49,9 +66,21 @@ async function writeOutput(name, value) {
 }
 
 async function main() {
-  const displayId = extractMissionDisplayId(process.env.PR_BODY);
+  const body = process.env.PR_BODY;
+  const screenshotDecision = extractScreenshotDecision(body);
+
+  if (screenshotDecision === false) {
+    console.log("No screenshots requested by PR checklist; skipping screenshots");
+    await writeOutput("skip", "true");
+    return;
+  }
+
+  const displayId = extractMissionDisplayId(body);
   if (!displayId) {
-    console.log("No completed 'Misión: WEB-XXXX' field in PR description; skipping screenshots");
+    if (screenshotDecision === true) {
+      throw new Error("PR requests screenshots but does not include a mission ID");
+    }
+    console.log("No mission ID in PR description; skipping screenshots");
     await writeOutput("skip", "true");
     return;
   }

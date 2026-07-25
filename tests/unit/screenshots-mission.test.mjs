@@ -2,12 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   extractMissionDisplayId,
+  extractScreenshotDecision,
   resolveMissionId,
 } from "../../scripts/screenshots/resolve-mission.mjs";
 
 test("extracts the structured mission field from the PR description", () => {
-  assert.equal(extractMissionDisplayId("## Misión de Zipform\n\nMisión: WEB-0004"), "WEB-0004");
-  assert.equal(extractMissionDisplayId("Mission: web-0016"), "WEB-0016");
+  assert.equal(extractMissionDisplayId("## Misión de Zipform\n\nMisión ID: WEB-0004"), "WEB-0004");
+  assert.equal(extractMissionDisplayId("Mission ID: web-0016"), "WEB-0016");
 });
 
 test("ignores identifiers outside the structured mission field", () => {
@@ -17,8 +18,21 @@ test("ignores identifiers outside the structured mission field", () => {
 
 test("rejects multiple structured mission fields", () => {
   assert.throws(
-    () => extractMissionDisplayId("Misión: WEB-0004\nMission: WEB-0016"),
-    /exactly one/,
+    () => extractMissionDisplayId("Misión ID: WEB-0004\nMission ID: WEB-0016"),
+    /exactly one mission ID/,
+  );
+});
+
+test("uses the screenshots checkbox as the source of truth", () => {
+  assert.equal(extractScreenshotDecision("Misión ID: WEB-0021\n- [x] No requiere capturas"), false);
+  assert.equal(extractScreenshotDecision("Misión ID: WEB-0021\n- [x] Requiere capturas"), true);
+  assert.equal(extractScreenshotDecision("Misión ID: WEB-0021"), null);
+});
+
+test("rejects conflicting screenshot checkboxes", () => {
+  assert.throws(
+    () => extractScreenshotDecision("- [x] Requiere capturas\n- [x] No requiere capturas"),
+    /exactly one screenshot option/,
   );
 });
 
