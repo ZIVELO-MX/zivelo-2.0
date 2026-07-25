@@ -15,9 +15,12 @@ Misión ID: WEB-XXXX
 - [ ] Requiere capturas
 - [ ] No requiere capturas
 
+Perfil(es) de capturas:
+
 <!--
   El checkbox es la fuente de verdad para screenshots.
-  Si requiere capturas, marca esa opción y completa `Misión ID: WEB-0005`.
+  Si requiere capturas, marca esa opción, completa `Misión ID: WEB-0005` y especifica uno o más
+  perfiles versionados (`public`, `login`, `admin`) en `Perfil(es) de capturas:`.
   Si no requiere capturas, marca esa opción; el pipeline omitirá Playwright aunque exista una misión.
 -->
 

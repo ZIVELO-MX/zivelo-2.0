@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   extractMissionDisplayId,
   extractScreenshotDecision,
+  extractScreenshotProfiles,
   resolveMissionId,
 } from "../../scripts/screenshots/resolve-mission.mjs";
 
@@ -34,6 +35,33 @@ test("rejects conflicting screenshot checkboxes", () => {
     () => extractScreenshotDecision("- [x] Requiere capturas\n- [x] No requiere capturas"),
     /exactly one screenshot option/,
   );
+});
+
+test("parses known versioned screenshot profiles", () => {
+  assert.deepEqual(
+    extractScreenshotProfiles("Perfiles de capturas: admin, login"),
+    ["admin", "login"],
+  );
+});
+
+test("rejects unknown or repeated screenshot profiles", () => {
+  assert.throws(
+    () => extractScreenshotProfiles("Perfiles de capturas: admin, tablet"),
+    /Unknown screenshot profile\(s\): tablet/,
+  );
+  assert.throws(
+    () => extractScreenshotProfiles("Perfiles de capturas: admin\nPerfiles de capturas: login"),
+    /exactly one screenshot profile field/,
+  );
+});
+
+test("requires a profile when screenshots are requested", () => {
+  assert.throws(() => {
+    const profiles = extractScreenshotProfiles("Misión ID: WEB-0024\n- [x] Requiere capturas");
+    if (profiles.length === 0) {
+      throw new Error("PR requests screenshots but does not include a screenshot profile");
+    }
+  }, /does not include a screenshot profile/);
 });
 
 test("resolves the exact display ID in the corporate website project", async () => {
