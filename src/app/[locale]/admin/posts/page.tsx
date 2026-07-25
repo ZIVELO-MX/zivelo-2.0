@@ -15,7 +15,7 @@ export default async function PostsPage() {
     <div className="admin-page">
       <div className="admin-section__head">
         <div><span className="eyebrow eyebrow--plain">Archivo</span><h2 className="h3 admin-section__title">{t("publications")}</h2></div>
-        <Link className={buttonVariants({ size: "sm" })} href="/admin/posts/new">{t("newPost")}</Link>
+        <Link className={`${buttonVariants({ size: "sm" })} admin-primary-action`} href="/admin/posts/new">{t("newPost")}</Link>
       </div>
       <div className="admin-list">
         {posts.length ? posts.map((post) => (

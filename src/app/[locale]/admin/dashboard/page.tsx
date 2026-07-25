@@ -47,7 +47,7 @@ export default async function DashboardPage() {
             <span className="eyebrow eyebrow--plain">Archivo</span>
             <h2 className="h3 admin-section__title" id="recent-posts">{t("recentPosts")}</h2>
           </div>
-          <Link className={cn(buttonVariants({ size: "sm" }))} href="/admin/posts/new">
+          <Link className={cn(buttonVariants({ size: "sm" }), "admin-primary-action")} href="/admin/posts/new">
             {t("newPost")} <span aria-hidden="true">→</span>
           </Link>
         </div>
