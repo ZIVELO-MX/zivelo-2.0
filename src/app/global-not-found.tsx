@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { IBM_Plex_Sans, Inter } from "next/font/google";
+import { FAVICON_PATH } from "@/lib/seo";
 import "./[locale]/globals.css";
 
 const displayFont = IBM_Plex_Sans({
@@ -20,6 +21,9 @@ const bodyFont = Inter({
 export const metadata: Metadata = {
   title: "Página no encontrada | ZIVELO",
   description: "El enlace puede estar roto o la página se movió.",
+  icons: {
+    icon: [{ url: FAVICON_PATH, type: "image/svg+xml" }],
+  },
 };
 
 export default function GlobalNotFound() {
