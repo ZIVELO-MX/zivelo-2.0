@@ -3,7 +3,7 @@ import { listAllPosts } from "@/lib/admin-data";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function PostsPage() {
@@ -14,8 +14,8 @@ export default async function PostsPage() {
   return (
     <div className="admin-page">
       <div className="admin-section__head">
-        <div><span className="eyebrow eyebrow--plain">Archivo</span><h2 className="h3" style={{ marginTop: 8 }}>{t("publications")}</h2></div>
-        <Button size="sm" render={<Link href="/admin/posts/new" />}>{t("newPost")}</Button>
+        <div><span className="eyebrow eyebrow--plain">Archivo</span><h2 className="h3 admin-section__title">{t("publications")}</h2></div>
+        <Link className={buttonVariants({ size: "sm" })} href="/admin/posts/new">{t("newPost")}</Link>
       </div>
       <div className="admin-list">
         {posts.length ? posts.map((post) => (

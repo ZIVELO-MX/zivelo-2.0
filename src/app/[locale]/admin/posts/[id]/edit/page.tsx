@@ -44,7 +44,7 @@ export default async function EditPostPage(props: { params: Promise<{ id: string
 
   return (
     <div className="admin-page">
-      <div className="admin-section__head"><div><span className="eyebrow eyebrow--plain">Archivo</span><h2 className="h3" style={{ marginTop: 8 }}>Editar post</h2></div><DeletePostButton postId={id} /></div>
+      <div className="admin-section__head"><div><span className="eyebrow eyebrow--plain">Archivo</span><h2 className="h3 admin-section__title">Editar post</h2></div><DeletePostButton postId={id} /></div>
       <PostForm postId={id} initial={initial} />
     </div>
   );

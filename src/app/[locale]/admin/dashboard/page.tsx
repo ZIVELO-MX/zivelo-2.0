@@ -3,7 +3,8 @@ import { getDashboardStats, listAllPosts } from "@/lib/admin-data";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -44,11 +45,11 @@ export default async function DashboardPage() {
         <div className="admin-section__head">
           <div>
             <span className="eyebrow eyebrow--plain">Archivo</span>
-            <h2 className="h3" id="recent-posts" style={{ marginTop: 8 }}>{t("recentPosts")}</h2>
+            <h2 className="h3 admin-section__title" id="recent-posts">{t("recentPosts")}</h2>
           </div>
-          <Button size="sm" render={<Link href="/admin/posts/new" />}>
+          <Link className={cn(buttonVariants({ size: "sm" }))} href="/admin/posts/new">
             {t("newPost")} <span aria-hidden="true">→</span>
-          </Button>
+          </Link>
         </div>
         <PostTable posts={posts} locale={locale} t={t} />
       </section>

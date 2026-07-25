@@ -13,7 +13,7 @@ export default async function NewPostPage() {
 
   return (
     <div className="admin-page">
-      <div><span className="eyebrow eyebrow--plain">Editor</span><h2 className="h3" style={{ marginTop: 8 }}>Nuevo post</h2></div>
+      <div><span className="eyebrow eyebrow--plain">Editor</span><h2 className="h3 admin-section__title">Nuevo post</h2></div>
       <PostForm />
     </div>
   );
