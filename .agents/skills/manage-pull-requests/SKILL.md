@@ -25,7 +25,7 @@ Manage the complete PR lifecycle while keeping review feedback fast and leaving 
 
 Make exactly one decision before finalizing the PR description:
 
-- **UI screenshots required:** Include exactly one standalone line matching `Misión: WEB-XXXX`, replacing the placeholder with the real Task ID. Obtain the ID from the task context, branch, or repository tooling. If it cannot be determined, ask the user before finalizing the description.
+- **UI screenshots required:** Include exactly one standalone line matching `Misión: WEB-XXXX`, replacing the placeholder with the real mission ID. Obtain the ID from the mission context, branch, or repository tooling. If it cannot be determined, ask the user before finalizing the description.
 - **UI screenshots not required:** Explicitly state `No requiere capturas` in the PR and omit a completed `Misión: WEB-XXXX` line. A literal placeholder such as `Misión: WEB-XXXX` may remain if the repository template uses it.
 
 Never declare that screenshots are unnecessary while also including a completed mission line. After creating or editing the PR, read the persisted body and confirm that the screenshot workflow will take the intended path.
@@ -34,7 +34,7 @@ Never declare that screenshots are unnecessary while also including a completed 
 
 1. Push the focused branch as soon as the change is reviewable.
 2. Open a normal PR immediately so CI and human feedback can begin. Use a draft only when the user explicitly requests one.
-3. Follow the repository template and describe the change, Task ID, validation strategy, screenshot decision, risks, and relevant context accurately.
+3. Follow the repository template and describe the change, mission ID, validation strategy, screenshot decision, risks, and relevant context accurately.
 4. Do not claim that a check passed unless it actually ran and passed.
 5. Continue refinements through follow-up commits on the same branch and update the PR body when its scope or evidence changes.
 

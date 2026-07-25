@@ -2,12 +2,13 @@
 
 <!-- Breve descripción del cambio. -->
 
-## Tarea
+## Misión
 
-Task: WEB-XXXX
+Misión: WEB-XXXX
 
 <!--
-  Este campo documenta la tarea, pero no activa las capturas.
+  Completa el identificador de misión sólo si este cambio requiere capturas.
+  Si no requiere capturas, deja el placeholder sin completar o elimina la línea.
 -->
 
 ## Validación
@@ -22,11 +23,9 @@ Task: WEB-XXXX
 - [ ] Requiere capturas
 - [ ] No requiere capturas
 
-Misión: WEB-XXXX
-
 <!--
-  Si requiere capturas, sustituye WEB-XXXX por el Task ID real (ej. WEB-0005).
-  La línea completa activa `Publish Mission screenshots`.
+  Si requiere capturas, sustituye WEB-XXXX por el ID real de la misión (ej. WEB-0005).
+  La línea completa `Misión: WEB-0005` activa `Publish Mission screenshots`.
 
   Si no requiere capturas, marca la opción correspondiente y deja el placeholder
   sin completar o elimina la línea. El pipeline omitirá Playwright sin fallar.
