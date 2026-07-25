@@ -12,6 +12,7 @@
     "test:db": "supabase test db --local supabase/tests/database",
     "test:e2e": "playwright test",
     "screenshots:publish": "node --import tsx scripts/screenshots/publish.ts",
+    "seed:blogs:production": "node scripts/seed-blogs-production.mjs",
     "check": "npm run lint && npm run typecheck && npm run test:unit"
   },
   "dependencies": {

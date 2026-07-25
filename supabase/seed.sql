@@ -1,12 +1,6 @@
 -- Seed data for local development and CI
 -- Real production data is managed separately via Supabase Dashboard
 
--- Admin users for NextAuth signIn verification
-insert into public.users (name, username, email, "avatarUrl", role) values
-  ('Benjamín Rodríguez', 'benrod', 'benjamin.rodriguez@zivelo.dev', '', 'admin'),
-  ('Raúl Méndez', 'rulaxx', 'raul.mendez@zivelo.dev', '', 'admin')
-on conflict (email) do nothing;
-
 insert into public.posts (slug, status, tag_es, tag_en, title_es, title_en, summary_es, summary_en, content_markdown_es, content_markdown_en, content_html_es, content_html_en, published_at) values
   (
     'como-elegir-punto-de-venta',
@@ -53,4 +47,16 @@ insert into public.posts (slug, status, tag_es, tag_en, title_es, title_en, summ
     E'<h2>Boring means proven</h2>\n<p>When we build something you\u2019ll use for five years, novelty is a risk, not an advantage.</p>\n<blockquote><p>Boring technology, deployed carefully, beats exciting technology deployed on hope.</p></blockquote>\n<p>We pick tools with a decade of runway ahead and talent available to hire for them. That way, the day you need another team, you can find one.</p>',
     '2026-06-30'
   )
-on conflict (slug) do nothing;
+on conflict (slug) do update set
+  status = excluded.status,
+  tag_es = excluded.tag_es,
+  tag_en = excluded.tag_en,
+  title_es = excluded.title_es,
+  title_en = excluded.title_en,
+  summary_es = excluded.summary_es,
+  summary_en = excluded.summary_en,
+  content_markdown_es = excluded.content_markdown_es,
+  content_markdown_en = excluded.content_markdown_en,
+  content_html_es = excluded.content_html_es,
+  content_html_en = excluded.content_html_en,
+  published_at = excluded.published_at;
