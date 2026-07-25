@@ -31,13 +31,14 @@ test.describe("localized Zoho login", () => {
   ] as const) {
     test(`announces a safe Spanish error for ${error}`, async ({ page }) => {
       await page.goto(`/es/login?error=${error}`);
-      await expect(page.getByRole("alert")).toHaveText(message);
-      await expect(page.getByRole("alert")).not.toContainText(error);
+      const alert = page.locator("p.login-error[role='alert']");
+      await expect(alert).toHaveText(message);
+      await expect(alert).not.toContainText(error);
     });
   }
 
   test("disables the CTA while the OAuth boundary is pending", async ({ page }) => {
-    await page.route("**/api/auth/signin/zoho**", async (route) => {
+    await page.route("**/api/auth/**", async (route) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
     });
