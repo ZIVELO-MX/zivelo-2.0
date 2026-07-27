@@ -85,7 +85,9 @@ export default async function Projects({ params }: PageParams) {
               <p className="proj__desc">{t("projQuotesDesc")}</p>
               <a className="proj__extlink" href={PROJECT_LINKS.ziveloQuotes} target="_blank" rel="noopener">quotes.zivelo.dev <span className="arrow">↗</span></a>
             </div>
-            <ImagePlaceholder label={t("projQuotesImageAlt")} className="proj__media" style={{ width: "100%", height: "100%" }} />
+            <div className="proj__media" style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
+              <Image src={PROJECT_COVERS.ziveloQuotes} alt={t("projQuotesImageAlt")} fill sizes="(max-width: 820px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+            </div>
           </Reveal>
 
           <Reveal className="proj">

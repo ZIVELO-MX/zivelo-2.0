@@ -24,5 +24,6 @@ const STORAGE_BASE = "https://yauzyuewbhzodzkynond.supabase.co/storage/v1/object
 export const PROJECT_COVERS: Record<string, string> = {
   kodaFidelity: `${STORAGE_BASE}/Cover-Fidelity.png`,
   stickio: `${STORAGE_BASE}/Cover-Stickio.png`,
+  ziveloQuotes: `${STORAGE_BASE}/Cover-Quotes.png`,
   prompt2git: `${STORAGE_BASE}/Cover-Prompt2Git.png`,
 };
