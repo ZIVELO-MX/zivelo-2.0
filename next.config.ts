@@ -11,6 +11,15 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
     serverActions: { bodySizeLimit: "6mb" },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "yauzyuewbhzodzkynond.supabase.co",
+        pathname: "/storage/v1/object/public/covers/**",
+      },
+    ],
+  },
 };
 
 export default withNextIntl(nextConfig);
