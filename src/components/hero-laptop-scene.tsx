@@ -80,7 +80,8 @@ function LaptopModel({
   const keyboardTexture = useMemo(() => createKeyboardTexture(), []);
   const baseGeometry = useMemo(() => new RoundedBoxGeometry(3.64, 0.13, 2.56, 5, 0.075), []);
   const lidGeometry = useMemo(() => new RoundedBoxGeometry(3.56, 2.24, 0.085, 5, 0.08), []);
-  const loadedLogoTexture = useLoader(THREE.TextureLoader, "/assets/logo-white-compact.svg");
+  // WebGL uploads a raster derivative of the official SVG to avoid driver-specific SVG texture failures.
+  const loadedLogoTexture = useLoader(THREE.TextureLoader, "/assets/logo-white-compact-3d.png");
   const logoTexture = useMemo(() => {
     const texture = loadedLogoTexture.clone();
     texture.colorSpace = THREE.SRGBColorSpace;
