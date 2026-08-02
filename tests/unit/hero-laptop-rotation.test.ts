@@ -7,17 +7,11 @@ import {
   clampLaptopRotation,
   laptopRotationFromDrag,
   laptopRotationFromKey,
-  laptopRotationToDegrees,
 } from "../../src/lib/hero-laptop-rotation";
 
 test("laptop rotation stays within the presentational range", () => {
   assert.equal(clampLaptopRotation(20), HERO_LAPTOP_MAX_ROTATION);
   assert.equal(clampLaptopRotation(-20), HERO_LAPTOP_MIN_ROTATION);
-});
-
-test("converts the shared rotation to CSS degrees", () => {
-  assert.equal(laptopRotationToDegrees(0), 0);
-  assert.equal(laptopRotationToDegrees(Math.PI / 2), 90);
 });
 
 test("horizontal dragging rotates the laptop in the expected direction", () => {

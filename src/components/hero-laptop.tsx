@@ -9,7 +9,6 @@ import {
   useId,
   useRef,
   useState,
-  type CSSProperties,
   type KeyboardEvent,
   type MutableRefObject,
   type PointerEvent,
@@ -19,7 +18,6 @@ import {
   HERO_LAPTOP_DEFAULT_ROTATION,
   laptopRotationFromDrag,
   laptopRotationFromKey,
-  laptopRotationToDegrees,
 } from "@/lib/hero-laptop-rotation";
 
 interface HeroLaptopSceneProps {
@@ -78,7 +76,6 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
   const hintId = useId();
   const reducedMotion = useReducedMotion();
   const [sceneReady, setSceneReady] = useState(false);
-  const fallbackModelRef = useRef<HTMLDivElement>(null);
   const rotationRef = useRef(HERO_LAPTOP_DEFAULT_ROTATION);
   const invalidateRef = useRef<() => void>(() => undefined);
   const dragRef = useRef<{ pointerId: number; startX: number; startRotation: number } | null>(null);
@@ -87,10 +84,6 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
 
   function applyRotation(nextRotation: number) {
     rotationRef.current = nextRotation;
-    fallbackModelRef.current?.style.setProperty(
-      "--hero-laptop-rotation",
-      `${laptopRotationToDegrees(nextRotation)}deg`,
-    );
     invalidateRef.current();
   }
 
@@ -145,31 +138,8 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
         role="group"
         tabIndex={0}
       >
-        <div className="hero-laptop__fallback-stage" aria-hidden="true">
-          <div
-            className="hero-laptop__fallback-model"
-            ref={fallbackModelRef}
-            style={{
-              "--hero-laptop-rotation": `${laptopRotationToDegrees(HERO_LAPTOP_DEFAULT_ROTATION)}deg`,
-            } as CSSProperties}
-          >
-            <div className="hero-laptop__fallback-lid">
-              <div className="hero-laptop__fallback-screen">
-                <Image
-                  alt=""
-                  height={119}
-                  priority
-                  src="/assets/logo-white-compact.svg"
-                  width={163}
-                />
-              </div>
-            </div>
-            <div className="hero-laptop__fallback-hinge" />
-            <div className="hero-laptop__fallback-base">
-              <div className="hero-laptop__fallback-keyboard" />
-              <div className="hero-laptop__fallback-trackpad" />
-            </div>
-          </div>
+        <div className="hero-laptop__brand-fallback" aria-hidden="true">
+          <Image alt="" height={119} priority src="/assets/logo-white-compact.svg" width={163} />
         </div>
         <SceneBoundary onError={handleSceneUnavailable}>
           <HeroLaptopScene
