@@ -519,19 +519,6 @@ html[data-theme="dark"] .btn--primary:hover { filter: brightness(0.85); }
 }
 .hero-laptop:active { cursor: grabbing; }
 .hero-laptop:focus-visible { outline: 2px solid var(--accent-l); outline-offset: 5px; }
-.hero-laptop::after {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  right: 15%;
-  bottom: 20%;
-  left: 15%;
-  height: 8%;
-  border-radius: 50%;
-  background: rgb(0 0 0 / 0.28);
-  filter: blur(18px);
-  pointer-events: none;
-}
 .hero-laptop__brand-fallback {
   position: absolute;
   inset: 0;
@@ -563,7 +550,6 @@ html[data-theme="dark"] .btn--primary:hover { filter: brightness(0.85); }
   overflow: visible;
   shape-rendering: geometricPrecision;
 }
-.hero-laptop__vector-logo { filter: drop-shadow(0 0 12px rgb(255 255 255 / 0.16)); }
 .hero-laptop__hint {
   display: flex;
   align-items: center;

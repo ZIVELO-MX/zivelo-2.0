@@ -12,7 +12,7 @@ test("uses the official compact ZIVELO SVG in the Three.js vector scene", async 
   ]);
 
   assert.match(shell, /\/assets\/logo-white-compact\.svg/);
-  assert.match(scene, /SVGRenderer/);
+  assert.match(scene, /WebGLRenderer/);
   assert.match(scene, /\/assets\/logo-white-compact\.svg/);
   assert.doesNotMatch(scene, /@react-three\/fiber/);
   assert.doesNotMatch(shell, /hero-laptop-(?:dark|light)\.webp/);
