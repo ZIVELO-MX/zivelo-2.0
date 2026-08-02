@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { PageParams, resolveParams } from "@/lib/params";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
-import { ImagePlaceholder } from "@/components/image-placeholder";
+import { HeroLaptop } from "@/components/hero-laptop";
 import { buildMetadata } from "@/lib/seo";
 import { CONTACT, PROJECT_LINKS, PROJECT_COVERS } from "@/lib/site-constants";
 
@@ -43,11 +43,8 @@ export default async function Home() {
                   </Link>
                 </div>
               </div>
-              <div>
-                <ImagePlaceholder
-                  label={t("heroImageAlt")}
-                  style={{ width: "100%", aspectRatio: "3/4", minHeight: 380 }}
-                />
+              <div className="heroA__visual">
+                <HeroLaptop label={t("heroLaptopAlt")} hint={t("heroLaptopHint")} />
               </div>
             </div>
           </div>

@@ -6,7 +6,7 @@ import {
   useState,
   useSyncExternalStore,
   type ReactNode,
-  type ElementType,
+  type Ref,
 } from "react";
 
 function supportsViewTimeline() {
@@ -31,7 +31,7 @@ export function Reveal({
   style,
   children,
 }: {
-  as?: ElementType;
+  as?: "div" | "p";
   delay?: 1 | 2 | 3 | 4;
   className?: string;
   style?: React.CSSProperties;
@@ -70,15 +70,16 @@ export function Reveal({
   const classes = ["reveal", className];
   if (isIn) classes.push("is-in");
 
-  return (
-    <Tag
-      ref={ref}
-      className={classes.filter(Boolean).join(" ")}
-      style={style}
-      data-native={native ? "" : undefined}
-      data-d={delay}
-    >
-      {children}
-    </Tag>
-  );
+  const revealProps = {
+    className: classes.filter(Boolean).join(" "),
+    style,
+    "data-native": native ? "" : undefined,
+    "data-d": delay,
+  };
+
+  if (Tag === "p") {
+    return <p ref={ref as Ref<HTMLParagraphElement>} {...revealProps}>{children}</p>;
+  }
+
+  return <div ref={ref as Ref<HTMLDivElement>} {...revealProps}>{children}</div>;
 }
