@@ -83,7 +83,7 @@ export default async function Home({ params }: PageParams) {
               </div>
               <div>
                 <p className="service__desc">{t("service1Desc")}</p>
-                <div style={{ marginTop: 26 }}><Link className="tlink" href="/services">{t("learnMore")} <span className="arrow">→</span></Link></div>
+                <div style={{ marginTop: 26 }}><Link className="tlink" href={{ pathname: "/services", hash: "web" }}>{t("learnMore")} <span className="arrow">→</span></Link></div>
               </div>
             </article>
             <article className="service">
@@ -91,14 +91,14 @@ export default async function Home({ params }: PageParams) {
               <svg className="service__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 3v7a3 3 0 0 0 6 0V3M9 3v18" /><path d="M17 3c-1.5 1-2 3-2 6 0 2 .5 3 2 3v9" /></svg>
               <h3 className="h3 service__title">{t("service2Title")}</h3>
               <p className="service__desc">{t("service2Desc")}</p>
-              <div style={{ marginTop: 26 }}><Link className="tlink" href="/services">{t("learnMore")} <span className="arrow">→</span></Link></div>
+              <div style={{ marginTop: 26 }}><Link className="tlink" href={{ pathname: "/services", hash: "restaurant" }}>{t("learnMore")} <span className="arrow">→</span></Link></div>
             </article>
             <article className="service">
               <div className="service__n">1.3</div>
               <svg className="service__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h8M8 15h4" /></svg>
               <h3 className="h3 service__title">{t("service3Title")}</h3>
               <p className="service__desc">{t("service3Desc")}</p>
-              <div style={{ marginTop: 26 }}><Link className="tlink" href="/services">{t("learnMore")} <span className="arrow">→</span></Link></div>
+              <div style={{ marginTop: 26 }}><Link className="tlink" href={{ pathname: "/services", hash: "pos" }}>{t("learnMore")} <span className="arrow">→</span></Link></div>
             </article>
           </Reveal>
         </div>
