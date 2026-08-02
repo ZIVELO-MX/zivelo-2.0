@@ -1,6 +1,6 @@
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 
-export const authConfig: NextAuthConfig = {
+export const authConfig: NextAuthOptions = {
   providers: [],
   pages: { signIn: "/login", error: "/login" },
   callbacks: {
@@ -12,5 +12,4 @@ export const authConfig: NextAuthConfig = {
     },
   },
   session: { strategy: "jwt" },
-  trustHost: true,
 };

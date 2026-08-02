@@ -1,14 +1,6 @@
 import type { ContactRepository } from "../repository";
 import type { NormalizedContact, DeliveryStatus } from "../types";
 
-export function isTestEnv(): boolean {
-  return (
-    process.env.NODE_ENV === "test" ||
-    process.env.__TEST__ === "true" ||
-    process.env.PLAYWRIGHT_TEST === "true"
-  );
-}
-
 interface MemoryRow {
   id: string;
   delivery_status: DeliveryStatus;

@@ -16,8 +16,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   });
 }
 
-export default async function Process({ params }: PageParams) {
-  const { locale } = await resolveParams(params);
+export default async function Process() {
   const t = await getTranslations("Process");
 
   const steps = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({

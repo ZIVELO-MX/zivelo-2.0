@@ -14,7 +14,7 @@ export function LogoutButton() {
       type="button"
       variant="outline"
       size="sm"
-      onClick={() => signOut({ redirectTo: `/${locale}/login` })}
+      onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
     >
       {t("logout")}
     </Button>

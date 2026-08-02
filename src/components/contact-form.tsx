@@ -27,8 +27,13 @@ export type ContactFormLabels = {
 
 const initialState: ContactResult = { success: false };
 
+async function submitContactWithId(previousState: ContactResult, formData: FormData) {
+  formData.set("f-id", crypto.randomUUID());
+  return submitContact(previousState, formData);
+}
+
 export function ContactForm({ labels, locale }: { labels: ContactFormLabels; locale: string }) {
-  const [serverState, dispatch, pending] = useActionState(submitContact, initialState);
+  const [serverState, dispatch, pending] = useActionState(submitContactWithId, initialState);
 
   const [resetKey, setResetKey] = useState(0);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -92,7 +97,6 @@ export function ContactForm({ labels, locale }: { labels: ContactFormLabels; loc
           action={dispatch}
           key={resetKey}
         >
-          <input type="hidden" name="f-id" value={crypto.randomUUID()} />
           <input type="hidden" name="f-locale" value={locale} />
           <input
             type="text"
