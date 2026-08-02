@@ -4,10 +4,32 @@ allowBuilds:
   esbuild: false
   sharp: false
   unrs-resolver: false
+minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
+  - '@types/node@24.13.3'
+  - 'eslint-import-resolver-typescript@4.4.5'
+  - 'postcss@8.5.18'
+  - 'brace-expansion@1.1.17'
+  - 'semver@7.8.5'
+  - 'eslint-config-next@16.2.12'
+  - 'next@16.2.12'
+  - 'next-auth@4.24.15'
+  - 'sharp@0.35.3'
   - '@supabase/auth-js@2.110.8'
   - '@supabase/functions-js@2.110.8'
   - '@supabase/postgrest-js@2.110.8'
   - '@supabase/realtime-js@2.110.8'
   - '@supabase/storage-js@2.110.8'
   - '@supabase/supabase-js@2.110.8'
+overrides:
+  brace-expansion: 1.1.17
+  eslint-import-resolver-typescript: 4.4.5
+  postcss: 8.5.18
+  semver: 7.8.5
+  sharp: 0.35.3
+peerDependencyRules:
+  allowedVersions:
+    nodemailer: '9'
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - 'jose@4.15.9'

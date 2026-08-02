@@ -6,7 +6,7 @@ const PROJECT_ID = "project-web-corporativa";
 const MISSION_LINE = /^\s*(?:Misión\s+ID|Mision\s+ID|Mission\s+ID|Misión|Mision|Mission):\s*(WEB-[0-9]{4})\s*$/gimu;
 const SCREENSHOTS_REQUIRED = /^\s*-\s*\[x\]\s+Requiere capturas\s*$/gimu;
 const SCREENSHOTS_NOT_REQUIRED = /^\s*-\s*\[x\]\s+No requiere capturas\s*$/gimu;
-const PROFILE_LINE = /^\s*(?:Perfil(?:es)?|Perfil\(es\)) de capturas:\s*(.+?)\s*$/gimu;
+const PROFILE_LINE = /^[ \t]*(?:Perfil(?:es)?|Perfil\(es\)) de capturas:[ \t]*([^\r\n]*)[ \t]*$/gimu;
 const KNOWN_PROFILES = new Set(["public", "login", "admin"]);
 
 export function extractMissionDisplayId(body) {
@@ -50,9 +50,6 @@ export function extractScreenshotProfiles(body) {
   const unknown = uniqueProfiles.filter((profile) => !KNOWN_PROFILES.has(profile));
   if (unknown.length) {
     throw new Error(`Unknown screenshot profile(s): ${unknown.join(", ")}`);
-  }
-  if (uniqueProfiles.length === 0) {
-    throw new Error("PR description must include at least one screenshot profile");
   }
   return uniqueProfiles;
 }

@@ -30,10 +30,9 @@ async function addAdminSession(context: import("@playwright/test").BrowserContex
   const secret = getEnv("AUTH_SECRET");
   if (!secret) throw new Error("AUTH_SECRET is required for the admin screenshot profile");
   const email = getEnv("SCREENSHOT_ADMIN_EMAIL") || "benjamin.rodriguez@zivelo.dev";
-  const cookieName = "authjs.session-token";
+  const cookieName = "next-auth.session-token";
   const token = await encode({
     secret,
-    salt: cookieName,
     token: { sub: `screenshot-${email}`, name: "Screenshot admin", email },
   });
   await context.addCookies([

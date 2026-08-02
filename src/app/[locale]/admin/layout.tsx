@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { LogoutButton } from "@/components/logout-button";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { AdminNav } from "@/components/admin/admin-nav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
