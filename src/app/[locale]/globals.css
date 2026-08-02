@@ -519,16 +519,28 @@ html[data-theme="dark"] .btn--primary:hover { filter: brightness(0.85); }
 }
 .hero-laptop:active { cursor: grabbing; }
 .hero-laptop:focus-visible { outline: 2px solid var(--accent-l); outline-offset: 5px; }
-.hero-laptop__poster { z-index: 0; object-fit: cover; transform: scale(1.08); transition: opacity 240ms ease; }
+.hero-laptop__poster { z-index: 0; object-fit: cover; transition: opacity 240ms ease; }
 .hero-laptop__poster--light { display: block; }
 .hero-laptop__poster--dark { display: none; }
 html[data-theme="dark"] .hero-laptop__poster--light { display: none; }
 html[data-theme="dark"] .hero-laptop__poster--dark { display: block; }
-.hero-laptop[data-ready="true"] .hero-laptop__poster { opacity: 0; }
+.hero-laptop__poster-logo {
+  position: absolute;
+  z-index: 1;
+  top: 39%;
+  left: 64%;
+  width: 13%;
+  height: auto;
+  transform: translate(-50%, -50%) rotate(-0.6deg);
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+.hero-laptop[data-ready="true"] .hero-laptop__poster,
+.hero-laptop[data-ready="true"] .hero-laptop__poster-logo { opacity: 0; }
 .hero-laptop__canvas {
   position: absolute !important;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   opacity: 0;
   pointer-events: none;
   transition: opacity 240ms ease;
@@ -560,7 +572,7 @@ html[data-theme="dark"] .hero-laptop__poster--dark { display: block; }
   .hero-laptop__hint { justify-content: center; margin-top: 4px; font-size: 0.63rem; }
 }
 @media (prefers-reduced-motion: reduce){
-  .hero-laptop__poster, .hero-laptop__canvas { transition: none; }
+  .hero-laptop__poster, .hero-laptop__poster-logo, .hero-laptop__canvas { transition: none; }
 }
 
 /* Hero B — centered authority */

@@ -3,6 +3,7 @@
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { HERO_LAPTOP_DEFAULT_ROTATION } from "@/lib/hero-laptop-rotation";
 
 interface HeroLaptopSceneProps {
@@ -77,7 +78,9 @@ function LaptopModel({
   const currentRotationRef = useRef(initialRotation);
   const hasRenderedRef = useRef(false);
   const keyboardTexture = useMemo(() => createKeyboardTexture(), []);
-  const loadedLogoTexture = useLoader(THREE.TextureLoader, "/assets/logo-white-full.svg");
+  const baseGeometry = useMemo(() => new RoundedBoxGeometry(3.64, 0.13, 2.56, 5, 0.075), []);
+  const lidGeometry = useMemo(() => new RoundedBoxGeometry(3.56, 2.24, 0.085, 5, 0.08), []);
+  const loadedLogoTexture = useLoader(THREE.TextureLoader, "/assets/logo-white-compact.svg");
   const logoTexture = useMemo(() => {
     const texture = loadedLogoTexture.clone();
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -90,10 +93,12 @@ function LaptopModel({
   useEffect(() => {
     invalidate();
     return () => {
+      baseGeometry.dispose();
       keyboardTexture?.dispose();
+      lidGeometry.dispose();
       logoTexture.dispose();
     };
-  }, [invalidate, keyboardTexture, logoTexture]);
+  }, [baseGeometry, invalidate, keyboardTexture, lidGeometry, logoTexture]);
 
   function handleAfterRender() {
     if (hasRenderedRef.current) return;
@@ -118,43 +123,41 @@ function LaptopModel({
   });
 
   return (
-    <group ref={groupRef} position={[0, -0.68, 0.05]} rotation={[0.035, initialRotation, 0]} scale={scale}>
-      <mesh onAfterRender={handleAfterRender} position={[0, -0.03, 0.08]}>
-        <boxGeometry args={[3.62, 0.16, 2.38]} />
-        <meshStandardMaterial color="#8f939a" metalness={0.76} roughness={0.28} />
+    <group ref={groupRef} position={[0, -0.7, 0.06]} rotation={[0.025, initialRotation, 0]} scale={scale}>
+      <mesh geometry={baseGeometry} onAfterRender={handleAfterRender} position={[0, 0, 0.08]}>
+        <meshStandardMaterial color="#888c93" metalness={0.78} roughness={0.27} />
       </mesh>
-      <mesh position={[0, 0.064, 0.04]}>
-        <boxGeometry args={[3.52, 0.035, 2.27]} />
-        <meshStandardMaterial color="#a5a8ad" metalness={0.82} roughness={0.3} />
+      <mesh position={[0, 0.073, 0.08]}>
+        <boxGeometry args={[3.47, 0.016, 2.38]} />
+        <meshStandardMaterial color="#a7aab0" metalness={0.76} roughness={0.31} />
       </mesh>
-      <mesh position={[0, 0.086, -0.23]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[3.02, 1.22]} />
+      <mesh position={[0, 0.085, -0.27]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.94, 1.18]} />
         <meshStandardMaterial color="#1a1c20" map={keyboardTexture ?? undefined} roughness={0.72} />
       </mesh>
-      <mesh position={[0, 0.089, 0.68]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[1.28, 0.56]} />
-        <meshStandardMaterial color="#858990" metalness={0.7} roughness={0.38} />
+      <mesh position={[0, 0.087, 0.7]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[1.36, 0.68]} />
+        <meshStandardMaterial color="#92969d" metalness={0.68} roughness={0.36} />
       </mesh>
-      <mesh position={[0, 0.1, -1.04]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.105, 0.105, 3.18, 28]} />
+      <mesh position={[0, 0.1, -1.16]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.085, 0.085, 3.1, 28]} />
         <meshStandardMaterial color="#303338" metalness={0.9} roughness={0.24} />
       </mesh>
 
-      <group position={[0, 1.18, -1.14]} rotation={[-0.11, 0, 0]}>
-        <mesh>
-          <boxGeometry args={[3.62, 2.28, 0.1]} />
+      <group position={[0, 0.07, -1.2]} rotation={[-0.14, 0, 0]}>
+        <mesh geometry={lidGeometry} position={[0, 1.12, 0]}>
           <meshStandardMaterial color="#292b2f" metalness={0.82} roughness={0.25} />
         </mesh>
-        <mesh position={[0, 0, 0.057]}>
-          <planeGeometry args={[3.36, 2.03]} />
+        <mesh position={[0, 1.12, 0.047]}>
+          <planeGeometry args={[3.3, 1.98]} />
           <meshBasicMaterial color="#0d0e10" />
         </mesh>
-        <mesh position={[0, 0.02, 0.071]}>
-          <planeGeometry args={[2.18, 0.48]} />
+        <mesh position={[0, 1.14, 0.054]}>
+          <planeGeometry args={[0.82, 0.598]} />
           <meshBasicMaterial depthWrite={false} map={logoTexture} transparent toneMapped={false} />
         </mesh>
-        <mesh position={[0, -0.92, 0.066]}>
-          <circleGeometry args={[0.018, 20]} />
+        <mesh position={[0, 2.16, 0.052]}>
+          <circleGeometry args={[0.014, 20]} />
           <meshBasicMaterial color="#30343a" />
         </mesh>
       </group>
@@ -172,7 +175,7 @@ export function HeroLaptopScene({
   return (
     <Canvas
       aria-hidden="true"
-      camera={{ fov: 34, near: 0.1, far: 40, position: [0, 2.25, 7.5] }}
+      camera={{ fov: 33, near: 0.1, far: 40, position: [0, 2.35, 7.65] }}
       className="hero-laptop__canvas"
       dpr={[1, 1.5]}
       frameloop="demand"

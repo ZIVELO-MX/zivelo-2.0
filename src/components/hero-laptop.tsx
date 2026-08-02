@@ -141,14 +141,24 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
           fill
           priority
           sizes="(max-width: 900px) 100vw, 48vw"
-          src="/assets/hero-laptop-dark.webp"
+          src="/assets/hero-laptop-dark.webp?v=2"
+          unoptimized
         />
         <Image
           alt=""
           className="hero-laptop__poster hero-laptop__poster--light"
           fill
           sizes="(max-width: 900px) 100vw, 48vw"
-          src="/assets/hero-laptop-light.webp"
+          src="/assets/hero-laptop-light.webp?v=2"
+          unoptimized
+        />
+        <Image
+          alt=""
+          aria-hidden="true"
+          className="hero-laptop__poster-logo"
+          height={119}
+          src="/assets/logo-white-compact.svg"
+          width={163}
         />
         <SceneBoundary onError={handleSceneUnavailable}>
           <HeroLaptopScene
