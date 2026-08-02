@@ -88,12 +88,6 @@ function createLaptop(maxAnisotropy: number, requestRender: () => void) {
     roughness: 0.44,
     envMapIntensity: 0.95,
   });
-  const deckPlate = new THREE.MeshPhysicalMaterial({
-    color: 0x2e3237,
-    metalness: 0.82,
-    roughness: 0.52,
-    envMapIntensity: 0.85,
-  });
   const well = new THREE.MeshPhysicalMaterial({
     color: 0x101216,
     metalness: 0.3,
@@ -135,27 +129,21 @@ function createLaptop(maxAnisotropy: number, requestRender: () => void) {
   };
 
   // --- Base chassis (thin) ---
-  const baseGeo = track(new RoundedBoxGeometry(4.62, 0.16, 3.16, 6, 0.09));
+  const baseGeo = track(new RoundedBoxGeometry(4.62, 0.16, 3.16, 6, 0.07));
   const base = new THREE.Mesh(baseGeo, chassis);
   base.position.y = 0;
   model.add(base);
 
   const baseTop = 0.08;
 
-  // Slightly inset deck plate on top for material separation.
-  const deck = new THREE.Mesh(
-    track(new RoundedBoxGeometry(4.42, 0.02, 2.98, 4, 0.06)),
-    deckPlate,
-  );
-  deck.position.set(0, baseTop + 0.001, 0.02);
-  model.add(deck);
-
-  // --- Keyboard well (recessed dark panel) ---
+  // Dark keyboard deck: an inlaid panel that sits ON the chassis. Every top
+  // element's bottom stays at/above baseTop so nothing intersects the base
+  // body (interpenetration is what causes z-fighting flicker on rotation).
   const kbWell = new THREE.Mesh(
-    track(new RoundedBoxGeometry(3.62, 0.03, 1.62, 4, 0.05)),
+    track(new RoundedBoxGeometry(3.62, 0.014, 1.62, 3, 0.006)),
     well,
   );
-  kbWell.position.set(0, baseTop - 0.004, -0.55);
+  kbWell.position.set(0, baseTop + 0.007, -0.55);
   model.add(kbWell);
 
   // --- Keycaps as one InstancedMesh: clean, aligned, cheap ---
@@ -165,7 +153,7 @@ function createLaptop(maxAnisotropy: number, requestRender: () => void) {
   const gridW = cols * pitch;
   const startX = -gridW / 2 + pitch / 2;
   const startZ = -0.55 - (rows * pitch) / 2 + pitch / 2;
-  const keyY = baseTop + 0.024;
+  const keyY = baseTop + 0.039; // rests on the keyboard deck, no interpenetration
   const spaceCols = new Set([4, 5, 6, 7, 8, 9]); // frontmost row middle -> spacebar
 
   const placements: THREE.Vector3[] = [];
@@ -196,19 +184,19 @@ function createLaptop(maxAnisotropy: number, requestRender: () => void) {
 
   // --- Trackpad (glass, front-centre) ---
   const trackpad = new THREE.Mesh(
-    track(new RoundedBoxGeometry(1.7, 0.014, 1.02, 4, 0.05)),
+    track(new RoundedBoxGeometry(1.7, 0.014, 1.02, 3, 0.006)),
     glass,
   );
-  trackpad.position.set(0, baseTop + 0.006, 0.98);
+  trackpad.position.set(0, baseTop + 0.009, 0.98);
   model.add(trackpad);
 
   // --- Two subtle speaker grille strips flanking the keyboard ---
   for (const side of [-1, 1]) {
     const grille = new THREE.Mesh(
-      track(new RoundedBoxGeometry(0.42, 0.016, 1.5, 3, 0.03)),
+      track(new RoundedBoxGeometry(0.42, 0.012, 1.5, 2, 0.005)),
       well,
     );
-    grille.position.set(side * 2.02, baseTop - 0.002, -0.55);
+    grille.position.set(side * 2.02, baseTop + 0.006, -0.55);
     model.add(grille);
   }
 
@@ -231,41 +219,42 @@ function createLaptop(maxAnisotropy: number, requestRender: () => void) {
   const lidCenterY = lidH / 2 + 0.02;
 
   const lidBack = new THREE.Mesh(
-    track(new RoundedBoxGeometry(4.5, lidH, 0.14, 6, 0.09)),
+    track(new RoundedBoxGeometry(4.5, lidH, 0.14, 6, 0.06)),
     chassis,
   );
   lidBack.position.set(0, lidCenterY, 0);
   lid.add(lidBack);
 
+  // Bezel sits in front of the lid back; screen and notch sit in front of the
+  // bezel with ~3mm gaps, so no two lid faces are coplanar (avoids z-fighting).
   const bezel = new THREE.Mesh(
-    track(new RoundedBoxGeometry(4.34, lidH - 0.16, 0.04, 5, 0.05)),
+    track(new RoundedBoxGeometry(4.34, lidH - 0.16, 0.03, 4, 0.012)),
     bezelMat,
   );
-  bezel.position.set(0, lidCenterY, 0.08);
+  bezel.position.set(0, lidCenterY, 0.088);
   lid.add(bezel);
 
   const screenTexture = createScreenTexture(maxAnisotropy, requestRender);
   screenMat.map = screenTexture;
   const screen = new THREE.Mesh(
-    track(new RoundedBoxGeometry(SCREEN_W, SCREEN_H, 0.014, 3, 0.02)),
+    track(new RoundedBoxGeometry(SCREEN_W, SCREEN_H, 0.012, 2, 0.005)),
     screenMat,
   );
-  screen.position.set(0, lidCenterY, 0.1);
+  screen.position.set(0, lidCenterY, 0.112);
   lid.add(screen);
 
-  // Camera notch — a small dark pill, not a floating dot.
+  // Camera notch — a small dark pill in front of the bezel, not a floating dot.
   const notch = new THREE.Mesh(
-    track(new RoundedBoxGeometry(0.24, 0.05, 0.02, 2, 0.02)),
+    track(new RoundedBoxGeometry(0.24, 0.05, 0.01, 2, 0.004)),
     well,
   );
-  notch.position.set(0, lidH - 0.02, 0.105);
+  notch.position.set(0, lidH - 0.02, 0.112);
   lid.add(notch);
 
   model.add(lid);
 
   const materials = [
     chassis,
-    deckPlate,
     well,
     keycap,
     glass,
