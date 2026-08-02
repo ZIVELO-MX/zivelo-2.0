@@ -9,6 +9,7 @@ import {
   useId,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
   type MutableRefObject,
   type PointerEvent,
@@ -18,6 +19,7 @@ import {
   HERO_LAPTOP_DEFAULT_ROTATION,
   laptopRotationFromDrag,
   laptopRotationFromKey,
+  laptopRotationToDegrees,
 } from "@/lib/hero-laptop-rotation";
 
 interface HeroLaptopSceneProps {
@@ -76,11 +78,21 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
   const hintId = useId();
   const reducedMotion = useReducedMotion();
   const [sceneReady, setSceneReady] = useState(false);
+  const fallbackModelRef = useRef<HTMLDivElement>(null);
   const rotationRef = useRef(HERO_LAPTOP_DEFAULT_ROTATION);
   const invalidateRef = useRef<() => void>(() => undefined);
   const dragRef = useRef<{ pointerId: number; startX: number; startRotation: number } | null>(null);
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
   const handleSceneUnavailable = useCallback(() => setSceneReady(false), []);
+
+  function applyRotation(nextRotation: number) {
+    rotationRef.current = nextRotation;
+    fallbackModelRef.current?.style.setProperty(
+      "--hero-laptop-rotation",
+      `${laptopRotationToDegrees(nextRotation)}deg`,
+    );
+    invalidateRef.current();
+  }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -97,8 +109,7 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
 
-    rotationRef.current = laptopRotationFromDrag(drag.startRotation, event.clientX - drag.startX);
-    invalidateRef.current();
+    applyRotation(laptopRotationFromDrag(drag.startRotation, event.clientX - drag.startX));
   }
 
   function finishPointerInteraction(event: PointerEvent<HTMLDivElement>) {
@@ -114,8 +125,7 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
     if (nextRotation === rotationRef.current) return;
 
     event.preventDefault();
-    rotationRef.current = nextRotation;
-    invalidateRef.current();
+    applyRotation(nextRotation);
   }
 
   return (
@@ -135,31 +145,32 @@ export function HeroLaptop({ label, hint }: HeroLaptopProps) {
         role="group"
         tabIndex={0}
       >
-        <Image
-          alt=""
-          className="hero-laptop__poster hero-laptop__poster--dark"
-          fill
-          priority
-          sizes="(max-width: 900px) 100vw, 48vw"
-          src="/assets/hero-laptop-dark.webp?v=2"
-          unoptimized
-        />
-        <Image
-          alt=""
-          className="hero-laptop__poster hero-laptop__poster--light"
-          fill
-          sizes="(max-width: 900px) 100vw, 48vw"
-          src="/assets/hero-laptop-light.webp?v=2"
-          unoptimized
-        />
-        <Image
-          alt=""
-          aria-hidden="true"
-          className="hero-laptop__poster-logo"
-          height={119}
-          src="/assets/logo-white-compact.svg"
-          width={163}
-        />
+        <div className="hero-laptop__fallback-stage" aria-hidden="true">
+          <div
+            className="hero-laptop__fallback-model"
+            ref={fallbackModelRef}
+            style={{
+              "--hero-laptop-rotation": `${laptopRotationToDegrees(HERO_LAPTOP_DEFAULT_ROTATION)}deg`,
+            } as CSSProperties}
+          >
+            <div className="hero-laptop__fallback-lid">
+              <div className="hero-laptop__fallback-screen">
+                <Image
+                  alt=""
+                  height={119}
+                  priority
+                  src="/assets/logo-white-compact.svg"
+                  width={163}
+                />
+              </div>
+            </div>
+            <div className="hero-laptop__fallback-hinge" />
+            <div className="hero-laptop__fallback-base">
+              <div className="hero-laptop__fallback-keyboard" />
+              <div className="hero-laptop__fallback-trackpad" />
+            </div>
+          </div>
+        </div>
         <SceneBoundary onError={handleSceneUnavailable}>
           <HeroLaptopScene
             invalidateRef={invalidateRef}

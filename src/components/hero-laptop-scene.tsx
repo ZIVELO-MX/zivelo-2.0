@@ -72,7 +72,7 @@ function LaptopModel({
   onReady,
   reducedMotion,
   rotationRef,
-}: Omit<HeroLaptopSceneProps, "invalidateRef" | "onUnavailable">) {
+}: Pick<HeroLaptopSceneProps, "onReady" | "reducedMotion" | "rotationRef">) {
   const groupRef = useRef<THREE.Group>(null);
   const initialRotation = HERO_LAPTOP_DEFAULT_ROTATION + (reducedMotion ? 0 : 0.24);
   const currentRotationRef = useRef(initialRotation);
@@ -100,12 +100,6 @@ function LaptopModel({
     };
   }, [baseGeometry, invalidate, keyboardTexture, lidGeometry, logoTexture]);
 
-  function handleAfterRender() {
-    if (hasRenderedRef.current) return;
-    hasRenderedRef.current = true;
-    queueMicrotask(onReady);
-  }
-
   useFrame((_, delta) => {
     const group = groupRef.current;
     if (!group) return;
@@ -121,6 +115,12 @@ function LaptopModel({
 
     if (Math.abs(nextRotation - rotationRef.current) > 0.001) invalidate();
   });
+
+  function handleAfterRender() {
+    if (hasRenderedRef.current) return;
+    hasRenderedRef.current = true;
+    queueMicrotask(onReady);
+  }
 
   return (
     <group ref={groupRef} position={[0, -0.7, 0.06]} rotation={[0.025, initialRotation, 0]} scale={scale}>
@@ -179,7 +179,7 @@ export function HeroLaptopScene({
       className="hero-laptop__canvas"
       dpr={[1, 1.5]}
       frameloop="demand"
-      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+      gl={{ alpha: true, antialias: true, failIfMajorPerformanceCaveat: false, powerPreference: "default" }}
       onCreated={({ camera, gl, invalidate }) => {
         camera.lookAt(0, 0.35, 0);
         gl.setClearColor(0x000000, 0);

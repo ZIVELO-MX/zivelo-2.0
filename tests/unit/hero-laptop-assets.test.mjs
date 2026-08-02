@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 
 const readSource = (path) => readFile(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("uses the official compact ZIVELO SVG in fallback and WebGL", async () => {
+test("uses the official compact ZIVELO SVG in CSS 3D fallback and WebGL", async () => {
   const [shell, scene, logo] = await Promise.all([
     readSource("src/components/hero-laptop.tsx"),
     readSource("src/components/hero-laptop-scene.tsx"),
@@ -12,6 +12,12 @@ test("uses the official compact ZIVELO SVG in fallback and WebGL", async () => {
   ]);
 
   assert.match(shell, /\/assets\/logo-white-compact\.svg/);
+  assert.match(shell, /hero-laptop__fallback-model/);
+  assert.match(shell, /--hero-laptop-rotation/);
+  assert.doesNotMatch(shell, /hero-laptop-(?:dark|light)\.webp/);
   assert.match(scene, /\/assets\/logo-white-compact\.svg/);
   assert.match(logo, /viewBox="0 0 162\.54 118\.54"/);
+
+  await assert.rejects(access(new URL("../../public/assets/hero-laptop-dark.webp", import.meta.url)));
+  await assert.rejects(access(new URL("../../public/assets/hero-laptop-light.webp", import.meta.url)));
 });

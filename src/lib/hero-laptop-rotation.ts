@@ -19,3 +19,7 @@ export function laptopRotationFromKey(currentRotation: number, key: string) {
   if (key === "Home") return HERO_LAPTOP_DEFAULT_ROTATION;
   return currentRotation;
 }
+
+export function laptopRotationToDegrees(rotation: number) {
+  return rotation * (180 / Math.PI);
+}
