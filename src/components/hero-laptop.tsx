@@ -2,30 +2,13 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import {
-  Component,
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type MutableRefObject,
-  type PointerEvent,
-  type ReactNode,
-} from "react";
-import {
-  HERO_LAPTOP_DEFAULT_ROTATION,
-  laptopRotationFromDrag,
-  laptopRotationFromKey,
-} from "@/lib/hero-laptop-rotation";
+import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import type { ZiveloLaptopApi } from "@/lib/3d/zivelo-laptop";
 
 interface HeroLaptopSceneProps {
-  invalidateRef: MutableRefObject<() => void>;
-  reducedMotion: boolean;
-  rotationRef: MutableRefObject<number>;
-  onReady: () => void;
+  onReady: (api: ZiveloLaptopApi) => void;
   onUnavailable: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
 const HeroLaptopScene = dynamic<HeroLaptopSceneProps>(
@@ -52,108 +35,95 @@ class SceneBoundary extends Component<
   }
 }
 
-function useReducedMotion() {
-  const [reducedMotion, setReducedMotion] = useState(false);
+function useDesktopScene() {
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(media.matches);
+    const media = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(media.matches);
 
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
 
-  return reducedMotion;
+  return isDesktop;
 }
 
 interface HeroLaptopProps {
-  label: string;
   hint: string;
+  toggleLabel: string;
 }
 
-export function HeroLaptop({ label, hint }: HeroLaptopProps) {
-  const hintId = useId();
-  const reducedMotion = useReducedMotion();
+export function HeroLaptop({ hint, toggleLabel }: HeroLaptopProps) {
+  const isDesktop = useDesktopScene();
+  const apiRef = useRef<ZiveloLaptopApi | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
-  const rotationRef = useRef(HERO_LAPTOP_DEFAULT_ROTATION);
-  const invalidateRef = useRef<() => void>(() => undefined);
-  const dragRef = useRef<{ pointerId: number; startX: number; startRotation: number } | null>(null);
-  const handleSceneReady = useCallback(() => setSceneReady(true), []);
-  const handleSceneUnavailable = useCallback(() => setSceneReady(false), []);
+  const [isOpen, setIsOpen] = useState(true);
 
-  function applyRotation(nextRotation: number) {
-    rotationRef.current = nextRotation;
-    invalidateRef.current();
-  }
+  const handleSceneReady = useCallback((api: ZiveloLaptopApi) => {
+    apiRef.current = api;
+    setIsOpen(api.isOpen);
+    setSceneReady(true);
+  }, []);
 
-  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
+  const handleSceneUnavailable = useCallback(() => {
+    apiRef.current = null;
+    setSceneReady(false);
+  }, []);
 
-    dragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startRotation: rotationRef.current,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+  }, []);
 
-  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
+  const handleToggle = useCallback(() => {
+    const api = apiRef.current;
+    if (!api) return;
 
-    applyRotation(laptopRotationFromDrag(drag.startRotation, event.clientX - drag.startX));
-  }
-
-  function finishPointerInteraction(event: PointerEvent<HTMLDivElement>) {
-    if (dragRef.current?.pointerId !== event.pointerId) return;
-    dragRef.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    const nextRotation = laptopRotationFromKey(rotationRef.current, event.key);
-    if (nextRotation === rotationRef.current) return;
-
-    event.preventDefault();
-    applyRotation(nextRotation);
-  }
+    api.toggle();
+    setIsOpen(api.isOpen);
+  }, []);
 
   return (
     <div className="hero-laptop-shell">
       <div
-        aria-describedby={hintId}
-        aria-label={label}
         className="hero-laptop"
         data-ready={sceneReady ? "true" : "false"}
         data-testid="hero-laptop"
-        onKeyDown={handleKeyDown}
-        onLostPointerCapture={() => { dragRef.current = null; }}
-        onPointerCancel={finishPointerInteraction}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={finishPointerInteraction}
-        role="group"
-        tabIndex={0}
       >
-        <div className="hero-laptop__brand-fallback" aria-hidden="true">
-          <Image alt="" height={119} priority src="/assets/logo-white-compact.svg" width={163} />
-        </div>
-        <SceneBoundary onError={handleSceneUnavailable}>
-          <HeroLaptopScene
-            invalidateRef={invalidateRef}
-            onReady={handleSceneReady}
-            onUnavailable={handleSceneUnavailable}
-            reducedMotion={reducedMotion}
-            rotationRef={rotationRef}
-          />
-        </SceneBoundary>
+        <Image
+          alt=""
+          className="hero-laptop__fallback"
+          data-testid="hero-laptop-fallback"
+          fill
+          priority
+          sizes="(max-width: 900px) 100vw, 54vw"
+          src="/assets/hero-laptop-static.webp"
+        />
+        {isDesktop ? (
+          <SceneBoundary onError={handleSceneUnavailable}>
+            <HeroLaptopScene
+              onOpenChange={handleOpenChange}
+              onReady={handleSceneReady}
+              onUnavailable={handleSceneUnavailable}
+            />
+          </SceneBoundary>
+        ) : null}
       </div>
-      <p className="hero-laptop__hint" id={hintId}>
-        <span aria-hidden="true">↔</span> {hint}
-      </p>
+      {isDesktop ? (
+        <div className="hero-laptop__controls">
+          <button
+            aria-pressed={isOpen}
+            className="btn btn--ghost hero-laptop__toggle"
+            disabled={!sceneReady}
+            onClick={handleToggle}
+            type="button"
+          >
+            {toggleLabel}
+          </button>
+          <p className="hero-laptop__hint">{hint}</p>
+        </div>
+      ) : null}
     </div>
   );
 }
