@@ -2,13 +2,11 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import type { ZiveloLaptopApi } from "@/lib/3d/zivelo-laptop";
+import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 
 interface HeroLaptopSceneProps {
-  onReady: (api: ZiveloLaptopApi) => void;
+  onReady: () => void;
   onUnavailable: () => void;
-  onOpenChange: (open: boolean) => void;
 }
 
 const HeroLaptopScene = dynamic<HeroLaptopSceneProps>(
@@ -50,39 +48,13 @@ function useDesktopScene() {
   return isDesktop;
 }
 
-interface HeroLaptopProps {
-  hint: string;
-  toggleLabel: string;
-}
-
-export function HeroLaptop({ hint, toggleLabel }: HeroLaptopProps) {
+export function HeroLaptop() {
   const isDesktop = useDesktopScene();
-  const apiRef = useRef<ZiveloLaptopApi | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
 
-  const handleSceneReady = useCallback((api: ZiveloLaptopApi) => {
-    apiRef.current = api;
-    setIsOpen(api.isOpen);
-    setSceneReady(true);
-  }, []);
+  const handleSceneReady = useCallback(() => setSceneReady(true), []);
 
-  const handleSceneUnavailable = useCallback(() => {
-    apiRef.current = null;
-    setSceneReady(false);
-  }, []);
-
-  const handleOpenChange = useCallback((open: boolean) => {
-    setIsOpen(open);
-  }, []);
-
-  const handleToggle = useCallback(() => {
-    const api = apiRef.current;
-    if (!api) return;
-
-    api.toggle();
-    setIsOpen(api.isOpen);
-  }, []);
+  const handleSceneUnavailable = useCallback(() => setSceneReady(false), []);
 
   return (
     <div className="hero-laptop-shell">
@@ -103,27 +75,12 @@ export function HeroLaptop({ hint, toggleLabel }: HeroLaptopProps) {
         {isDesktop ? (
           <SceneBoundary onError={handleSceneUnavailable}>
             <HeroLaptopScene
-              onOpenChange={handleOpenChange}
               onReady={handleSceneReady}
               onUnavailable={handleSceneUnavailable}
             />
           </SceneBoundary>
         ) : null}
       </div>
-      {isDesktop ? (
-        <div className="hero-laptop__controls">
-          <button
-            aria-pressed={isOpen}
-            className="btn btn--ghost hero-laptop__toggle"
-            disabled={!sceneReady}
-            onClick={handleToggle}
-            type="button"
-          >
-            {toggleLabel}
-          </button>
-          <p className="hero-laptop__hint">{hint}</p>
-        </div>
-      ) : null}
     </div>
   );
 }

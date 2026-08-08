@@ -11,6 +11,8 @@ export interface ZiveloLaptopOptions {
   autoRotate?: boolean;
   autoRotateSpeed?: number;
   interactive?: boolean;
+  userOrbit?: boolean;
+  closeOnClick?: boolean;
   openAngle?: number;
   startOpen?: boolean;
   cameraAzimuth?: number;

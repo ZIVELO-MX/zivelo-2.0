@@ -26,7 +26,9 @@ export function createZiveloLaptop({
   background = null,        // null = transparent; or '#f3f2f2'
   autoRotate = true,
   autoRotateSpeed = 1.1,
-  interactive = true,       // drag to orbit + click to open/close
+  interactive = true,       // enable pointer hit testing
+  userOrbit = true,         // allow pointer orbiting when controls are enabled
+  closeOnClick = false,     // make a hit close the lid instead of toggling it
   openAngle = 110,          // degrees
   startOpen = true,
   cameraAzimuth = 38,       // degrees, horizontal start angle
@@ -438,13 +440,16 @@ export function createZiveloLaptop({
     controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
+    controls.enableRotate = userOrbit;
     controls.enablePan = false;
     controls.enableZoom = false;                 // never hijack page scroll
     controls.minPolarAngle = 0.18;
     controls.maxPolarAngle = Math.PI / 2 - 0.04; // stay above the desk
     controls.autoRotate = autoRotate && !reduceMotion;
     controls.autoRotateSpeed = autoRotateSpeed;
-    controls.addEventListener('start', () => { controls.autoRotate = false; });
+    controls.addEventListener('start', () => {
+      if (userOrbit) controls.autoRotate = false;
+    });
   }
   frame();
 
@@ -501,7 +506,10 @@ export function createZiveloLaptop({
     const r = canvas.getBoundingClientRect();
     ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ptr, camera);
-    if (ray.intersectObject(laptop, true).length) api.toggle();
+    if (ray.intersectObject(laptop, true).length) {
+      if (closeOnClick) api.setOpen(false);
+      else api.toggle();
+    }
   };
   if (interactive) {
     canvas.addEventListener('pointerdown', onDown);

@@ -14,12 +14,16 @@ test("integrates the handoff module with a static fallback", async () => {
 
   assert.match(shell, /hero-laptop-static\.webp/);
   assert.match(shell, /min-width: 768px/);
-  assert.match(shell, /aria-pressed/);
+  assert.doesNotMatch(shell, /hero-laptop__controls|aria-pressed|heroLaptopHint|heroLaptopToggle/);
   assert.match(scene, /import\("three"\)/);
   assert.match(scene, /import\("three\/addons\/controls\/OrbitControls\.js"\)/);
   assert.match(scene, /createZiveloLaptop/);
+  assert.match(scene, /userOrbit: false/);
+  assert.match(scene, /closeOnClick: true/);
   assert.match(scene, /dispose\(\)/);
   assert.match(moduleSource, /export function createZiveloLaptop/);
+  assert.match(moduleSource, /userOrbit = true/);
+  assert.match(moduleSource, /closeOnClick = false/);
   assert.doesNotMatch(scene, /WebGLRenderer/);
   assert.doesNotMatch(shell, /hero-laptop-rotation/);
 
