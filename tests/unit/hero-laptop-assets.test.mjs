@@ -19,7 +19,7 @@ test("integrates the handoff module with a static fallback", async () => {
   assert.match(scene, /import\("three\/addons\/controls\/OrbitControls\.js"\)/);
   assert.match(scene, /createZiveloLaptop/);
   assert.match(scene, /userOrbit: false/);
-  assert.match(scene, /closeOnClick: true/);
+  assert.match(scene, /closeOnClick: false/);
   assert.match(scene, /dispose\(\)/);
   assert.match(moduleSource, /export function createZiveloLaptop/);
   assert.match(moduleSource, /userOrbit = true/);

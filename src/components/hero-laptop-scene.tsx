@@ -43,7 +43,7 @@ export function HeroLaptopScene({
           background: null,
           autoRotate: true,
           userOrbit: false,
-          closeOnClick: true,
+          closeOnClick: false,
           openAngle: 110,
           cameraAzimuth: 38,
           cameraElevation: 22,
