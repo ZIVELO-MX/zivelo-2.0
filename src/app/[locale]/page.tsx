@@ -44,7 +44,7 @@ export default async function Home() {
                 </div>
               </div>
               <div className="heroA__visual">
-                <HeroLaptop label={t("heroLaptopAlt")} hint={t("heroLaptopHint")} />
+                <HeroLaptop />
               </div>
             </div>
           </div>

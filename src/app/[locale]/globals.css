@@ -509,61 +509,40 @@ html[data-theme="dark"] .btn--primary:hover { filter: brightness(0.85); }
   position: relative;
   isolation: isolate;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: min(78vh, 680px);
+  min-height: 360px;
   overflow: hidden;
-  cursor: grab;
-  touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   outline: none;
 }
-.hero-laptop:active { cursor: grabbing; }
-.hero-laptop:focus-visible { outline: 2px solid var(--accent-l); outline-offset: 5px; }
-.hero-laptop__brand-fallback {
+.hero-laptop__fallback {
   position: absolute;
   inset: 0;
   z-index: 1;
-  display: grid;
-  place-items: center;
-  opacity: 0.28;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   pointer-events: none;
   transition: opacity 240ms ease;
 }
-.hero-laptop__brand-fallback img {
-  width: 12%;
-  height: auto;
-}
-.hero-laptop[data-ready="true"] .hero-laptop__brand-fallback { opacity: 0; }
-.hero-laptop__vector-host {
+.hero-laptop[data-ready="true"] .hero-laptop__fallback { opacity: 0; }
+.hero-laptop__scene {
   position: absolute;
   inset: 0;
   z-index: 2;
-  opacity: 0;
-  pointer-events: none;
+  height: 100%;
+  touch-action: pan-y;
+  opacity: 1;
   transition: opacity 240ms ease;
 }
-.hero-laptop[data-ready="true"] .hero-laptop__vector-host { opacity: 1; }
-.hero-laptop__vector {
+.hero-laptop__scene canvas {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
   shape-rendering: geometricPrecision;
 }
-.hero-laptop__hint {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--ink-3);
-  text-transform: uppercase;
-}
-.hero-laptop__hint span { color: var(--accent-l); font-size: 0.9rem; }
 .heroA__meta { margin-top: 18px; display: flex; gap: 28px; font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.05em; color: var(--ink-3); text-transform: uppercase; }
 @media (max-width: 900px){
   .heroA { padding-top: 40px; }
@@ -573,11 +552,12 @@ html[data-theme="dark"] .btn--primary:hover { filter: brightness(0.85); }
 @media (max-width: 600px){
   .heroA__actions { margin-top: 32px; }
   .heroA__visual { width: calc(100% + 24px); margin-left: -12px; }
-  .hero-laptop__hint { justify-content: center; margin-top: 4px; font-size: 0.63rem; }
-  .hero-laptop__vector-host { transform: scale(1.06) translateY(1.5%); }
+}
+@media (max-width: 767px){
+  .hero-laptop { height: auto; min-height: 0; aspect-ratio: 1 / 1; }
 }
 @media (prefers-reduced-motion: reduce){
-  .hero-laptop__brand-fallback, .hero-laptop__vector-host { transition: none; }
+  .hero-laptop__fallback, .hero-laptop__scene { transition: none; }
 }
 
 /* Hero B — centered authority */
