@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode, type ElementType } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+  type Ref,
+} from "react";
 
 function supportsViewTimeline() {
   return (
@@ -8,6 +15,9 @@ function supportsViewTimeline() {
     CSS.supports("(animation-timeline: view()) and (animation-range: entry)")
   );
 }
+
+const subscribeToViewTimelineSupport = () => () => {};
+const getServerViewTimelineSupport = () => false;
 
 /**
  * Mirrors the prototype's `.reveal` + IntersectionObserver behavior, but
@@ -21,7 +31,7 @@ export function Reveal({
   style,
   children,
 }: {
-  as?: ElementType;
+  as?: "div" | "p";
   delay?: 1 | 2 | 3 | 4;
   className?: string;
   style?: React.CSSProperties;
@@ -29,15 +39,11 @@ export function Reveal({
 }) {
   const ref = useRef<HTMLElement>(null);
   const [isIn, setIsIn] = useState(false);
-  const [native, setNative] = useState(false);
-
-  useEffect(() => {
-    // Capability detection can only happen client-side, after the SSR/hydration
-    // pass has matched the server's markup — this is the documented "sync with
-    // an external system" effect pattern, not a render-time computation.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setNative(supportsViewTimeline());
-  }, []);
+  const native = useSyncExternalStore(
+    subscribeToViewTimelineSupport,
+    supportsViewTimeline,
+    getServerViewTimelineSupport,
+  );
 
   useEffect(() => {
     if (native) return;
@@ -64,15 +70,16 @@ export function Reveal({
   const classes = ["reveal", className];
   if (isIn) classes.push("is-in");
 
-  return (
-    <Tag
-      ref={ref}
-      className={classes.filter(Boolean).join(" ")}
-      style={style}
-      data-native={native ? "" : undefined}
-      data-d={delay}
-    >
-      {children}
-    </Tag>
-  );
+  const revealProps = {
+    className: classes.filter(Boolean).join(" "),
+    style,
+    "data-native": native ? "" : undefined,
+    "data-d": delay,
+  };
+
+  if (Tag === "p") {
+    return <p ref={ref as Ref<HTMLParagraphElement>} {...revealProps}>{children}</p>;
+  }
+
+  return <div ref={ref as Ref<HTMLDivElement>} {...revealProps}>{children}</div>;
 }

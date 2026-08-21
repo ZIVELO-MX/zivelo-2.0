@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import Zoho from "next-auth/providers/zoho";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
@@ -30,7 +30,7 @@ async function isAdminUser(email: string): Promise<boolean> {
   return Boolean(data);
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const authOptions: NextAuthOptions = {
   ...authConfig,
   providers: [
     Zoho({
@@ -47,4 +47,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return isAdminUser(user.email);
     },
   },
-});
+};
+
+export function auth() {
+  return getServerSession(authOptions);
+}

@@ -118,7 +118,6 @@ test("unknown id claim returns false", async () => {
 test("honeypot: returns success without saving or sending", async () => {
   const repo = createMemoryContactRepository();
   const mailer = createMemoryMailer();
-  const honeypotContent = "I am a bot";
 
   assert.equal(repo._rows.size, 0);
   assert.equal(mailer._sent.length, 0);

@@ -40,8 +40,7 @@ const restaurantIncludeKeys = [
 
 const posIncludeKeys = ["posInc1", "posInc2", "posInc3", "posInc4"] as const;
 
-export default async function Services({ params }: PageParams) {
-  const { locale } = await resolveParams(params);
+export default async function Services() {
   const t = await getTranslations("Services");
 
   return (

@@ -48,6 +48,13 @@ test("parses known versioned screenshot profiles", () => {
   );
 });
 
+test("keeps an empty screenshot profile field empty", () => {
+  assert.deepEqual(
+    extractScreenshotProfiles("Perfil(es) de capturas:\n\n## Validación"),
+    [],
+  );
+});
+
 test("rejects unknown or repeated screenshot profiles", () => {
   assert.throws(
     () => extractScreenshotProfiles("Perfiles de capturas: admin, tablet"),

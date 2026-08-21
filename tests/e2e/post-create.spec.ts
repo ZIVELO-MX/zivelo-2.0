@@ -6,7 +6,7 @@ const ADMIN_EMAIL = "benjamin.rodriguez@zivelo.dev";
 const SECOND_ADMIN_EMAIL = "raul.mendez@zivelo.dev";
 const OUTSIDER_EMAIL = "intruder@example.com";
 const AUTH_SECRET = process.env.AUTH_SECRET ?? "e2e-auth-secret";
-const COOKIE_NAME = "authjs.session-token";
+const COOKIE_NAME = "next-auth.session-token";
 
 async function authenticatedContext(
   browser: Browser,
@@ -15,7 +15,6 @@ async function authenticatedContext(
 ): Promise<BrowserContext> {
   const token = await encode({
     secret: AUTH_SECRET,
-    salt: COOKIE_NAME,
     token: {
       sub: `e2e-${email}`,
       name: "E2E user",

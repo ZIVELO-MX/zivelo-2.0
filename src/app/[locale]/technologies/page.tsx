@@ -16,8 +16,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   });
 }
 
-export default async function Technologies({ params }: PageParams) {
-  const { locale } = await resolveParams(params);
+export default async function Technologies() {
   const t = await getTranslations("Technologies");
 
   const categories = [

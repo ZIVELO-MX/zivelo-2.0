@@ -99,10 +99,12 @@ export default async function LocaleLayout({
         <Script id="theme-init">
           {`(function(){try{var t=localStorage.getItem('zivelo-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`}
         </Script>
-        <Script
+        <script
           id="organization-jsonld"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
+          }}
         />
         <NextIntlClientProvider messages={messages}>
           <SkipLink />

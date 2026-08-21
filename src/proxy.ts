@@ -11,8 +11,8 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
 
   if (path.startsWith("/admin")) {
-    const sessionToken = request.cookies.get("authjs.session-token")?.value
-      ?? request.cookies.get("__Secure-authjs.session-token")?.value;
+    const sessionToken = request.cookies.get("next-auth.session-token")?.value
+      ?? request.cookies.get("__Secure-next-auth.session-token")?.value;
 
     if (!sessionToken) {
       url.pathname = `/${locale}/login`;

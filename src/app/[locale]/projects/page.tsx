@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server";
 import { PageParams, resolveParams } from "@/lib/params";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
-import { ImagePlaceholder } from "@/components/image-placeholder";
 import { buildMetadata } from "@/lib/seo";
 import { PROJECT_LINKS, PROJECT_COVERS } from "@/lib/site-constants";
 
@@ -19,8 +18,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   });
 }
 
-export default async function Projects({ params }: PageParams) {
-  const { locale } = await resolveParams(params);
+export default async function Projects() {
   const t = await getTranslations("Projects");
 
   return (
