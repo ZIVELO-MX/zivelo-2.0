@@ -34,6 +34,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_submissions: {
+        Row: {
+          company: string | null
+          created_at: string
+          delivery_attempted_at: string | null
+          delivery_attempts: number
+          delivery_status: string
+          email: string
+          email_sent_at: string | null
+          error_code: string | null
+          id: string
+          locale: string
+          message: string
+          name: string
+          provider_ref: string | null
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          delivery_attempted_at?: string | null
+          delivery_attempts?: number
+          delivery_status?: string
+          email: string
+          email_sent_at?: string | null
+          error_code?: string | null
+          id: string
+          locale: string
+          message: string
+          name: string
+          provider_ref?: string | null
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          delivery_attempted_at?: string | null
+          delivery_attempts?: number
+          delivery_status?: string
+          email?: string
+          email_sent_at?: string | null
+          error_code?: string | null
+          id?: string
+          locale?: string
+          message?: string
+          name?: string
+          provider_ref?: string | null
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           author: string
@@ -102,6 +156,24 @@ export type Database = {
           tag_es?: string
           title_en?: string
           title_es?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_sections: {
+        Row: {
+          enabled: boolean
+          section_key: string
+          updated_at: string
+        }
+        Insert: {
+          enabled?: boolean
+          section_key: string
+          updated_at?: string
+        }
+        Update: {
+          enabled?: boolean
+          section_key?: string
           updated_at?: string
         }
         Relationships: []

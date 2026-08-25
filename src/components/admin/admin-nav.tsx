@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type AdminNavProps = {
-  labels: { navigation: string; dashboard: string; publications: string; write: string };
+  labels: { navigation: string; blog: string; publications: string; write: string; configuration: string };
 };
 
 const links = [
-  { key: "dashboard", href: "/admin/dashboard" as const },
+  { key: "blog", href: "/admin/dashboard/blog" as const },
   { key: "publications", href: "/admin/posts" as const },
   { key: "write", href: "/admin/posts/new" as const },
+  { key: "configuration", href: "/admin/dashboard/config" as const },
 ];
 
 export function AdminNav({ labels }: AdminNavProps) {

@@ -4,6 +4,8 @@ import { PageParams, resolveParams } from "@/lib/params";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await resolveParams(params);
@@ -17,6 +19,8 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 }
 
 export default async function About() {
+  const sections = await getPublicSectionVisibility();
+  if (!sections.about) notFound();
   const t = await getTranslations("About");
 
   return (
@@ -138,9 +142,9 @@ export default async function About() {
             <Link className="btn btn--primary" href="/contact">
               {t("ctaTalk")} <span className="arrow">→</span>
             </Link>
-            <Link className="btn btn--on-dark-ghost" href="/projects">
+            {sections.projects && <Link className="btn btn--on-dark-ghost" href="/projects">
               {t("ctaProjects")}
-            </Link>
+            </Link>}
           </Reveal>
         </div>
       </section>

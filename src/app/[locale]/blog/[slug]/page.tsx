@@ -8,6 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getPost, listPosts, listSlugs } from "@/lib/blog-data";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
 
 export const revalidate = 3600;
 
@@ -21,6 +22,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: PageParams<{ slug: string }>): Promise<Metadata> {
+  if (!(await getPublicSectionVisibility()).blog) notFound();
   const { locale, slug } = await resolveParams(params);
   const post = await getPost(slug);
   if (!post) return {};

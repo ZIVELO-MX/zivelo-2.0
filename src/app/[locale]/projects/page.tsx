@@ -6,6 +6,8 @@ import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
 import { PROJECT_LINKS, PROJECT_COVERS } from "@/lib/site-constants";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await resolveParams(params);
@@ -19,6 +21,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 }
 
 export default async function Projects() {
+  if (!(await getPublicSectionVisibility()).projects) notFound();
   const t = await getTranslations("Projects");
 
   return (

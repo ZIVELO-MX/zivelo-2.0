@@ -5,10 +5,13 @@ import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
 import { listPosts, listTags } from "@/lib/blog-data";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
+import { notFound } from "next/navigation";
 
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  if (!(await getPublicSectionVisibility()).blog) notFound();
   const { locale } = await resolveParams(params);
   const t = await getTranslations({ locale, namespace: "Blog" });
   return buildMetadata({

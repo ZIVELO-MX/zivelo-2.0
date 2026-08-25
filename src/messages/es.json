@@ -379,6 +379,30 @@
   },
   "Admin": {
     "dashboard": "Panel",
+    "blog": "Blog",
+    "configuration": "Configuración",
+    "configurationNavigation": "Navegación de configuración",
+    "sections": "Secciones",
+    "sectionSettingsTitle": "Secciones públicas",
+    "sectionSettingsDescription": "Activa o desactiva las secciones que aparecen en el sitio público.",
+    "sectionLabels": {
+      "about": "Nosotros",
+      "services": "Servicios",
+      "projects": "Proyectos",
+      "process": "Proceso",
+      "blog": "Blog"
+    },
+    "sectionDescriptions": {
+      "about": "Presenta quiénes somos y nuestros valores.",
+      "services": "Muestra las soluciones y servicios de ZIVELO.",
+      "projects": "Presenta los proyectos y productos realizados.",
+      "process": "Explica el proceso de trabajo del equipo.",
+      "blog": "Publica el archivo de artículos del blog."
+    },
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "cancel": "Cancelar",
+    "saved": "Configuración guardada.",
     "writeAndPublish": "Escribe y publica",
     "navigation": "Navegación del panel",
     "viewBlog": "Ver mi blog",

@@ -4,6 +4,8 @@ import { PageParams, resolveParams } from "@/lib/params";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await resolveParams(params);
@@ -17,6 +19,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 }
 
 export default async function Process() {
+  if (!(await getPublicSectionVisibility()).process) notFound();
   const t = await getTranslations("Process");
 
   const steps = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({

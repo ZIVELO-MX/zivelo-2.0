@@ -1,11 +1,15 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { CONTACT, PROJECT_LINKS } from "@/lib/site-constants";
 import { Logo } from "./logo";
 import { SocialLinks } from "./social-links";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
 
-export function SiteFooter() {
-  const t = useTranslations("Footer");
+export async function SiteFooter() {
+  const [t, sections] = await Promise.all([
+    getTranslations("Footer"),
+    getPublicSectionVisibility(),
+  ]);
 
   return (
     <footer className="footer">
@@ -22,23 +26,23 @@ export function SiteFooter() {
           <div className="footer__col">
             <h2>{t("company")}</h2>
             <ul>
-              <li><Link href="/about">{t("aboutUs")}</Link></li>
-              <li><Link href="/process">{t("process")}</Link></li>
+              {sections.about && <li><Link href="/about">{t("aboutUs")}</Link></li>}
+              {sections.process && <li><Link href="/process">{t("process")}</Link></li>}
               <li><Link href="/technologies">{t("technologies")}</Link></li>
               <li><Link href="/contact">{t("contact")}</Link></li>
             </ul>
           </div>
 
-          <div className="footer__col">
+          {sections.services && <div className="footer__col">
             <h2>{t("services")}</h2>
             <ul>
               <li><Link href="/services">{t("webDev")}</Link></li>
               <li><Link href="/services">{t("restaurants")}</Link></li>
               <li><Link href="/services">{t("pos")}</Link></li>
             </ul>
-          </div>
+          </div>}
 
-          <div className="footer__col">
+          {sections.projects && <div className="footer__col">
             <h2>{t("projects")}</h2>
             <ul>
               <li><a href={PROJECT_LINKS.kodaFidelity} target="_blank" rel="noopener">Koda Fidelity</a></li>
@@ -46,7 +50,7 @@ export function SiteFooter() {
               <li><a href={PROJECT_LINKS.ziveloQuotes} target="_blank" rel="noopener">ZIVELO Quotes</a></li>
               <li><a href={PROJECT_LINKS.prompt2git} target="_blank" rel="noopener">Prompt2Git</a></li>
             </ul>
-          </div>
+          </div>}
 
           <div className="footer__col">
             <h2>{t("contact")}</h2>
