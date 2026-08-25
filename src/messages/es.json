@@ -425,6 +425,7 @@
     "edit": "Editar",
     "welcome": "Bienvenido de nuevo,",
     "posts": "Artículos",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "back": "Volver"
   }
 }

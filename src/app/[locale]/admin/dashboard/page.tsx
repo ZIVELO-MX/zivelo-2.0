@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { LogoutButton } from "@/components/logout-button";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -37,6 +38,10 @@ export default async function DashboardPage() {
           <Link className={cn(buttonVariants({ variant: "outline" }), "admin-overview-link")} href="/admin/dashboard/config">{t("configuration")} <span aria-hidden="true">→</span></Link>
         </div>
       </section>
+      <div className="admin-dashboard-actions">
+        <Link className={buttonVariants()} href="/">{t("back")}</Link>
+        <LogoutButton />
+      </div>
     </div>
   );
 }

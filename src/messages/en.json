@@ -425,6 +425,7 @@
     "edit": "Edit",
     "welcome": "Welcome back,",
     "posts": "Posts",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "back": "Back"
   }
 }
