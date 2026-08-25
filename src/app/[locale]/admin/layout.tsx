@@ -23,10 +23,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
           <div className="admin-bar__actions">
             {sections.blog && <Link className={buttonVariants({ variant: "outline", size: "sm" })} href="/blog" target="_blank">{t("viewBlog")} <span aria-hidden="true">↗</span></Link>}
+            <Link className={buttonVariants({ variant: "outline", size: "sm" })} href="/admin/dashboard/config">{t("configuration")}</Link>
             <LogoutButton />
           </div>
         </header>
-        <AdminNav labels={{ navigation: t("navigation"), blog: t("blog"), publications: t("publications"), write: t("write"), configuration: t("configuration") }} />
+        <AdminNav labels={{ navigation: t("navigation"), blog: t("blog"), publications: t("publications"), write: t("write") }} />
         <main className="admin-content">{children}</main>
       </div>
     </div>

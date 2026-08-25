@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type AdminNavProps = {
-  labels: { navigation: string; blog: string; publications: string; write: string; configuration: string };
+  labels: { navigation: string; blog: string; publications: string; write: string };
 };
 
 const links = [
@@ -18,6 +18,7 @@ const links = [
 
 export function AdminNav({ labels }: AdminNavProps) {
   const pathname = usePathname();
+  if (pathname === "/admin/dashboard/config") return null;
   const labelFor = (key: string) => labels[key as keyof typeof labels];
   const active = (href: string) => pathname === href || (href === "/admin/posts" && pathname.startsWith("/admin/posts/"));
 
