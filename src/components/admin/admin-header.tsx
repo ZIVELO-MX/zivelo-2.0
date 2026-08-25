@@ -6,7 +6,8 @@ import { buttonVariants } from "@/components/ui/button-variants";
 
 export function AdminHeader({ title, viewBlog, blogEnabled }: { title: string; viewBlog: string; blogEnabled: boolean }) {
   const pathname = usePathname();
-  if (pathname === "/admin/dashboard" || pathname === "/admin/dashboard/config") return null;
+  const isStandaloneAdminPage = pathname.endsWith("/admin/dashboard") || pathname.endsWith("/admin/dashboard/config");
+  if (isStandaloneAdminPage) return null;
 
   return (
     <header className="admin-bar">

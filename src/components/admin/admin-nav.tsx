@@ -17,7 +17,8 @@ const links = [
 
 export function AdminNav({ labels }: AdminNavProps) {
   const pathname = usePathname();
-  if (pathname === "/admin/dashboard" || pathname === "/admin/dashboard/config") return null;
+  const isStandaloneAdminPage = pathname.endsWith("/admin/dashboard") || pathname.endsWith("/admin/dashboard/config");
+  if (isStandaloneAdminPage) return null;
   const labelFor = (key: string) => labels[key as keyof typeof labels];
   const active = (href: string) => pathname === href || (href === "/admin/posts" && pathname.startsWith("/admin/posts/"));
 

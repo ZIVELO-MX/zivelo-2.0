@@ -16,14 +16,15 @@ export default async function DashboardConfigPage() {
   const sectionKeys: SectionKey[] = ["about", "services", "projects", "process", "blog"];
 
   return (
-    <div className="admin-settings-layout">
-      <aside className="admin-settings-sidebar">
-        <nav aria-label={t("configurationNavigation")}>
-          <a href="#sections" aria-current="page">{t("sections")}</a>
-        </nav>
-      </aside>
-      <section className="admin-settings-content" id="sections" aria-labelledby="sections-title">
-        <Link className="admin-back-link" href="/admin/dashboard">← {t("back")}</Link>
+    <div className="admin-settings-page">
+      <Link className="admin-back-link" href="/admin/dashboard">← {t("back")}</Link>
+      <div className="admin-settings-layout">
+        <aside className="admin-settings-sidebar">
+          <nav aria-label={t("configurationNavigation")}>
+            <a href="#sections" aria-current="page">{t("sections")}</a>
+          </nav>
+        </aside>
+        <section className="admin-settings-content" id="sections" aria-labelledby="sections-title">
         <div className="admin-section__head">
           <div>
             <span className="eyebrow eyebrow--plain">{t("configuration")}</span>
@@ -45,7 +46,8 @@ export default async function DashboardConfigPage() {
             saved: t("saved"),
           }}
         />
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default async function DashboardPage() {
       </section>
       <div className="admin-dashboard-actions">
         <Link className={buttonVariants()} href="/">{t("back")}</Link>
-        <LogoutButton variant="secondary" size="default" />
+        <LogoutButton className="admin-dashboard-logout" variant="outline" size="default" />
       </div>
     </div>
   );
