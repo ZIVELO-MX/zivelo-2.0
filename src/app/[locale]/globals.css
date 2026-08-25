@@ -1246,7 +1246,7 @@ body:has(.admin-shell) .site-header { display: none; }
 .admin-container { max-width: 1120px; }
 .admin-bar__actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .admin-simple-header { justify-content: space-between; }
-.admin-brand { display: inline-flex; align-items: center; min-height: 44px; }
+.admin-brand { display: inline-flex; align-items: center; min-height: 44px; margin-inline-start: auto; }
 .admin-brand .brand__logo { height: 30px; width: auto; }
 .admin-tabs { display: flex; gap: 4px; margin-bottom: 30px; }
 .admin-mobile-menu { display: none; margin-bottom: 20px; }
