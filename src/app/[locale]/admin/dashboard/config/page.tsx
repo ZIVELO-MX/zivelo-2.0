@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { SectionSettingsForm } from "@/components/admin/section-settings-form";
 import { getAdminSectionVisibility, type SectionKey } from "@/lib/site-sections";
@@ -23,6 +23,7 @@ export default async function DashboardConfigPage() {
         </nav>
       </aside>
       <section className="admin-settings-content" id="sections" aria-labelledby="sections-title">
+        <Link className="admin-back-link" href="/admin/dashboard">← {t("back")}</Link>
         <div className="admin-section__head">
           <div>
             <span className="eyebrow eyebrow--plain">{t("configuration")}</span>

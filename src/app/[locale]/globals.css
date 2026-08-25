@@ -1279,6 +1279,8 @@ html[data-theme="dark"] .article__more-label { color: var(--ink-3); }
 .admin-overview-links__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .admin-overview-link { justify-content: space-between; min-height: 56px; }
 .admin-dashboard-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 8px; border-top: 1px solid var(--line-2); }
+.admin-back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-3); font-size: .88rem; font-weight: 500; }
+.admin-back-link:hover, .admin-back-link:focus-visible { color: var(--accent); }
 .admin-bar__title, .admin-section__title { margin-top: 8px; }
 .admin-error__title { margin-top: 16px; }
 .admin-error__body { margin-top: 10px; }

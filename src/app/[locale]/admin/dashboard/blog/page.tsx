@@ -27,6 +27,7 @@ export default async function DashboardBlogPage() {
 
   return (
     <div className="admin-page">
+      <Link className="admin-back-link" href="/admin/dashboard">← {t("back")}</Link>
       <div className="admin-welcome">
         <p>{t("welcome")} <strong className="admin-welcome__name">{displayName}</strong></p>
         <h2 className="h3">{t("dashboardSummary")}</h2>

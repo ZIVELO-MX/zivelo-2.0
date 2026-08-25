@@ -13,12 +13,11 @@ const links = [
   { key: "blog", href: "/admin/dashboard/blog" as const },
   { key: "publications", href: "/admin/posts" as const },
   { key: "write", href: "/admin/posts/new" as const },
-  { key: "configuration", href: "/admin/dashboard/config" as const },
 ];
 
 export function AdminNav({ labels }: AdminNavProps) {
   const pathname = usePathname();
-  if (pathname === "/admin/dashboard/config") return null;
+  if (pathname === "/admin/dashboard" || pathname === "/admin/dashboard/config") return null;
   const labelFor = (key: string) => labels[key as keyof typeof labels];
   const active = (href: string) => pathname === href || (href === "/admin/posts" && pathname.startsWith("/admin/posts/"));
 

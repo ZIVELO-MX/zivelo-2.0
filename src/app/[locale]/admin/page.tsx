@@ -3,5 +3,5 @@ import { getLocale } from "next-intl/server";
 
 export default async function AdminPage() {
   const locale = await getLocale();
-  redirect({ href: "/admin/dashboard/blog", locale });
+  redirect({ href: "/admin/dashboard", locale });
 }
