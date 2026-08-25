@@ -17,7 +17,6 @@ export default async function DashboardConfigPage() {
 
   return (
     <div className="admin-settings-page">
-      <Link className="admin-back-link" href="/admin/dashboard">← {t("backToDashboard")}</Link>
       <div className="admin-settings-layout">
         <aside className="admin-settings-sidebar">
           <nav aria-label={t("configurationNavigation")}>

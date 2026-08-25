@@ -1,25 +1,19 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/navigation";
+import { Logo } from "@/components/logo";
 
-export function AdminHeader({ title, viewBlog, backToDashboard, blogEnabled }: { title: string; viewBlog: string; backToDashboard: string; blogEnabled: boolean }) {
+export function AdminHeader({ backToDashboard }: { backToDashboard: string }) {
   const pathname = usePathname();
-  const isStandaloneAdminPage = pathname.endsWith("/admin/dashboard") || pathname.endsWith("/admin/dashboard/config");
-  const isBlogDashboard = pathname.endsWith("/admin/dashboard/blog");
-  if (isStandaloneAdminPage) return null;
+  const isDashboard = pathname.endsWith("/admin/dashboard");
+  if (isDashboard) return null;
 
   return (
-    <>
-      {isBlogDashboard && <Link className="admin-back-link" href="/admin/dashboard">← {backToDashboard}</Link>}
-      <header className="admin-bar">
-        <div>
-          <span className="eyebrow">ZIVELO</span>
-          <h1 className="h2 admin-bar__title">{title}</h1>
-        </div>
-        <div className="admin-bar__actions">
-          {blogEnabled && <Link className="btn btn--secondary btn--sm" href="/blog" target="_blank">{viewBlog} <span aria-hidden="true">↗</span></Link>}
-        </div>
-      </header>
-    </>
+    <header className="admin-bar admin-simple-header">
+      <Link className="admin-brand" href="/admin/dashboard" aria-label="ZIVELO">
+        <Logo />
+      </Link>
+      <Link className="btn btn--secondary btn--sm" href="/admin/dashboard">← {backToDashboard}</Link>
+    </header>
   );
 }
