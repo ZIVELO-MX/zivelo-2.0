@@ -3,20 +3,23 @@
 import { signOut } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export function LogoutButton() {
+type LogoutButtonProps = {
+  className?: string;
+};
+
+export function LogoutButton({ className }: LogoutButtonProps = {}) {
   const t = useTranslations("Admin");
   const { locale } = useParams<{ locale: string }>();
 
   return (
-    <Button
+    <button
       type="button"
-      variant="outline"
-      size="sm"
+      className={cn("btn btn--secondary", className)}
       onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
     >
       {t("logout")}
-    </Button>
+    </button>
   );
 }

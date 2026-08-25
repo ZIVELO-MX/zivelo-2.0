@@ -379,12 +379,37 @@
   },
   "Admin": {
     "dashboard": "Dashboard",
+    "blog": "Blog",
+    "configuration": "Configuration",
+    "configurationNavigation": "Configuration navigation",
+    "sections": "Sections",
+    "sectionSettingsTitle": "Public sections",
+    "sectionSettingsDescription": "Turn on or off the sections that appear on the public site.",
+    "sectionLabels": {
+      "about": "About",
+      "services": "Services",
+      "projects": "Projects",
+      "process": "Process",
+      "blog": "Blog"
+    },
+    "sectionDescriptions": {
+      "about": "Present who we are and what we value.",
+      "services": "Show ZIVELO solutions and services.",
+      "projects": "Present completed projects and products.",
+      "process": "Explain the team’s way of working.",
+      "blog": "Publish the article archive."
+    },
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "saved": "Configuration saved.",
     "writeAndPublish": "Write and publish",
     "navigation": "Admin navigation",
     "viewBlog": "View my blog",
     "publications": "My publications",
     "write": "Write",
-    "dashboardSummary": "Dashboard summary",
+    "dashboardSummary": "General overview",
+    "overviewTitle": "Panel access",
     "statistics": "Publication statistics",
     "published": "Published",
     "drafts": "Drafts",
@@ -400,6 +425,8 @@
     "edit": "Edit",
     "welcome": "Welcome back,",
     "posts": "Posts",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "backToSite": "Back to site",
+    "backToDashboard": "Back to dashboard"
   }
 }

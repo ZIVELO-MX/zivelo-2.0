@@ -7,6 +7,7 @@ import { CONTACT } from "@/lib/site-constants";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
+import type { SectionVisibility } from "@/lib/site-sections";
 
 type NavKey = "home" | "about" | "services" | "projects" | "process" | "blog" | "contact";
 
@@ -20,7 +21,7 @@ const LINKS = [
   { href: "/contact", key: "contact" as NavKey, n: "07" },
 ] as const;
 
-export function MobileNav() {
+export function MobileNav({ sections }: { sections: SectionVisibility }) {
   const t = useTranslations("Nav");
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement | null>(null);
@@ -50,6 +51,8 @@ export function MobileNav() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
+  const visibleLinks = LINKS.filter((link) => link.key === "home" || link.key === "contact" || sections[link.key as keyof typeof sections]);
+
   return (
     <>
       <button
@@ -75,10 +78,10 @@ export function MobileNav() {
           </button>
         </div>
         <nav className="mobile-nav__links" aria-label={t("openMenu")} ref={sheetRef as never} tabIndex={-1}>
-          {LINKS.map((l) => (
+          {visibleLinks.map((l, index) => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)}>
               <span>{t(l.key)}</span>
-              <span>{l.n}</span>
+              <span>{String(index + 1).padStart(2, "0")}</span>
             </Link>
           ))}
         </nav>

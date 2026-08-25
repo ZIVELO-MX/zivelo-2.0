@@ -7,6 +7,7 @@ import { Reveal } from "@/components/reveal";
 import { HeroLaptop } from "@/components/hero-laptop";
 import { buildMetadata } from "@/lib/seo";
 import { CONTACT, PROJECT_LINKS, PROJECT_COVERS } from "@/lib/site-constants";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await resolveParams(params);
@@ -20,7 +21,10 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 }
 
 export default async function Home() {
-  const t = await getTranslations("Home");
+  const [t, sections] = await Promise.all([
+    getTranslations("Home"),
+    getPublicSectionVisibility(),
+  ]);
 
   return (
     <>
@@ -35,9 +39,9 @@ export default async function Home() {
                 <h1 className="display heroA__title">{t("heroTitle")}</h1>
                 <p className="lead heroA__lead">{t("heroLead")}</p>
                 <div className="heroA__actions">
-                  <Link className="btn btn--primary" href="/projects">
+                  {sections.projects && <Link className="btn btn--primary" href="/projects">
                     {t("heroCtaProjects")} <span className="arrow">→</span>
-                  </Link>
+                  </Link>}
                   <Link className="btn btn--ghost" href="/contact">
                     {t("heroCtaContact")}
                   </Link>
@@ -60,7 +64,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <section className="section bg-surface divider-top" id="services">
+      {sections.services && <section className="section bg-surface divider-top" id="services">
         <div className="container">
           <div className="sec-head">
             <Reveal>
@@ -98,9 +102,9 @@ export default async function Home() {
             </article>
           </Reveal>
         </div>
-      </section>
+      </section>}
 
-      <section className="section" id="work">
+      {sections.projects && <section className="section" id="work">
         <div className="container">
           <div className="sec-head">
             <Reveal>
@@ -163,9 +167,9 @@ export default async function Home() {
             <Link className="btn btn--ghost" href="/projects">{t("viewMoreProjects")} <span className="arrow">→</span></Link>
           </Reveal>
         </div>
-      </section>
+      </section>}
 
-      <section className="section bg-surface">
+      {sections.about && <section className="section bg-surface">
         <div className="container">
           <div className="overview__grid">
             <Reveal>
@@ -181,9 +185,9 @@ export default async function Home() {
             </Reveal>
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section className="section" id="process">
+      {sections.process && <section className="section" id="process">
         <div className="container">
           <div className="sec-head">
             <Reveal>
@@ -202,7 +206,7 @@ export default async function Home() {
             ))}
           </Reveal>
         </div>
-      </section>
+      </section>}
 
       <section className="section bg-surface divider-top" id="stack">
         <div className="container">

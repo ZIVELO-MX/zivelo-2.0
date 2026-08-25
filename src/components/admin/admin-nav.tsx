@@ -6,19 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type AdminNavProps = {
-  labels: { navigation: string; dashboard: string; publications: string; write: string };
+  labels: { navigation: string; blog: string; publications: string; write: string };
 };
 
 const links = [
-  { key: "dashboard", href: "/admin/dashboard" as const },
+  { key: "blog", href: "/admin/dashboard/blog" as const },
   { key: "publications", href: "/admin/posts" as const },
   { key: "write", href: "/admin/posts/new" as const },
 ];
 
 export function AdminNav({ labels }: AdminNavProps) {
   const pathname = usePathname();
+  const adminPathname = pathname.replace(/^\/(?:es|en)(?=\/)/, "");
+  const isStandaloneAdminPage = adminPathname === "/admin/dashboard" || adminPathname === "/admin/dashboard/config";
+  if (isStandaloneAdminPage) return null;
   const labelFor = (key: string) => labels[key as keyof typeof labels];
-  const active = (href: string) => pathname === href || (href === "/admin/posts" && pathname.startsWith("/admin/posts/"));
+  const active = (href: string) => {
+    if (href === "/admin/posts") return adminPathname === href || (adminPathname.startsWith("/admin/posts/") && adminPathname !== "/admin/posts/new");
+    return adminPathname === href;
+  };
 
   return (
     <>

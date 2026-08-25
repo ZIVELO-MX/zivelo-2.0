@@ -4,6 +4,8 @@ import { PageParams, resolveParams } from "@/lib/params";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/reveal";
 import { buildMetadata } from "@/lib/seo";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await resolveParams(params);
@@ -41,6 +43,7 @@ const restaurantIncludeKeys = [
 const posIncludeKeys = ["posInc1", "posInc2", "posInc3", "posInc4"] as const;
 
 export default async function Services() {
+  if (!(await getPublicSectionVisibility()).services) notFound();
   const t = await getTranslations("Services");
 
   return (

@@ -34,7 +34,13 @@ test("serves one SVG favicon on regular and global 404 pages", async ({ page, re
 });
 
 test.describe("protected admin routes", () => {
-  for (const route of ["/es/admin/posts", "/es/admin/posts/nuevo"]) {
+  for (const route of [
+    "/es/admin/dashboard",
+    "/es/admin/dashboard/blog",
+    "/es/admin/dashboard/config",
+    "/es/admin/posts",
+    "/es/admin/posts/nuevo",
+  ]) {
     test(`redirects unauthenticated users from ${route}`, async ({ page }) => {
       await page.goto(route, { waitUntil: "domcontentloaded" });
 

@@ -1,10 +1,11 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { CONTACT } from "@/lib/site-constants";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitch } from "./locale-switch";
 import { MobileNav } from "./mobile-nav";
+import { getPublicSectionVisibility } from "@/lib/site-sections";
 
 const NAV_LINKS = [
   { href: "/", key: "home" as const },
@@ -16,9 +17,13 @@ const NAV_LINKS = [
   { href: "/contact", key: "contact" as const },
 ] as const;
 
-export function SiteHeader() {
-  const t = useTranslations("Nav");
-  const topbar = useTranslations("Topbar");
+export async function SiteHeader() {
+  const [t, topbar, sections] = await Promise.all([
+    getTranslations("Nav"),
+    getTranslations("Topbar"),
+    getPublicSectionVisibility(),
+  ]);
+  const visibleLinks = NAV_LINKS.filter((link) => link.key === "home" || link.key === "contact" || sections[link.key as keyof typeof sections]);
 
   return (
     <>
@@ -45,7 +50,7 @@ export function SiteHeader() {
             </span>
           </Link>
           <nav className="nav__links" aria-label={t("home")}>
-            {NAV_LINKS.map((l) => (
+            {visibleLinks.map((l) => (
               <Link key={l.href} href={l.href}>
                 {t(l.key)}
               </Link>
@@ -57,7 +62,7 @@ export function SiteHeader() {
             <Link className="btn btn--primary btn--sm" href="/contact">
               {t("getInTouch")}
             </Link>
-            <MobileNav />
+            <MobileNav sections={sections} />
           </div>
         </div>
       </header>
