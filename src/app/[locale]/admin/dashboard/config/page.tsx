@@ -17,7 +17,7 @@ export default async function DashboardConfigPage() {
 
   return (
     <div className="admin-settings-page">
-      <Link className="admin-back-link" href="/admin/dashboard">← {t("back")}</Link>
+      <Link className="admin-back-link" href="/admin/dashboard">← {t("backToDashboard")}</Link>
       <div className="admin-settings-layout">
         <aside className="admin-settings-sidebar">
           <nav aria-label={t("configurationNavigation")}>
@@ -25,27 +25,27 @@ export default async function DashboardConfigPage() {
           </nav>
         </aside>
         <section className="admin-settings-content" id="sections" aria-labelledby="sections-title">
-        <div className="admin-section__head">
-          <div>
-            <span className="eyebrow eyebrow--plain">{t("configuration")}</span>
-            <h2 className="h3 admin-section__title" id="sections-title">{t("sections")}</h2>
+          <div className="admin-section__head">
+            <div>
+              <span className="eyebrow eyebrow--plain">{t("configuration")}</span>
+              <h2 className="h3 admin-section__title" id="sections-title">{t("sections")}</h2>
+            </div>
           </div>
-        </div>
-        <SectionSettingsForm
-          initialSections={sections}
-          labels={Object.fromEntries(sectionKeys.map((key) => [key, {
-            title: t(`sectionLabels.${key}`),
-            description: t(`sectionDescriptions.${key}`),
-          }])) as Record<SectionKey, { title: string; description: string }>}
-          copy={{
-            title: t("sectionSettingsTitle"),
-            description: t("sectionSettingsDescription"),
-            save: t("save"),
-            saving: t("saving"),
-            cancel: t("cancel"),
-            saved: t("saved"),
-          }}
-        />
+          <SectionSettingsForm
+            initialSections={sections}
+            labels={Object.fromEntries(sectionKeys.map((key) => [key, {
+              title: t(`sectionLabels.${key}`),
+              description: t(`sectionDescriptions.${key}`),
+            }])) as Record<SectionKey, { title: string; description: string }>}
+            copy={{
+              title: t("sectionSettingsTitle"),
+              description: t("sectionSettingsDescription"),
+              save: t("save"),
+              saving: t("saving"),
+              cancel: t("cancel"),
+              saved: t("saved"),
+            }}
+          />
         </section>
       </div>
     </div>

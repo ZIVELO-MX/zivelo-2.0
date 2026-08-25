@@ -17,10 +17,14 @@ const links = [
 
 export function AdminNav({ labels }: AdminNavProps) {
   const pathname = usePathname();
-  const isStandaloneAdminPage = pathname.endsWith("/admin/dashboard") || pathname.endsWith("/admin/dashboard/config");
+  const adminPathname = pathname.replace(/^\/(?:es|en)(?=\/)/, "");
+  const isStandaloneAdminPage = adminPathname === "/admin/dashboard" || adminPathname === "/admin/dashboard/config";
   if (isStandaloneAdminPage) return null;
   const labelFor = (key: string) => labels[key as keyof typeof labels];
-  const active = (href: string) => pathname === href || (href === "/admin/posts" && pathname.startsWith("/admin/posts/"));
+  const active = (href: string) => {
+    if (href === "/admin/posts") return adminPathname === href || (adminPathname.startsWith("/admin/posts/") && adminPathname !== "/admin/posts/new");
+    return adminPathname === href;
+  };
 
   return (
     <>

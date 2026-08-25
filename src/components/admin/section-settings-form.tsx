@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -111,17 +110,21 @@ export function SectionSettingsForm({
             {message}
           </div>
           <div className="admin-settings-card__actions">
-            <Button
+            <button
+              className="btn btn--primary"
+              type="submit"
+              disabled={pending || !isDirty}
+            >
+              {pending ? copy.saving : copy.save}
+            </button>
+            <button
+              className="btn btn--secondary"
               type="button"
-              variant="outline"
               disabled={pending || !isDirty}
               onClick={() => setSections(savedSections)}
             >
               {copy.cancel}
-            </Button>
-            <Button type="submit" disabled={pending || !isDirty}>
-              {pending ? copy.saving : copy.save}
-            </Button>
+            </button>
           </div>
         </CardFooter>
       </Card>

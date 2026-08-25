@@ -426,6 +426,7 @@
     "welcome": "Welcome back,",
     "posts": "Posts",
     "logout": "Sign out",
-    "back": "Back"
+    "backToSite": "Back to site",
+    "backToDashboard": "Back to dashboard"
   }
 }

@@ -3,8 +3,6 @@ import { getDashboardStats, listAllPosts } from "@/lib/admin-data";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button-variants";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -20,18 +18,11 @@ export default async function DashboardBlogPage() {
   const session = await auth();
   const locale = await getLocale();
   if (!session?.user) redirect({ href: "/login", locale });
-  const user = session!.user!;
   const t = await getTranslations("Admin");
-  const displayName = user.name?.trim() || user.email?.split("@")[0] || "admin";
   const [stats, posts] = await Promise.all([getDashboardStats(), listAllPosts()]);
 
   return (
     <div className="admin-page">
-      <Link className="admin-back-link" href="/admin/dashboard">← {t("back")}</Link>
-      <div className="admin-welcome">
-        <p>{t("welcome")} <strong className="admin-welcome__name">{displayName}</strong></p>
-        <h2 className="h3">{t("dashboardSummary")}</h2>
-      </div>
       <div className="admin-stats" aria-label={t("statistics")}>
         <StatCard label={t("posts")} value={stats.total} />
         <StatCard label={t("published")} value={stats.published} tone="success" />
@@ -43,9 +34,6 @@ export default async function DashboardBlogPage() {
             <span className="eyebrow eyebrow--plain">Archivo</span>
             <h2 className="h3 admin-section__title" id="recent-posts">{t("recentPosts")}</h2>
           </div>
-          <Link className={cn(buttonVariants({ size: "sm" }), "admin-primary-action")} href="/admin/posts/new">
-            {t("newPost")} <span aria-hidden="true">→</span>
-          </Link>
         </div>
         <PostTable posts={posts} locale={locale} t={t} />
       </section>

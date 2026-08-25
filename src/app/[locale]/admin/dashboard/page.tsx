@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { Link, redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { buttonVariants } from "@/components/ui/button-variants";
 import { LogoutButton } from "@/components/logout-button";
 
 export default async function DashboardPage() {
@@ -26,13 +25,13 @@ export default async function DashboardPage() {
           </div>
         </div>
         <div className="admin-overview-links__grid">
-          <Link className={`${buttonVariants({ variant: "outline" })} admin-overview-link`} href="/admin/dashboard/blog">{t("blog")} <span aria-hidden="true">→</span></Link>
-          <Link className={`${buttonVariants({ variant: "outline" })} admin-overview-link`} href="/admin/dashboard/config">{t("configuration")} <span aria-hidden="true">→</span></Link>
+          <Link className="btn btn--secondary admin-overview-link" href="/admin/dashboard/blog">{t("blog")} <span aria-hidden="true">→</span></Link>
+          <Link className="btn btn--secondary admin-overview-link" href="/admin/dashboard/config">{t("configuration")} <span aria-hidden="true">→</span></Link>
         </div>
       </section>
       <div className="admin-dashboard-actions">
-        <Link className={buttonVariants()} href="/">{t("back")}</Link>
-        <LogoutButton className="admin-dashboard-logout" variant="outline" size="default" />
+        <Link className="btn btn--primary" href="/">{t("backToSite")}</Link>
+        <LogoutButton />
       </div>
     </div>
   );

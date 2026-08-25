@@ -426,6 +426,7 @@
     "welcome": "Bienvenido de nuevo,",
     "posts": "Artículos",
     "logout": "Cerrar sesión",
-    "back": "Volver"
+    "backToSite": "Volver al sitio",
+    "backToDashboard": "Volver al panel"
   }
 }

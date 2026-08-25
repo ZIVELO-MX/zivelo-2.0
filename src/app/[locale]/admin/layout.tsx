@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="admin-shell">
       <div className="container admin-container">
-        <AdminHeader title={t("writeAndPublish")} viewBlog={t("viewBlog")} blogEnabled={sections.blog} />
+        <AdminHeader title={t("writeAndPublish")} viewBlog={t("viewBlog")} backToDashboard={t("backToDashboard")} blogEnabled={sections.blog} />
         <AdminNav labels={{ navigation: t("navigation"), blog: t("blog"), publications: t("publications"), write: t("write") }} />
         <main className="admin-content">{children}</main>
       </div>
